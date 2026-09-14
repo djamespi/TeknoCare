@@ -1,0 +1,7 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Sign in | TeknoCare</title><link rel="stylesheet" href="{% static 'css/login/login.css' %}"></head>
+<body>
+<main class="auth-layout"><section class="auth-brand"><p class="eyebrow">UNIVERSITY CLINIC</p><h1>Care that keeps campus moving.</h1><p>Sign in to access your TeknoCare health workspace.</p></section><section class="auth-card"><p class="eyebrow">WELCOME BACK</p><h2>Sign in</h2>{% if error %}<p class="error">{{ error }}</p>{% endif %}<form method="post">{% csrf_token %}<label for="university_id">University ID</label><input id="university_id" name="university_id" type="text" autocomplete="username" required><label for="password">Password</label><input id="password" name="password" type="password" autocomplete="current-password" required><button type="submit">Sign in</button></form><p class="auth-link">New to TeknoCare? <a href="{% url 'register:register' %}">Create an account</a></p></section></main><script src="{% static 'js/login/login.js' %}"></script>
+</body></html>

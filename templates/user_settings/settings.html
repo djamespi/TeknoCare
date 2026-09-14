@@ -1,0 +1,5 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Settings | TeknoCare</title><link rel="stylesheet" href="{% static 'css/user_settings/user_settings.css' %}"></head>
+<body><header class="topbar"><a class="brand" href="{% url 'home:home' %}">TeknoCare</a><nav><a href="{% url 'home:home' %}">Home</a><a href="{% url 'profile:profile' %}">Profile</a></nav></header><main class="screen-shell"><p class="eyebrow">PREFERENCES</p><h1>Settings</h1><p class="lead">Make TeknoCare work the way you prefer.</p><section class="form-card"><form method="post">{% csrf_token %}{{ form.as_p }}<button type="submit">Save settings</button></form></section></main><script src="{% static 'js/user_settings/user_settings.js' %}"></script></body></html>

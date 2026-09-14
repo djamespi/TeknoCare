@@ -1,0 +1,8 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Home | TeknoCare</title><link rel="stylesheet" href="{% static 'css/home/home.css' %}"></head>
+<body>
+<header class="topbar"><a class="brand" href="{% url 'home:home' %}">TeknoCare</a><nav><a href="{% url 'profile:profile' %}">Profile</a><a href="{% url 'user_settings:settings' %}">Settings</a><a href="{% url 'admin:logout' %}">Sign out</a></nav></header>
+<main class="home-shell"><p class="eyebrow">YOUR CLINIC SPACE</p><h1>Good to see you, {{ request.user.first_name|default:request.user.username }}.</h1><p class="lead">Your university health services, organized around you.</p><section class="home-grid"><a class="feature-panel panel-primary" href="{% url 'profile:profile' %}"><span class="panel-kicker">YOUR DETAILS</span><h2>Profile</h2><p>Keep your personal information current for clinic visits.</p><span class="arrow">&rarr;</span></a><a class="feature-panel panel-light" href="{% url 'user_settings:settings' %}"><span class="panel-kicker">PREFERENCES</span><h2>Settings</h2><p>Choose how TeknoCare keeps you informed.</p><span class="arrow">&rarr;</span></a></section></main><script src="{% static 'js/home/home.js' %}"></script>
+</body></html>
