@@ -1,7 +1,6 @@
 from django import forms
-from django.contrib.auth.models import User
 
-from apps.profile.models import Profile
+from .models import Patient, User
 
 
 class RegistrationForm(forms.Form):
@@ -9,14 +8,17 @@ class RegistrationForm(forms.Form):
     first_name = forms.CharField(label="First name", max_length=150)
     last_name = forms.CharField(label="Last name", max_length=150)
     email = forms.EmailField(required=True)
-    age = forms.IntegerField(label="Age", min_value=1, max_value=120)
-    home_address = forms.CharField(label="Home address", widget=forms.Textarea(attrs={"rows": 3}))
+    emergency_contact = forms.CharField(label="Emergency contact", max_length=100)
+    medical_history_summary = forms.CharField(
+        label="Medical history summary",
+        widget=forms.Textarea(attrs={"rows": 3}),
+    )
     password1 = forms.CharField(label="Password", widget=forms.PasswordInput)
     password2 = forms.CharField(label="Confirm password", widget=forms.PasswordInput)
 
     def clean_university_id(self):
         university_id = self.cleaned_data["university_id"].strip()
-        if User.objects.filter(username=university_id).exists():
+        if User.objects.filter(school_id=university_id).exists():
             raise forms.ValidationError("That University ID is already registered.")
         return university_id
 
@@ -28,15 +30,18 @@ class RegistrationForm(forms.Form):
 
     def save(self):
         user = User.objects.create_user(
-            username=self.cleaned_data["university_id"],
-            first_name=self.cleaned_data["first_name"],
-            last_name=self.cleaned_data["last_name"],
+            school_id=self.cleaned_data["university_id"],
+            fname=self.cleaned_data["first_name"],
+            lname=self.cleaned_data["last_name"],
             email=self.cleaned_data["email"],
             password=self.cleaned_data["password1"],
+            user_type=User.UserType.PATIENT,
+            account_status=User.AccountStatus.ACTIVE,
         )
-        Profile.objects.create(
-            user=user,
-            age=self.cleaned_data["age"],
-            home_address=self.cleaned_data["home_address"],
+        Patient.objects.create(
+            patient=user,
+            emergency_contact=self.cleaned_data["emergency_contact"],
+            medical_history_summary=self.cleaned_data["medical_history_summary"],
+            no_show_count=0,
         )
         return user

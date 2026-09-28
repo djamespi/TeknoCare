@@ -1,6 +1,7 @@
-from django.contrib.auth.models import User
 from django.test import TestCase
 from django.urls import reverse
+
+from .models import Patient, User
 
 
 class RegisterFeatureTests(TestCase):
@@ -12,23 +13,32 @@ class RegisterFeatureTests(TestCase):
                 "first_name": "Alex",
                 "last_name": "Student",
                 "email": "alex@example.com",
-                "age": 20,
-                "home_address": "12 Campus Road",
+                "emergency_contact": "09171234567",
+                "medical_history_summary": "No known allergies",
                 "password1": "test-password-123",
                 "password2": "test-password-123",
             },
         )
 
         self.assertRedirects(response, reverse("login:login"))
-        user = User.objects.get(username="2026-0002")
-        self.assertEqual(user.first_name, "Alex")
-        self.assertEqual(user.last_name, "Student")
+        user = User.objects.get(school_id="2026-0002")
+        self.assertEqual(user.fname, "Alex")
+        self.assertEqual(user.lname, "Student")
         self.assertEqual(user.email, "alex@example.com")
-        self.assertEqual(user.clinic_profile.age, 20)
-        self.assertEqual(user.clinic_profile.home_address, "12 Campus Road")
+        self.assertEqual(user.user_type, User.UserType.PATIENT)
+        self.assertEqual(user.patient_profile.emergency_contact, "09171234567")
+        self.assertIsInstance(user.patient_profile, Patient)
 
     def test_duplicate_university_id_is_rejected(self):
-        User.objects.create_user(username="2026-0002", password="test-password-123")
+        User.objects.create_user(
+            school_id="2026-0002",
+            email="existing@example.com",
+            fname="Existing",
+            lname="Student",
+            password="test-password-123",
+            user_type=User.UserType.PATIENT,
+            account_status=User.AccountStatus.ACTIVE,
+        )
 
         response = self.client.post(
             reverse("register:register"),
@@ -37,8 +47,8 @@ class RegisterFeatureTests(TestCase):
                 "first_name": "Alex",
                 "last_name": "Student",
                 "email": "alex@example.com",
-                "age": 20,
-                "home_address": "12 Campus Road",
+                "emergency_contact": "09171234567",
+                "medical_history_summary": "No known allergies",
                 "password1": "test-password-123",
                 "password2": "test-password-123",
             },
