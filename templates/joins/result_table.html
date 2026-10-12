@@ -1,0 +1,11 @@
+<div class="table-scroll result-table"><table>
+  <caption>{{ caption }}</caption>
+  <thead><tr><th>patient_id</th><th>Patient</th><th>appointment_id</th><th>Appointment's patient_id</th><th>Reason</th><th>Status</th></tr></thead>
+  <tbody>{% for row in rows %}<tr{% if row.appointment_id == None %} class="unmatched"{% endif %}>
+    <td>{{ row.patient_id }}</td><td>{{ row.patient_name }}</td>
+    <td>{% if row.appointment_id == None %}<span class="null-value">NULL</span>{% else %}{{ row.appointment_id }}{% endif %}</td>
+    <td>{% if row.appointment_patient_id == None %}<span class="null-value">NULL</span>{% else %}{{ row.appointment_patient_id }}{% endif %}</td>
+    <td>{% if row.reason_for_visit == None %}<span class="null-value">NULL</span>{% else %}{{ row.reason_for_visit }}{% endif %}</td>
+    <td>{% if row.status == None %}<span class="null-value">NULL</span>{% else %}{{ row.status }}{% endif %}</td>
+  </tr>{% empty %}<tr><td colspan="6">No rows returned. Check the sample setup.</td></tr>{% endfor %}</tbody>
+</table></div>

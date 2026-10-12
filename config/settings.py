@@ -46,6 +46,9 @@ INSTALLED_APPS = [
     'apps.login',
     'apps.register',
     'apps.home',
+    'apps.profile',
+    'apps.user_settings',
+    'apps.joins',
 ]
 
 MIDDLEWARE = [

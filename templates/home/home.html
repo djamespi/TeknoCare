@@ -1,8 +1,27 @@
 {% load static %}
 <!DOCTYPE html>
 <html lang="en">
-<head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Home | TeknoCare</title><link rel="stylesheet" href="{% static 'css/home/home.css' %}"></head>
+<head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Dashboard | TeknoCare</title><link rel="stylesheet" href="{% static 'css/home/home.css' %}"></head>
 <body>
-<header class="topbar"><a class="brand" href="{% url 'home:home' %}">TeknoCare</a><nav><a href="{% url 'logout' %}">Sign out</a></nav></header>
-<main class="home-shell"><p class="eyebrow">YOUR CLINIC SPACE</p><h1>Good to see you, {{ request.user.fname|default:request.user.school_id }}.</h1><p class="lead">Your university health services, organized around you.</p></main><script src="{% static 'js/home/home.js' %}"></script>
+{% include 'includes/navigation.html' %}
+<main class="home-shell">
+  <p class="eyebrow">YOUR DASHBOARD</p>
+  <h1>Good to see you, {{ request.user.fname|default:request.user.school_id }}.</h1>
+  <p class="lead">Your university health services, organized around you.</p>
+  <section class="home-grid" aria-label="Your clinic account">
+    <a class="feature-panel panel-primary" href="{% url 'profile:profile' %}">
+      <span class="panel-kicker">YOUR DETAILS</span>
+      <h2>Your profile</h2>
+      <p>Update your name, age, home address, and bio for the clinic team.</p>
+      <span class="arrow" aria-hidden="true">&rarr;</span>
+    </a>
+    <a class="feature-panel panel-light" href="{% url 'user_settings:settings' %}">
+      <span class="panel-kicker">YOUR PREFERENCES</span>
+      <h2>Settings</h2>
+      <p>Manage your display and email notification preferences.</p>
+      <span class="arrow" aria-hidden="true">&rarr;</span>
+    </a>
+  </section>
+</main>
+<script src="{% static 'js/home/home.js' %}"></script>
 </body></html>

@@ -1,0 +1,63 @@
+@import url('../profile/profile.css');
+
+html { scroll-behavior: smooth; }
+.join-shell { max-width: 1250px; margin: 0 auto; padding: 56px 28px 80px; }
+.page-heading, .section-heading { display: flex; align-items: center; justify-content: space-between; gap: 24px; }
+.page-heading h1 { font-size: clamp(2.3rem, 4.5vw, 4rem); margin: 14px 0; line-height: 1.08; }
+.join-shell p, .join-shell li { font: 1rem/1.7 Arial, sans-serif; }
+.join-shell .eyebrow { font: bold .7rem Arial, sans-serif; letter-spacing: .18em; }
+.join-shell h2 { font-size: 2.2rem; margin: 12px 0 18px; }
+.join-shell h3 { font: bold 1rem Arial, sans-serif; margin: 24px 0 14px; }
+.database-badge, .result-count, .verification-badge { border: 1px solid var(--line); border-radius: 24px; padding: 10px 16px; white-space: nowrap; font: bold .8rem Arial, sans-serif; }
+.sample-notice { color: var(--muted); font-size: .85rem !important; }
+.section-links { display: flex; flex-wrap: wrap; gap: 12px; margin: 28px 0; }
+.section-links a { border: 1px solid var(--line); background: white; padding: 12px 18px; color: var(--teal); font: bold .8rem Arial, sans-serif; text-decoration: none; }
+.section-links a:hover { border-color: var(--teal); }
+.activity-section { scroll-margin-top: 24px; background: white; border: 1px solid var(--line); margin-top: 24px; padding: 32px; }
+.setup-notice { background: #fff3dc; border-left: 4px solid #9a6821; padding: 20px 24px; font-family: Arial, sans-serif; }
+.setup-notice p { margin-bottom: 0; }
+.relationship { display: flex; flex-wrap: wrap; align-items: center; gap: 16px; margin: 28px 0; }
+.relationship span { background: var(--paper); border: 1px solid var(--line); padding: 16px 24px; font: bold 1rem Arial, sans-serif; }
+.relationship small { display: block; font: .8rem monospace; color: var(--muted); margin-top: 8px; }
+.relationship b { font: bold .8rem Arial, sans-serif; color: var(--teal); }
+.source-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; }
+.source-card { min-width: 0; }
+.count { margin-left: 8px; color: var(--teal); }
+.table-scroll { overflow-x: auto; }
+table { width: 100%; border-collapse: collapse; text-align: left; font: .85rem/1.5 Arial, sans-serif; }
+caption { text-align: left; color: var(--muted); font-size: .8rem; padding-bottom: 12px; }
+th { background: var(--paper); font-size: .75rem; }
+th, td { padding: 12px 14px; border-bottom: 1px solid var(--line); vertical-align: top; }
+.result-table { margin-top: 24px; }
+.result-table table { min-width: 720px; }
+.result-table th:first-child, .result-table td:first-child { padding-left: 12px; }
+.unmatched { background: #fff4de; }
+.null-value { color: #875917; font: bold .8rem monospace; }
+.join-question { color: var(--teal); font-weight: bold !important; }
+pre { overflow-x: auto; background: #19343d; color: #f4f8f7; padding: 24px; font: .85rem/1.6 Consolas, monospace; border-radius: 4px; }
+code { font-family: Consolas, monospace; overflow-wrap: anywhere; }
+pre code { overflow-wrap: normal; }
+.explanation { margin-top: 24px; border-left: 3px solid var(--teal); padding-left: 20px; }
+.explanation ul { padding-left: 22px; }
+.interpretation { background: var(--paper); padding: 16px 20px; }
+.parameters ol { display: grid; grid-template-columns: 1fr 1fr; column-gap: 24px; padding-left: 24px; }
+.parameters li { font-size: .85rem; }
+.passed { color: #155d4c; background: #e6f4ed; }
+.pending { color: #875917; background: #fff4de; }
+.check-list { list-style: none; padding: 0; }
+.check-list li { padding: 12px 0; border-bottom: 1px solid var(--line); }
+.check-list strong { display: inline-block; font: bold .75rem Arial, sans-serif; width: 48px; }
+.pass-label { color: #155d4c; }
+.fail-label { color: #975c14; }
+.references a { color: var(--teal); }
+a:focus-visible { outline: 3px solid var(--teal); outline-offset: 4px; }
+@media (max-width: 850px) {
+  .page-heading, .section-heading { align-items: flex-start; flex-direction: column; gap: 4px; }
+  .source-grid, .parameters ol { grid-template-columns: 1fr; }
+}
+@media (max-width: 600px) {
+  .join-shell { padding: 32px 16px 48px; }
+  .activity-section { padding: 22px 16px; }
+  .join-shell h2 { font-size: 1.9rem; }
+  pre { padding: 16px; font-size: .75rem; }
+}

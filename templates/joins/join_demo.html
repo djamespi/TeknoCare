@@ -1,0 +1,137 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>SQL joins | TeknoCare</title>
+  <link rel="stylesheet" href="{% static 'css/joins/joins.css' %}">
+</head>
+<body>
+{% include 'includes/navigation.html' %}
+<main class="join-shell">
+  <div class="page-heading">
+    <div>
+      <p class="eyebrow">SQL JOIN ACTIVITY / TEKNOCARE</p>
+      <h1>Patients &amp; appointments</h1>
+      <p class="lead">The same clinic data. Two ways to answer a different question.</p>
+    </div>
+    <span class="database-badge">Database: {{ database_vendor }}</span>
+  </div>
+  <p class="sample-notice">Fictional learning records only. No real patient records are displayed on this page.</p>
+  <nav class="section-links" aria-label="Activity sections">
+    <a href="#sample-data">Sample data</a><a href="#inner-join">INNER JOIN</a>
+    <a href="#left-join">LEFT JOIN</a><a href="#verification">Verification</a>
+  </nav>
+
+  {% if not verified %}
+  <aside class="setup-notice">
+    <strong>The expected sample dataset is not ready.</strong>
+    <p>Run <code>python manage.py seed_join_demo</code> in the project's virtual environment, then refresh.
+    If the command reports a conflict, check the reserved sample records before changing anything.</p>
+  </aside>
+  {% endif %}
+
+  <section id="sample-data" class="activity-section">
+    <p class="eyebrow">01 / THE RELATIONSHIP</p>
+    <h2>One patient can have many appointments</h2>
+    <p>The patient's primary key, <code>patient.patient_id</code>, matches the foreign key
+      <code>appointment.patient_id</code>. The <code>"user"</code> table supplies each patient's name.</p>
+    <div class="relationship" aria-label="User to patient is one-to-one; patient to appointment is one-to-many">
+      <span>User <small>user_id</small></span><b>1 &rarr; 1</b>
+      <span>Patient <small>patient_id</small></span><b>1 &rarr; many</b>
+      <span>Appointment <small>patient_id (FK)</small></span>
+    </div>
+    <div class="source-grid">
+      <div class="source-card">
+        <h3>Sample patients <span class="count">{{ patients|length }}</span></h3>
+        <div class="table-scroll"><table>
+          <caption>Patient rows, with names from their linked user accounts</caption>
+          <thead><tr><th>patient_id</th><th>Patient</th><th>School ID</th></tr></thead>
+          <tbody>{% for patient in patients %}<tr>
+            <td>{{ patient.patient_id }}</td><td>{{ patient.patient_name }}</td><td>{{ patient.school_id }}</td>
+          </tr>{% empty %}<tr><td colspan="3">No sample patients yet.</td></tr>{% endfor %}</tbody>
+        </table></div>
+      </div>
+      <div class="source-card">
+        <h3>Sample appointments <span class="count">{{ appointments|length }}</span></h3>
+        <div class="table-scroll"><table>
+          <caption>Appointments belonging to the sample patients</caption>
+          <thead><tr><th>appointment_id</th><th>patient_id (FK)</th><th>Reason</th></tr></thead>
+          <tbody>{% for appointment in appointments %}<tr>
+            <td>{{ appointment.appointment_id }}</td><td>{{ appointment.appointment_patient_id }}</td>
+            <td>{{ appointment.reason_for_visit }}</td>
+          </tr>{% empty %}<tr><td colspan="3">No sample appointments yet.</td></tr>{% endfor %}</tbody>
+        </table></div>
+      </div>
+    </div>
+    <p class="interpretation">Ana has <strong>two</strong> appointments, Ben has <strong>one</strong>,
+      and Carlo has <strong>none</strong>. Their IDs are assigned by the database; they need not start at 1.</p>
+  </section>
+
+  <section id="inner-join" class="activity-section">
+    <div class="section-heading"><div><p class="eyebrow">02 / MATCHING ROWS ONLY</p>
+      <h2>INNER JOIN</h2></div><span class="result-count">{{ inner_rows|length }} result rows</span></div>
+    <p class="join-question">Which sample patients have appointments?</p>
+    <p>Return one row for each matching patient-appointment pair. A patient with no matching appointment is excluded.</p>
+    <h3>SQL executed by Django</h3>
+    <pre><code>{{ inner_sql }}</code></pre>
+    {% include 'joins/result_table.html' with rows=inner_rows caption='INNER JOIN results: only matching patient-appointment pairs' %}
+    <div class="explanation">
+      <h3>Why these rows appear</h3>
+      <ul><li><strong>Ana Reyes appears twice:</strong> each appointment is a separate matching pair.</li>
+        <li><strong>Ben Santos appears once:</strong> he has one matching appointment.</li>
+        <li><strong>Carlo Lim is excluded:</strong> there is no appointment with his patient ID.</li></ul>
+      <p>Expected: <strong>3 rows</strong> for <strong>2 distinct patients</strong>.
+        Repeated names are correct; <code>DISTINCT</code> is unnecessary for this appointment-level report.</p>
+    </div>
+  </section>
+
+  <section id="left-join" class="activity-section">
+    <div class="section-heading"><div><p class="eyebrow">03 / KEEP EVERY SAMPLE PATIENT</p>
+      <h2>LEFT JOIN</h2></div><span class="result-count">{{ left_rows|length }} result rows</span></div>
+    <p class="join-question">Which appointments does each sample patient have, including patients with none?</p>
+    <p>Keep every patient from the left side. If no appointment matches, the appointment columns contain SQL <code>NULL</code>.</p>
+    <h3>SQL executed by Django</h3>
+    <pre><code>{{ left_sql }}</code></pre>
+    {% include 'joins/result_table.html' with rows=left_rows caption='LEFT JOIN results: all sample patients, including Carlo with NULL appointment columns' %}
+    <div class="explanation">
+      <h3>Why the extra row appears</h3>
+      <p>Ana still appears twice and Ben once. <strong>Carlo is retained</strong> as a fourth row,
+        with <code>NULL</code> appointment ID, appointment patient ID, reason, and status.
+        This means no matching appointment exists; it does not insert an empty appointment into the database.</p>
+      <p>The <code>WHERE</code> clause filters only the fictional user accounts.
+        A condition such as <code>WHERE a.status = 'Scheduled'</code> would discard Carlo's NULL row.
+        To retain all patients while matching only scheduled appointments, place that condition in <code>ON</code>.</p>
+    </div>
+  </section>
+
+  <section class="activity-section parameters">
+    <p class="eyebrow">04 / HOW THE QUERY RUNS</p><h2>Parameters &amp; table names</h2>
+    <p>Both statements use the same six parameter values, in this order:</p>
+    <ol>{% for value in query_params %}<li><code>{{ value }}</code></li>{% endfor %}</ol>
+    <p>Django passes these values separately with <code>cursor.execute(sql, params)</code>.
+      The <code>%s</code> placeholders are unquoted. The statements above are the actual raw SQL used,
+      rather than SQL guessed from an ORM filter.</p>
+    <p>Both examples use <code>INNER JOIN "user"</code> to retrieve names because every patient has a required user.
+      The join being compared is <strong>Patient &rarr; Appointment</strong>.
+      TeknoCare declares the table names <code>patient</code>, <code>appointment</code>, and <code>user</code> explicitly.
+      Double quotes distinguish the <code>"user"</code> table from PostgreSQL's <code>USER</code> keyword.</p>
+  </section>
+
+  <section id="verification" class="activity-section">
+    <div class="section-heading"><div><p class="eyebrow">05 / CHECK THE OUTPUT</p><h2>Live verification</h2></div>
+      <span class="verification-badge {% if verified %}passed{% else %}pending{% endif %}">{% if verified %}All checks passed{% else %}Check sample setup{% endif %}</span></div>
+    <ul class="check-list">{% for check in checks %}<li>
+      <strong class="{% if check.passed %}pass-label{% else %}fail-label{% endif %}">{% if check.passed %}PASS{% else %}FAIL{% endif %}</strong>
+      {{ check.label }}
+    </li>{% endfor %}</ul>
+    <p>Results are read from the current database on every visit. Opening this page does not create or modify records.
+      The selected joins work on PostgreSQL and SQLite without a join emulation.</p>
+    <p class="references">References:
+      <a href="https://www.postgresql.org/docs/current/queries-table-expressions.html#QUERIES-JOIN">PostgreSQL joined tables</a>
+      &middot; <a href="https://docs.djangoproject.com/en/4.2/topics/db/sql/#executing-custom-sql-directly">Django raw SQL</a></p>
+  </section>
+</main>
+</body>
+</html>

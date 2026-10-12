@@ -1,0 +1,10 @@
+<header class="topbar">
+  <a class="brand" href="{% url 'home:home' %}">TeknoCare</a>
+  <nav aria-label="Main navigation">
+    <a href="{% url 'home:home' %}"{% if request.resolver_match.namespace == 'home' %} aria-current="page"{% endif %}>Dashboard</a>
+    <a href="{% url 'profile:profile' %}"{% if request.resolver_match.namespace == 'profile' %} aria-current="page"{% endif %}>Profile</a>
+    <a href="{% url 'user_settings:settings' %}"{% if request.resolver_match.namespace == 'user_settings' %} aria-current="page"{% endif %}>Settings</a>
+    <a href="{% url 'joins:demo' %}"{% if request.resolver_match.namespace == 'joins' %} aria-current="page"{% endif %}>SQL joins</a>
+    <a href="{% url 'logout' %}">Sign out</a>
+  </nav>
+</header>
