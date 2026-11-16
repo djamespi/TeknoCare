@@ -5,6 +5,16 @@ for future work; check the relevant source files and Git status before making
 changes. The working tree includes the dashboard/profile/settings fixes from
 this conversation, which have not been committed as of this review.
 
+## Development evidence workflow
+
+After each meaningful repository change, tell the user whether they should commit
+and push, and whether screenshots are needed for their instructor's development
+evidence. For created or modified application interfaces, request readable
+screenshots of the actual running screens in `APPLICATION_SCREENSHOTS`.
+Documentation/ERD-only changes should be committed and pushed, but do not require
+application screenshots. GitHub commit-history screenshots are collected for the
+final submission. Keep `BASELINE_COMMIT.txt` unchanged.
+
 ## Purpose and stack
 
 TeknoCare is a university clinic web application. Current public registration
