@@ -115,6 +115,8 @@ Domain: Scheduling
 |  | `room_number` | `varchar(20)` | NN |  |
 |  | `is_active` | `boolean` | NN |  |
 
+Composite UNIQUE: `(campus, building, room_number)`.
+
 ## `slot`
 
 Domain: Scheduling
@@ -153,6 +155,7 @@ Domain: Clinical care
 | FK | `patient_id` | `integer` | NN | `patient.patient_id` |
 | FK | `provider_id` | `integer` | NN | `provider.provider_id` |
 |  | `chief_complaint` | `text` | NN |  |
+|  | `affiliation_at_visit` | `varchar(10)` | NN |  |
 |  | `symptoms` | `text` | NULL |  |
 |  | `examination_notes` | `text` | NULL |  |
 |  | `treatment_plan` | `text` | NULL |  |
@@ -186,9 +189,11 @@ Domain: Clinical care
 | Key | Column | PostgreSQL type | Nullability | References |
 | --- | --- | --- | --- | --- |
 | PK | `diagnosis_id` | `integer` | NN |  |
-| UQ | `code` | `varchar(20)` | NN |  |
+|  | `code` | `varchar(20)` | NN |  |
 |  | `description` | `varchar(255)` | NN |  |
 |  | `coding_system` | `varchar(30)` | NN |  |
+
+Composite UNIQUE: `(coding_system, code)`.
 
 ## `record_diagnosis`
 
@@ -256,6 +261,43 @@ Domain: Clinical care
 |  | `reason` | `text` | NN |  |
 |  | `status` | `varchar(12)` | NN |  |
 |  | `referred_at` | `timestamptz` | NN |  |
+
+## `academic_term`
+
+Domain: Tuition charges
+
+| Key | Column | PostgreSQL type | Nullability | References |
+| --- | --- | --- | --- | --- |
+| PK | `term_id` | `integer` | NN |  |
+|  | `academic_year` | `varchar(9)` | NN |  |
+|  | `semester` | `varchar(20)` | NN |  |
+|  | `start_date` | `date` | NN |  |
+|  | `end_date` | `date` | NN |  |
+|  | `is_open_for_charges` | `boolean` | NN |  |
+
+Composite UNIQUE: `(academic_year, semester)`.
+
+## `student_charge`
+
+Domain: Tuition charges
+
+| Key | Column | PostgreSQL type | Nullability | References |
+| --- | --- | --- | --- | --- |
+| PK | `charge_id` | `integer` | NN |  |
+| UQ | `charge_code` | `varchar(40)` | NN |  |
+| FK | `record_id` | `integer` | NN | `medical_record.record_id` |
+| FK | `term_id` | `integer` | NN | `academic_term.term_id` |
+| FK | `created_by_user_id` | `integer` | NN | `user.user_id` |
+|  | `description` | `varchar(255)` | NN |  |
+|  | `amount` | `numeric(12,2)` | NN |  |
+|  | `currency_code` | `char(3)` | NN |  |
+|  | `status` | `varchar(10)` | NN |  |
+|  | `billing_reference` | `varchar(100)` | NULL |  |
+|  | `reversal_reference` | `varchar(100)` | NULL |  |
+|  | `created_at` | `timestamptz` | NN |  |
+|  | `posted_at` | `timestamptz` | NULL |  |
+|  | `voided_at` | `timestamptz` | NULL |  |
+|  | `void_reason` | `text` | NULL |  |
 
 ## `audit_log`
 

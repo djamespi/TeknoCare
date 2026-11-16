@@ -13,6 +13,7 @@ DOMAINS = {
     "booking": ("Scheduling", "#365ca1", "#f0f4fc"),
     "clinical": ("Clinical care", "#77519b", "#f7f2fb"),
     "medicine": ("Prescriptions", "#a36826", "#fcf5e9"),
+    "billing": ("Tuition charges", "#9a4864", "#fcf0f4"),
     "operations": ("Accountability", "#596674", "#f2f4f6"),
 }
 
@@ -126,6 +127,7 @@ FK,UQ | appointment_id | integer | NULL
 FK | patient_id | integer | NN
 FK | provider_id | integer | NN
  | chief_complaint | text | NN
+ | affiliation_at_visit | varchar(10) | NN
  | symptoms | text | NULL
  | examination_notes | text | NULL
  | treatment_plan | text | NULL
@@ -151,7 +153,7 @@ FK | recorded_by_user_id | integer | NN
 )
 table("diagnosis", "clinical", """
 PK | diagnosis_id | integer | NN
-UQ | code | varchar(20) | NN
+ | code | varchar(20) | NN
  | description | varchar(255) | NN
  | coding_system | varchar(30) | NN
 """
@@ -203,6 +205,33 @@ FK | referred_by_provider_id | integer | NN
  | referred_at | timestamptz | NN
 """
 )
+table("academic_term", "billing", """
+PK | term_id | integer | NN
+ | academic_year | varchar(9) | NN
+ | semester | varchar(20) | NN
+ | start_date | date | NN
+ | end_date | date | NN
+ | is_open_for_charges | boolean | NN
+"""
+)
+table("student_charge", "billing", """
+PK | charge_id | integer | NN
+UQ | charge_code | varchar(40) | NN
+FK | record_id | integer | NN
+FK | term_id | integer | NN
+FK | created_by_user_id | integer | NN
+ | description | varchar(255) | NN
+ | amount | numeric(12,2) | NN
+ | currency_code | char(3) | NN
+ | status | varchar(10) | NN
+ | billing_reference | varchar(100) | NULL
+ | reversal_reference | varchar(100) | NULL
+ | created_at | timestamptz | NN
+ | posted_at | timestamptz | NULL
+ | voided_at | timestamptz | NULL
+ | void_reason | text | NULL
+"""
+)
 table("audit_log", "operations", """
 PK | log_id | integer | NN
 FK | actor_user_id | integer | NULL
@@ -240,10 +269,28 @@ RELATIONS = [
     ("referral", "record_id", "medical_record", "record_id", "0..*"),
     ("referral", "referred_by_provider_id", "provider", "provider_id", "0..*"),
     ("audit_log", "actor_user_id", "user", "user_id", "0..*"),
+    ("student_charge", "record_id", "medical_record", "record_id", "0..*"),
+    ("student_charge", "term_id", "academic_term", "term_id", "0..*"),
+    ("student_charge", "created_by_user_id", "user", "user_id", "0..*"),
 ]
+
+# Composite uniqueness is in addition to the single-column UQ markers.
+UNIQUE_GROUPS = {
+    "clinic_room": [("campus", "building", "room_number")],
+    "diagnosis": [("coding_system", "code")],
+    "academic_term": [("academic_year", "semester")],
+}
 
 
 def validate():
+    for name, (domain, rows) in TABLES.items():
+        assert domain in DOMAINS
+        assert len({r[1] for r in rows}) == len(rows), f"Duplicate column in {name}"
+        assert any("PK" in r[0] for r in rows), f"Missing PK: {name}"
+        assert all(r[3] in ("NN", "NULL") for r in rows)
+        assert all(r[3] == "NN" for r in rows if "PK" in r[0])
+        for group in UNIQUE_GROUPS.get(name, []):
+            assert set(group) <= {r[1] for r in rows}
     fks = {(t, r[1]) for t, (_, rows) in TABLES.items() for r in rows if "FK" in r[0]}
     assert len(RELATIONS) == len(fks)
     assert {(r[0], r[1]) for r in RELATIONS} == fks
@@ -252,6 +299,9 @@ def validate():
         target = next(r for r in TABLES[parent][1] if r[1] == pk)
         assert row[2] == target[2] and "PK" in target[0]
         assert cardinality in ("0..1", "0..*")
+        unique_fk = "PK" in row[0] and sum("PK" in r[0] for r in TABLES[child][1]) == 1
+        unique_fk = unique_fk or "UQ" in row[0]
+        assert (cardinality == "0..1") == unique_fk, f"Cardinality mismatch: {child}.{col}"
 
 
 def html_table(name):
@@ -263,6 +313,9 @@ def html_table(name):
     for key, col, typ, null in rows:
         parts.append(f'<TR><TD>{escape(key) or " "}</TD><TD PORT="{col}" ALIGN="LEFT">{escape(col)}</TD>'
                      f'<TD ALIGN="LEFT">{escape(typ)}</TD><TD>{null}</TD></TR>')
+    for group in UNIQUE_GROUPS.get(name, []):
+        parts.append('<TR><TD COLSPAN="4" ALIGN="LEFT"><FONT POINT-SIZE="10">'
+                     f'UNIQUE ({escape(", ".join(group))})</FONT></TD></TR>')
     return "".join(parts) + "</TABLE>"
 
 
@@ -278,9 +331,11 @@ def build():
              '<FONT POINT-SIZE="12">Relationship ends: 1 = exactly one   0..1 = optional one   0..* = zero or more</FONT><BR ALIGN="LEFT"/>'
              '<FONT POINT-SIZE="12">Each solid line represents a foreign key. Composite PK: record_diagnosis(record_id, diagnosis_id).</FONT><BR ALIGN="LEFT"/>'
              '<FONT POINT-SIZE="12">Slot may retain canceled bookings; only one non-canceled appointment per slot. See README for constraints.</FONT><BR ALIGN="LEFT"/>'
+             '<FONT POINT-SIZE="12">Student charges post to tuition; Faculty/Staff visits are free. Posted means billed, not paid.</FONT><BR ALIGN="LEFT"/>'
              '<FONT POINT-SIZE="12">Design proposal: application models and database have not been migrated.</FONT><BR ALIGN="LEFT"/><BR ALIGN="LEFT"/>'
              '<FONT POINT-SIZE="12" COLOR="#117c77">Teal: patients</FONT>  |  <FONT POINT-SIZE="12" COLOR="#365ca1">Blue: scheduling</FONT>  |  '
-             '<FONT POINT-SIZE="12" COLOR="#77519b">Purple: clinical</FONT>  |  <FONT POINT-SIZE="12" COLOR="#a36826">Amber: prescriptions</FONT>>;']
+             '<FONT POINT-SIZE="12" COLOR="#77519b">Purple: clinical</FONT>  |  <FONT POINT-SIZE="12" COLOR="#a36826">Amber: prescriptions</FONT>  |  '
+             '<FONT POINT-SIZE="12" COLOR="#9a4864">Rose: tuition charges</FONT>>;']
     for name in TABLES:
         lines.append(f'"{name}" [label=<{html_table(name)}>];')
     for child, col, parent, pk, cardinality in RELATIONS:
@@ -301,6 +356,8 @@ def build():
             ref = next((f"`{p}.{pk}`" for c, f, p, pk, _ in RELATIONS if c == name and f == col), "")
             docs.append(f"| {key} | `{col}` | `{typ}` | {null} | {ref} |")
         docs.append("")
+        for group in UNIQUE_GROUPS.get(name, []):
+            docs += [f"Composite UNIQUE: `({', '.join(group)})`.", ""]
     (ROOT / "data_dictionary.md").write_text("\n".join(docs), encoding="utf-8")
     print(f"Validated {len(TABLES)} entities and {len(RELATIONS)} foreign keys. Generated DOT and data dictionary.")
 

@@ -1,6 +1,6 @@
 # TeknoCare: proposed university clinic ERD
 
-Open [the PNG](teknocare_improved_erd.png) and zoom in to inspect columns and cardinalities. It is an 8,000-pixel diagram with 20 entities and 25 foreign-key relationships. [The SVG](teknocare_improved_erd.svg) is a scalable copy; [the data dictionary](data_dictionary.md) lists every column and FK target.
+Open [the PNG](teknocare_improved_erd.png) and zoom in to inspect columns and cardinalities. It is an 8,000-pixel diagram with 22 entities and 28 foreign-key relationships. [The SVG](teknocare_improved_erd.svg) is a scalable copy; [the data dictionary](data_dictionary.md) lists every column and FK target. [The design review](design_review.md) distinguishes schema coverage from operational readiness.
 
 This is a **proposed design**, based on `BENITEZ_physicalERD.pdf` and the repository's current Django models. It does not describe an already implemented schema. No application models, migrations, or database records were changed. It uses PostgreSQL types to match the project's configured database.
 
@@ -20,6 +20,8 @@ The proposed ERD omits the separate `admin` and `support_ticket` entities. Djang
 | Diagnosis | `diagnosis` + `record_diagnosis` | Allow multiple diagnoses per visit and reuse catalog entries rather than storing one unstructured diagnosis field. |
 | Treatment | `medication`, `prescription`, `prescription_item` | Separate a prescription from its individual medicines, doses, routes, quantities, and instructions. |
 | Further care | `referral` | Record a referral destination, reason, referring provider, and status. |
+| Tuition billing | `academic_term`, `student_charge` | Add student clinic charges to university billing; Faculty and Staff receive free care. |
+| Historical eligibility | `medical_record.affiliation_at_visit` | Preserve Student/Faculty/Staff eligibility when a patient's current affiliation later changes. |
 | Accountability | `audit_log.actor_user_id` | Record actions by providers and other users, as well as admins. System events can have no user actor. |
 
 ## How to read the relationships
@@ -27,11 +29,12 @@ The proposed ERD omits the separate `admin` and `support_ticket` entities. Djang
 - PK: primary key. FK: foreign key. UQ: single-column UNIQUE. NN: NOT NULL. NULL: optional.
 - `1` at an end means exactly one; `0..1` means optional one; `0..*` means zero or more. Crow's feet denote many.
 - Read both ends: each appointment has **one** patient; a patient can have **zero or many** appointments.
-- Each account can have zero or one Patient row and zero or one Provider row structurally. The account-role rule below requires only the matching subtype; Admin accounts need neither subtype.
+- Each account can have zero or one Patient row and zero or one Provider row. A provider or admin may also have a Patient row when receiving care. Account role controls the primary interface; affiliation controls billing eligibility.
 - `record_diagnosis` has a **composite** primary key, `(record_id, diagnosis_id)`. Both are also foreign keys. This resolves the many-to-many visit/diagnosis relationship.
 - A medical record has zero or one appointment, and an appointment has zero or one medical record. NULL appointment means a walk-in visit. PostgreSQL's ordinary nullable UNIQUE permits multiple walk-in records.
 - A slot can have multiple historical appointments, but all except at most one must be canceled. This conditional rule needs an index in addition to the cardinality line.
-- All 25 FK targets are explicit in the data dictionary. `audit_log.target_table` and `target_record_id` are descriptive event metadata, **not** foreign keys.
+- All 28 FK targets are explicit in the data dictionary. `audit_log.target_table` and `target_record_id` are descriptive event metadata, **not** foreign keys.
+- A medical record has zero or many student charges; each charge belongs to one record and one academic term, and has one creating user. The patient is obtained through the medical record, without duplicating `patient_id` in the charge.
 
 ## Constraints to implement with the schema
 
@@ -40,7 +43,7 @@ These rules are part of the proposal. The PNG displays columns, keys, types, and
 ### Identity and patient data
 
 1. Use generated integer identity keys for non-FK primary keys. Shared subtype/profile/settings primary keys reference `user.user_id` and do not generate separate identities. Retain existing IDs during migration.
-2. Preserve the project's current single-role model: `user_type IN ('Admin', 'Patient', 'Provider')` and `account_status IN ('Active', 'Suspended')`. A Patient account must have exactly one Patient row and no Provider row; a Provider account must have exactly one Provider row and no Patient row; an Admin account has neither. There is no separate Admin table in this proposal. Create users and their required subtypes transactionally; enforce cross-table consistency with a deferred constraint trigger if database-level enforcement is required. Profile and settings rows remain optional. The Admin role is an access classification; it does not itself implement Django's full permissions API.
+2. Keep `user_type IN ('Admin', 'Patient', 'Provider')` as the primary interface/access classification, with `account_status IN ('Active', 'Suspended')`. Patient-role accounts require a Patient row; Provider-role accounts require a Provider row. Allow Admin/Provider accounts to also have a Patient row when receiving care, without a second login. Only approved clinic practitioners receive Provider rows; Admin accounts may have one if independently qualified. Create required profiles transactionally and enforce these cross-table rules with deferred constraint triggers where needed. There is no separate Admin table. Profile and settings rows remain optional. The Admin role does not itself implement Django's full permissions API; clinical and billing permissions must be explicit.
 3. `patient.affiliation IN ('Student', 'Faculty', 'Staff')`. Department is optional so registration need not fail when it is not yet known. Suggested provider types: Physician, Nurse, Dentist. These are clinic workflow categories, not prescribing permissions.
 4. Keep account names only in `user.fname` and `user.lname`. Remove duplicated editable `Profile.full_name` after reviewing existing values. Replace stored age with optional `patient.date_of_birth`; reject future birth dates in form validation. Do not invent birth dates from ages.
 5. Store only password hashes. Keep university IDs and emails unique, with an agreed normalization rule before enforcing uniqueness. Quote the existing PostgreSQL table name `"user"` in raw SQL.
@@ -63,11 +66,24 @@ These rules are part of the proposal. The PNG displays columns, keys, types, and
 
 1. Vital measurements are optional individually, but require at least one measurement per `vital_sign` row. Require positive values for recorded height, weight, pulse, respiratory rate, and blood pressure; oxygen saturation must be between 0 and 100. Record systolic and diastolic values together. Additional clinical validation belongs to the clinic's agreed workflow.
 2. Restrict vital-sign recording to authorized clinic staff. A FK to `user` establishes who recorded the observation; it does not grant permission.
-3. A diagnosis catalog code is unique in this proposal. Use one agreed code namespace, or change uniqueness to `(coding_system, code)` before supporting overlapping code systems. Enforce at most one primary diagnosis per record with a partial unique index on `record_diagnosis(record_id) WHERE is_primary`.
+3. Diagnosis codes are unique within a coding system: composite UNIQUE `(coding_system, code)`. Enforce at most one primary diagnosis per record with a partial unique index on `record_diagnosis(record_id) WHERE is_primary`.
 4. Prescription statuses: Draft, Issued, Canceled. An issued prescription requires at least one item. `quantity > 0` and `duration_days > 0`. Both the item quantity and its unit must be stored. Dose, route, and frequency are explicit text fields for the prescriber's instructions.
 5. Restrict issuing prescriptions to authorized prescribers. `prescriber_id` must reference a provider, but a provider record by itself does not grant prescribing permission. The prescriber can differ from the attending provider, with authorization recorded in the audit trail.
 6. Referral statuses: Pending, Completed, Canceled. The referring provider may differ from the attending provider when the workflow authorizes it.
-7. Inventory, medicine dispensing, billing, laboratory orders, immunization tracking, and uploaded medical certificates are **outside this version**. A medication catalog and prescription do not imply stock management or actual dispensing.
+7. Inventory, medicine dispensing, laboratory orders, immunization tracking, and uploaded medical certificates are **outside this version**. A medication catalog and prescription do not imply stock management or actual dispensing. Preserve the name, strength, and dosage form of medication rows already referenced by issued prescriptions; create a new catalog entry for a changed formulation. Finalized clinical notes and issued prescription items require controlled amendments rather than silent overwrites.
+
+### Student charges posted to tuition
+
+1. The clinic records amounts to add to tuition. It does **not** collect payments or store tuition balances. Posted means the university billing system has acknowledged the charge, not that the student has paid. Faculty and Staff visits create **no charge rows**, including zero-amount placeholders.
+2. Capture `medical_record.affiliation_at_visit IN ('Student', 'Faculty', 'Staff')` from verified patient affiliation when opening the visit, server-side. Restrict later changes after finalization or charge creation. Permit a student charge only when its record's historical affiliation is Student. Use a database trigger and an authorized transactional service for this cross-table rule. This preserves historical billing when a student later becomes personnel. Corrections must review existing charges rather than silently changing eligibility.
+3. `academic_term` is unique on `(academic_year, semester)`; require a valid year pair such as `2026-2027`, nonempty semester, and `end_date >= start_date`. Term dates refer to the academic calendar; the billing term may differ from the visit term under university policy. Require a term open for charges when adding a charge or submitting it for posting. Closing a term must not prevent a necessary audited reversal.
+4. Each charge is one billable line with a stored amount and description. Multiple services or medicines can be separate lines for the same visit. Require `amount > 0`, a nonempty description, and one configured three-letter currency code throughout the clinic. Use decimal arithmetic, not floating point. Free student services have no charge. Prices are historical snapshots; do not recalculate existing charges from a changing price list.
+5. Use a unique, immutable `charge_code` as the external posting idempotency key. Reuse that code when retrying the same posting. Require a finalized medical record before submitting a charge for posting. Only authorized clinic billing staff may create or post charges; do not let patients set their own affiliation, amount, term, or status. The original creating user is retained; later actions belong in the audit trail.
+6. Allowed transitions: Pending -> Posted, Pending -> Voided, Posted -> Voided after confirmed reversal. No transition out of Voided. Pending has no billing/reversal reference or posting/void timestamp. Posted requires nonempty `billing_reference` and `posted_at`, and no void/reversal data. Every Voided row requires `voided_at` and a nonempty `void_reason`. A never-posted void retains NULL billing/posting/reversal fields. A previously posted void retains the original billing reference and posting time, and also requires a nonempty `reversal_reference`. Encode valid row combinations as CHECK constraints and enforce transitions/immutability with triggers and services.
+7. Set timestamps server-side. Require `posted_at >= created_at` and `voided_at >= created_at` (and >= `posted_at` when present). A university statement reference may cover several charges, so `billing_reference` is not globally unique. Never mark a charge Posted merely because an export file was generated; record the university's acknowledgment or a verified manual posting reference.
+8. Confirm the university supports idempotent posting or reconciliation by `charge_code`. An external call and a local database transaction are not atomic: use locking plus an export/reconciliation workflow so retries cannot add tuition charges twice. If an external reversal fails, keep the local charge Posted until reconciliation confirms reversal. Audit failed attempts without fabricating success.
+9. Do not delete charges or alter their record, term, description, currency, amount, or code after posting. Void/reverse and create a corrected line with a new code. Protect referenced records, academic terms, and creating users from deletion. Prevent changing a medical record's patient or the related university ID while charges exist without an explicit reconciliation procedure. Index charges by `(term_id, status)` and `record_id`.
+10. Finance integration, tuition payment settlement, receipts, balances, scholarships, and payment gateways remain the university billing system's responsibility. This proposal supports manual verified posting or an eventual integration; neither is implemented in the current app.
 
 ### Auditing and retention
 
@@ -87,7 +103,8 @@ The current implementation has nine core models in `apps/register/models.py`, pl
 4. Preserve existing diagnosis and prescription notes until they can be reviewed and migrated into catalog/line-item records. Free text cannot be reliably split into diagnoses or medicine doses automatically.
 5. Check existing appointment/provider/slot consistency before removing redundant `appointment.provider_id`. Remove the slot's global one-to-one appointment constraint only when the partial unique booking index is ready. Allow NULL on the medical-record appointment link for walk-ins.
 6. Add checks, exclusion constraints, indexes, role rules, and retained-record deletion protections after resolving existing inconsistencies. Verify both PostgreSQL concurrency behavior and application validation.
-7. Build and test the new workflows in small commits. This diagram is design evidence; the instructor also requires screenshots of actual application screens created or modified during development.
+7. Add academic terms and student charges without inventing historical fees. Backfill visit affiliation only from verified evidence; flag unknown legacy records for review rather than defaulting them to billable students. Ensure personnel with an Admin/Provider login can also receive care through a Patient row.
+8. Build and test the new workflows in small commits. This diagram is design evidence; the instructor also requires screenshots of actual application screens created or modified during development.
 
 ## Regenerating the artifacts
 
@@ -115,4 +132,4 @@ For PNG export, use Python with PyMuPDF available:
 python docs\erd\export_png.py
 ```
 
-Rendering dependencies were installed in a temporary tooling folder for this export, not added to the application's requirements. The exporter verifies that the SVG contains all 20 entities and 25 FK connectors before saving the PNG. The diagram was visually inspected after rendering.
+Rendering dependencies were installed in a temporary tooling folder for this export, not added to the application's requirements. The exporter checks the SVG's entity and FK sets against the generator before saving the PNG. The diagram was visually inspected after rendering. Structural validation is not a test of database constraints or the billing integration.
