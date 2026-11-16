@@ -46,9 +46,9 @@ SELECT a.appointment_id,
 FROM appointment AS a
 INNER JOIN patient AS p ON a.patient_id = p.patient_id
 INNER JOIN "user" AS patient_user ON p.patient_id = patient_user.user_id
-INNER JOIN provider AS pr ON a.provider_id = pr.provider_id
-INNER JOIN "user" AS provider_user ON pr.provider_id = provider_user.user_id
 INNER JOIN slot AS s ON a.slot_id = s.slot_id
+INNER JOIN provider AS pr ON s.provider_id = pr.provider_id
+INNER JOIN "user" AS provider_user ON pr.provider_id = provider_user.user_id
 WHERE patient_user.school_id IN ('JOIN-DEMO-001', 'JOIN-DEMO-002', 'JOIN-DEMO-003')
   AND patient_user.email IN ('ana@join-demo.example.invalid', 'ben@join-demo.example.invalid', 'carlo@join-demo.example.invalid')
 ORDER BY patient_user.school_id, a.appointment_id;

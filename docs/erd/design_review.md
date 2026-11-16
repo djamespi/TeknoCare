@@ -4,7 +4,7 @@ Scope: the university clinic described in this conversation, with student fees a
 
 ## Verdict
 
-The 22-entity, 28-FK ERD covers the stated core clinic and tuition-charge workflows as a design suitable for implementation. It is **not a fully operational clinic system**. Database checks, cross-table rules, permissions, finance procedures, and user interfaces remain to be implemented and exercised. The assessment does not establish that every possible university clinic requirement has been collected.
+The 22-entity, 28-FK ERD now matches the feature models and migration target. It is **not a fully operational clinic system**: most clinical screens, granular permissions, finance procedures/integration, and PostgreSQL staging verification remain. Models, row constraints, selected cross-table guards, booking/billing services, and migration checks are implemented; see [model implementation](model_implementation.md) for the exact boundary. The assessment does not establish that every possible university clinic requirement has been collected.
 
 ## Findings addressed in the design
 
@@ -21,25 +21,21 @@ The 22-entity, 28-FK ERD covers the stated core clinic and tuition-charge workfl
 
 ## Workflow coverage and current implementation
 
-| Workflow | Proposed schema supports it | Current repository status |
+| Workflow | Model implementation | Remaining work |
 | --- | --- | --- |
-| Login and patient registration | User, Patient, Profile, Settings | Basic account views exist; proposed attributes and profile changes are not migrated. |
-| Student/Faculty/Staff classification | Patient affiliation and department | Proposed fields absent from current Patient model. |
-| Emergency contacts and allergies | Separate related rows | Only a free-text emergency-contact field exists; no allergy workflow. |
-| Provider availability and rooms | Provider, Slot, ClinicRoom | Provider/Slot foundations exist; room lookup and scheduling screens absent. |
-| Booking/cancellation without double booking | Appointment and conditional uniqueness/exclusion rules | Existing appointment has one-to-one slot and redundant provider; proposed protections and booking workflow absent. |
-| Scheduled and walk-in visits | Optional appointment link on MedicalRecord | Current appointment link is mandatory; clinical workflow absent. |
-| Vitals, multiple diagnoses, prescriptions, referrals | Structured clinical tables and relationships | Current medical record has free-text fields; these proposed workflows are absent. |
-| Student charges on tuition | AcademicTerm and StudentCharge | No charge models, migrations, screens, export, or university finance integration. |
-| Free personnel care | Patient affiliation and visit snapshot, no charge rows | Proposed eligibility rules absent. |
-| Access and audit trail | User role/profiles and user-based AuditLog | Current audit model references Admin; custom user lacks the full standard Django permission/session-hash interface. It requires review before claiming Django admin compatibility. |
-| Historical preservation | Restrict deletion, immutable records/charges, audit procedures | Current core FKs use broad CASCADE; proposed retention rules not implemented. |
+| Accounts/intake | User, Patient, Profile, Settings, contacts; atomic student registration and basic custom-user admin/session APIs | Verified staff intake, granular permissions, patient access rules |
+| Scheduling | Room/Slot/Appointment, conditional uniqueness, PostgreSQL exclusions, booking/cancellation services | Role screens, complete state workflow, PostgreSQL concurrency verification |
+| Clinical encounters | Scheduled/walk-in records, snapshot/appointment guards, vitals, diagnoses, referrals | Clinical screens, staff authorization, controlled amendments |
+| Prescriptions | Catalog, header/items, model validation of issued history | Issuing workflow, granular prescriber authorization, bulk-write restrictions |
+| Tuition charges | AcademicTerm/StudentCharge, billing guards and acknowledgment/reversal services | Screens, university export/integration and reconciliation procedure |
+| Personnel care | Patient profiles may coexist with provider/admin access; personnel visits cannot be charged | Membership verification and staff intake interface |
+| Audit/history | User-based append-only audit guards, restrictive references, legacy archives | Broader workflow audit coverage and retention/access procedures |
 
-Current routes in `config/urls.py` expose login, registration, account pages, the SQL JOIN learning page, Django admin, and the dashboard. There are no clinic appointment, encounter, prescription, or tuition billing routes. Existing migration files represent the earlier models, not this proposed ERD.
+Current `config/urls.py` still exposes account pages, the SQL JOIN learning page, Django admin, and dashboard. No clinic booking/encounter/prescription/billing screens have been added. The migrations were verified on fresh/populated SQLite databases; deployment to the configured database has not occurred.
 
 ## Required acceptance checks before calling the application operational
 
-These are a future implementation checklist, not tests reported as passing:
+This is the end-to-end operational checklist. Some model-level cases are now covered by automated tests, but this list is not a claim that all production workflows passed:
 
 1. Apply reviewed Django migrations on a disposable PostgreSQL database with representative fictional data. Verify all keys, nullable links, deletion protections, and legacy-data migration paths.
 2. Exercise patient, provider, admin, and personnel-as-patient flows. Check per-record access and prevent unauthorized access to clinical notes and charge actions. Verify Django admin and password/session behavior explicitly.
@@ -58,3 +54,5 @@ Additional modules such as inventory/dispensing, laboratory orders, immunization
 The generator validates key existence, FK target types, nullability, composite uniqueness column references, and relationship cardinality consistency. The exporter checks the SVG against the 22 entity names and 28 relationship pairs and produces the PNG. The rendered diagram is visually checked. These checks validate design artifacts, not production database behavior or an external billing service.
 
 The existing Django application also passed `manage.py check` with a disposable in-memory SQLite configuration: no issues reported. This is a configuration/system check only; it neither exercises the proposed schema nor proves PostgreSQL constraints, Django admin login, or clinic/finance workflows work.
+
+The model implementation adds feature tests, a populated-legacy SQLite upgrade check, and a metadata comparison for every ERD column/key/type/relationship. PostgreSQL-specific behavior is still a staging gate; read `model_implementation.md` for verification commands and limitations.

@@ -3,11 +3,13 @@ from django.db import models
 
 
 class Profile(models.Model):
-    user = models.OneToOneField(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name="clinic_profile")
-    full_name = models.CharField(max_length=150, blank=True)
-    age = models.PositiveIntegerField(null=True, blank=True)
-    home_address = models.TextField(blank=True)
-    bio = models.TextField(blank=True)
+    user = models.OneToOneField(settings.AUTH_USER_MODEL, primary_key=True, on_delete=models.CASCADE, related_name="clinic_profile")
+    phone_number = models.CharField(max_length=30, null=True, blank=True)
+    home_address = models.TextField(null=True, blank=True)
+    bio = models.TextField(null=True, blank=True)
+
+    class Meta:
+        db_table = "user_profile"
 
     def __str__(self):
-        return self.full_name or str(self.user) or self.user.get_username()
+        return str(self.user) or self.user.get_username()

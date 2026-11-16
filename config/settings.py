@@ -49,6 +49,15 @@ INSTALLED_APPS = [
     'apps.profile',
     'apps.user_settings',
     'apps.joins',
+    'apps.university',
+    'apps.patients',
+    'apps.providers',
+    'apps.appointments',
+    'apps.clinical',
+    'apps.prescriptions',
+    'apps.billing',
+    'apps.audit',
+
 ]
 
 MIDDLEWARE = [
@@ -137,3 +146,6 @@ LOGIN_URL = 'login:login'
 # https://docs.djangoproject.com/en/4.2/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+# Finance uses one configured currency; no direct payment collection.
+CLINIC_CURRENCY_CODE = os.environ.get("CLINIC_CURRENCY_CODE", "PHP")

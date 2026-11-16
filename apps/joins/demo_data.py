@@ -6,7 +6,10 @@ from django.contrib.auth.hashers import make_password
 from django.core.management.base import CommandError
 from django.db import transaction
 
-from apps.register.models import Appointment, Patient, Provider, Slot, User
+from apps.register.models import User
+from apps.patients.models import Affiliation, Patient
+from apps.providers.models import Provider
+from apps.appointments.models import Appointment, ClinicRoom, Slot
 
 
 PATIENT_SAMPLES = (
@@ -64,28 +67,28 @@ def seed_demo_data():
     for sample in PATIENT_SAMPLES:
         user = _sample_user(sample, User.UserType.PATIENT)
         patients.append(_sample_record(Patient, {"patient": user}, {
-            "emergency_contact": "Fictional SQL JOIN activity contact",
+            "affiliation": Affiliation.STUDENT,
             "medical_history_summary": "Fictional learning record; no real medical data.",
-            "no_show_count": 0,
         }))
 
     provider_user = _sample_user(PROVIDER_SAMPLE, User.UserType.PROVIDER)
     provider = _sample_record(Provider, {"provider": provider_user}, {
         "specialization": "General Medicine",
-        "room_number": "DEMO-101",
-        "is_active": False,
+        "provider_type": Provider.Type.PHYSICIAN,
+        "is_active": True,
     })
+    room = _sample_record(ClinicRoom, {"campus": "Fictional", "building": "Demo", "room_number": "DEMO-101"}, {"is_active": True})
     first_start = datetime(2026, 10, 13, 9, 0, tzinfo=timezone.utc)
     appointments = []
     for index, (patient_index, reason, status) in enumerate(APPOINTMENT_SAMPLES):
         start = first_start + timedelta(hours=index)
         slot = _sample_record(Slot, {"provider": provider, "start_time": start}, {
             "end_time": start + timedelta(minutes=30),
-            "is_booked": True,
+            "room": room,
+            "is_active": True,
         })
         appointments.append(_sample_record(Appointment, {"slot": slot}, {
             "patient": patients[patient_index],
-            "provider": provider,
             "reason_for_visit": reason,
             "status": status,
         }))

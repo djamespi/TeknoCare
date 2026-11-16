@@ -2,7 +2,7 @@
 
 Open [the PNG](teknocare_improved_erd.png) and zoom in to inspect columns and cardinalities. It is an 8,000-pixel diagram with 22 entities and 28 foreign-key relationships. [The SVG](teknocare_improved_erd.svg) is a scalable copy; [the data dictionary](data_dictionary.md) lists every column and FK target. [The design review](design_review.md) distinguishes schema coverage from operational readiness.
 
-This is a **proposed design**, based on `BENITEZ_physicalERD.pdf` and the repository's current Django models. It does not describe an already implemented schema. No application models, migrations, or database records were changed. It uses PostgreSQL types to match the project's configured database.
+This is the **Django model/migration target**, based on `BENITEZ_physicalERD.pdf` and the agreed clinic requirements. The feature models and migration source are implemented; deployment to the configured database and most clinic screens remain pending. See [model implementation](model_implementation.md) for feature ownership, tested migration behavior, legacy-data exceptions, and remaining workflow work. PostgreSQL is the deployment target.
 
 The proposed ERD omits the separate `admin` and `support_ticket` entities. Django admin access does not require a clinic-specific admin-profile table, and a support-ticket workflow is outside the selected clinic scope. Keep `Admin` as a value in `user.user_type`: the current custom user's `is_staff` property uses that role. Django admin permissions and custom-user compatibility still need implementation review. The retained `audit_log` references any acting user, so it supports provider and other account actions without an admin entity.
 
@@ -30,7 +30,7 @@ The proposed ERD omits the separate `admin` and `support_ticket` entities. Djang
 - `1` at an end means exactly one; `0..1` means optional one; `0..*` means zero or more. Crow's feet denote many.
 - Read both ends: each appointment has **one** patient; a patient can have **zero or many** appointments.
 - Each account can have zero or one Patient row and zero or one Provider row. A provider or admin may also have a Patient row when receiving care. Account role controls the primary interface; affiliation controls billing eligibility.
-- `record_diagnosis` has a **composite** primary key, `(record_id, diagnosis_id)`. Both are also foreign keys. This resolves the many-to-many visit/diagnosis relationship.
+- `record_diagnosis` has a surrogate primary key and UNIQUE `(record_id, diagnosis_id)`, both foreign keys. This resolves the many-to-many visit/diagnosis relationship in Django 4.2.
 - A medical record has zero or one appointment, and an appointment has zero or one medical record. NULL appointment means a walk-in visit. PostgreSQL's ordinary nullable UNIQUE permits multiple walk-in records.
 - A slot can have multiple historical appointments, but all except at most one must be canceled. This conditional rule needs an index in addition to the cardinality line.
 - All 28 FK targets are explicit in the data dictionary. `audit_log.target_table` and `target_record_id` are descriptive event metadata, **not** foreign keys.
@@ -38,7 +38,7 @@ The proposed ERD omits the separate `admin` and `support_ticket` entities. Djang
 
 ## Constraints to implement with the schema
 
-These rules are part of the proposal. The PNG displays columns, keys, types, and cardinalities; it does not implement checks, triggers, authorization, or indexes.
+The PNG displays columns, keys, types, and cardinalities. Models/migrations implement the constraints documented in [model implementation](model_implementation.md); complete authorization, clinical workflows, external posting, and staging validation remain necessary. The business rules below describe the intended end-to-end behavior.
 
 ### Identity and patient data
 
@@ -95,7 +95,7 @@ These rules are part of the proposal. The PNG displays columns, keys, types, and
 
 ## Migration from the current project
 
-The current implementation has nine core models in `apps/register/models.py`, plus `Profile` and `UserSettings` in their own apps. Implement this proposal in reviewed Django migrations, not by replacing the live database.
+The original implementation kept nine core models in `apps/register/models.py`. Model ownership now follows feature slices; `register.User` remains stable for authentication. See [the implemented migration path](model_implementation.md#data-preserving-migration-path). The following points remain deployment/reconciliation guidance; do not replace the live database.
 
 1. Add new tables and nullable columns first. Keep university IDs, user IDs, appointment IDs, and baseline evidence unchanged.
 2. Map `profile_profile` to proposed `user_profile` and `user_settings_usersettings` to proposed `user_settings`, preserving data and unique user links. Both currently have separate implicit IDs; this proposal uses their user FK as the primary key. Stage that key change deliberately and verify dependent references. Review names/ages before retiring the old fields.

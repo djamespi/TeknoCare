@@ -10,7 +10,10 @@ from django.test import RequestFactory, TestCase
 from django.test.utils import CaptureQueriesContext
 from django.urls import reverse
 
-from apps.register.models import Appointment, Patient, Provider, Slot, User
+from apps.register.models import User
+from apps.patients.models import Affiliation, Patient
+from apps.providers.models import Provider
+from apps.appointments.models import Appointment, ClinicRoom, Slot
 
 from .demo_data import PATIENT_SAMPLES, seed_demo_data
 from .queries import INNER_JOIN_SQL, LEFT_JOIN_SQL, execute_read_query, get_join_results
@@ -44,16 +47,16 @@ class JoinQueryTests(TestCase):
 
     def test_queries_exclude_unrelated_clinic_data(self):
         patient = Patient.objects.create(
-            patient=self.viewer, emergency_contact="Unrelated contact",
-            medical_history_summary="Unrelated record", no_show_count=0,
+            patient=self.viewer, affiliation=Affiliation.STUDENT,
+            medical_history_summary="Unrelated record",
         )
         sample_slot = self.appointments[0].slot
         slot = Slot.objects.create(
             provider=sample_slot.provider, start_time=sample_slot.start_time + timedelta(days=1),
-            end_time=sample_slot.end_time + timedelta(days=1), is_booked=True,
+            end_time=sample_slot.end_time + timedelta(days=1), room=sample_slot.room, is_active=True,
         )
         Appointment.objects.create(
-            patient=patient, provider=sample_slot.provider, slot=slot,
+            patient=patient, slot=slot,
             reason_for_visit="Private unrelated visit", status=Appointment.Status.SCHEDULED,
         )
         results = get_join_results()

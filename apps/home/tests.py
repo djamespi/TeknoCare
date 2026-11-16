@@ -57,29 +57,28 @@ class AccountPagesTests(TestCase):
         self.assertContains(response, "YOUR PREFERENCES")
 
     def test_profile_changes_only_current_user(self):
-        other_profile = Profile.objects.create(user=self.other_user, full_name="Other Student")
+        other_profile = Profile.objects.create(user=self.other_user, phone_number="09000000000")
         self.client.force_login(self.user)
         response = self.client.post(reverse("profile:profile"), {
-            "full_name": "Alex Student", "age": "21",
+            "phone_number": "09171234567",
             "home_address": "Cebu City", "bio": "Hello clinic",
         })
         self.assertRedirects(response, reverse("profile:profile"))
         profile = Profile.objects.get(user=self.user)
-        self.assertEqual(profile.full_name, "Alex Student")
-        self.assertEqual(profile.age, 21)
+        self.assertEqual(profile.phone_number, "09171234567")
         self.assertEqual(profile.home_address, "Cebu City")
         self.assertEqual(profile.bio, "Hello clinic")
         other_profile.refresh_from_db()
-        self.assertEqual(other_profile.full_name, "Other Student")
+        self.assertEqual(other_profile.phone_number, "09000000000")
 
     def test_invalid_profile_is_not_saved(self):
-        profile = Profile.objects.create(user=self.user, age=21)
+        profile = Profile.objects.create(user=self.user, phone_number="09171234567")
         self.client.force_login(self.user)
-        response = self.client.post(reverse("profile:profile"), {"age": "-1"})
+        response = self.client.post(reverse("profile:profile"), {"phone_number": "1" * 31})
         self.assertEqual(response.status_code, 200)
         self.assertTrue(response.context["form"].errors)
         profile.refresh_from_db()
-        self.assertEqual(profile.age, 21)
+        self.assertEqual(profile.phone_number, "09171234567")
 
     def test_settings_changes_only_current_user(self):
         other_settings = UserSettings.objects.create(user=self.other_user)

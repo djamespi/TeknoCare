@@ -1,203 +1,124 @@
 # TeknoCare project guide
 
-Reviewed on 2026-10-12 against the local working tree. This is a starting point
-for future work; check the relevant source files and Git status before making
-changes. The working tree includes the dashboard/profile/settings fixes from
-this conversation, which have not been committed as of this review.
+Updated for the ERD model implementation on November 16, 2026. Check Git status
+before editing. The configured hosted database has not been upgraded by this task.
 
-## Development evidence workflow
+## Architecture and stack
 
-After each meaningful repository change, tell the user whether they should commit
-and push, and whether screenshots are needed for their instructor's development
-evidence. For created or modified application interfaces, request readable
-screenshots of the actual running screens in `APPLICATION_SCREENSHOTS`.
-Documentation/ERD-only changes should be committed and pushed, but do not require
-application screenshots. GitHub commit-history screenshots are collected for the
-final submission. Keep `BASELINE_COMMIT.txt` unchanged.
+TeknoCare is a university clinic Django 4.2 application with PostgreSQL/Supabase,
+server-rendered templates, CSS, and vanilla JavaScript. Keep vertical feature
+slices under `apps/<feature>/`: that feature owns its models, migrations, tests,
+services, forms, views, and URLs. Avoid putting unrelated clinic models back in
+registration. Read `docs/erd/model_implementation.md` for migration and validation
+boundaries and `docs/erd/README.md` for the target clinic rules.
 
-## Purpose and stack
-
-TeknoCare is a university clinic web application. Current public registration
-creates patient accounts; the data model also includes providers and admins.
-
-- Python/Django application, with Django 4.2.30 pinned in `requirements.txt`.
-- The existing Windows `venv` was created with Python 3.12.10.
-- Server-rendered Django templates, plain CSS, and small vanilla JavaScript files.
-- PostgreSQL hosted on Supabase, accessed through Django's ORM and `psycopg`.
-- `config/settings.py` loads the root `.env` using `python-dotenv` and requires
-  `SECRET_KEY` and `DATABASE_URL`. Keep secret values out of documentation/output.
-- No separate frontend build, REST API, Supabase SDK, or Supabase Auth integration
-  is implemented in the current repository.
-- Development settings currently use `DEBUG=True`, `ALLOWED_HOSTS=[]`, and UTC.
-
-## Where things live
-
-| Path | Responsibility |
+| Feature | Ownership |
 | --- | --- |
-| `manage.py` | Django command entry point |
-| `config/` | Settings, root URLs, ASGI and WSGI entry points |
-| `apps/register/` | Registration and all core clinic/ERD models |
-| `apps/login/` | Session-based login |
-| `apps/home/` | Dashboard and account-page integration tests |
-| `apps/profile/` | Optional profile details and their form |
-| `apps/user_settings/` | Saved account preference flags |
-| `apps/joins/` | SQL JOIN learning page using fictional clinic records |
-| `templates/<app>/` | Page templates |
-| `templates/includes/navigation.html` | Shared authenticated navigation |
-| `static/css/<app>/`, `static/js/<app>/` | Page styles and scripts |
+| register | User identity and atomic public student registration |
+| login, home | Session login and account dashboard |
+| profile | Profile/contact details; table user_profile |
+| user_settings | Preferences; table user_settings |
+| university | Department |
+| patients | Patient, EmergencyContact, PatientAllergy |
+| providers | Provider |
+| appointments | ClinicRoom, Slot, Appointment; booking/cancellation services |
+| clinical | MedicalRecord, VitalSign, Diagnosis, RecordDiagnosis, Referral |
+| prescriptions | Medication, Prescription, PrescriptionItem |
+| billing | AcademicTerm, StudentCharge; finance acknowledgment services |
+| audit | User-based, append-only AuditLog |
+| joins | Read-only SQL JOIN learning feature and fictional data commands |
+| common | Small abstract validated-save and PostgreSQL constraint primitives |
 
-The UI uses dark blue-green (`#19343d`), teal (`#117c77`), pale backgrounds,
-Georgia headings, and Arial labels. Registration CSS imports login CSS;
-settings CSS imports profile CSS. Most existing CSS is compressed onto one line.
+Use lazy model labels for cross-feature FKs and `settings.AUTH_USER_MODEL` for
+account relations. Import actual models from their owning slice, not registration
+aliases. Keep dependencies one-way; do not add generic repository layers.
 
-## Routes and current flows
+## Identity and clinic rules
 
-| URL | Name | Behavior |
-| --- | --- | --- |
-| `/register/` | `register:register` | Public patient registration |
-| `/login/` | `login:login` | Public University ID/password login |
-| `/` | `home:home` | Authenticated dashboard |
-| `/dashboard/` | `home:dashboard` | Alias for the same dashboard view |
-| `/profile/` | `profile:profile` | Authenticated profile form |
-| `/settings/` | `user_settings:settings` | Authenticated settings form |
-| `/joins/` | `joins:demo` | Authenticated INNER/LEFT JOIN activity |
-| `/logout/` | `logout` | Django LogoutView, redirects to login |
-| `/admin/` | Django admin namespace | Django admin entry point |
+`AUTH_USER_MODEL = 'register.User'` remains stable. This is a custom models.Model
+account, not AbstractUser: PK user_id; login school_id; names fname/lname;
+password hashes in password_hash. Use its password and session-hash APIs.
+Roles are Admin/Patient/Provider; Active/Suspended status governs authentication.
+Admin accounts currently have full admin permissions; do not infer granular
+finance/clinical authorization merely from FK existence.
 
-Registration saves an active `User` with type `Patient` and a linked `Patient`
-record, then redirects to login. It collects University ID, first/last names,
-email, emergency contact, medical history summary, and matching passwords.
-The form explicitly checks duplicate school IDs and password confirmation.
+Patient profiles may coexist with Admin/Provider account roles so personnel can
+receive care. Affiliation is Student/Faculty/Staff, separately from account role.
+Old unknown affiliation is NULL and must be reviewed; never assume it is billable.
+Faculty/Staff care is free. Student charges post to tuition; Posted does not mean
+paid. Currency is configured by CLINIC_CURRENCY_CODE (default PHP). No direct
+payment or university finance integration exists yet.
 
-Login calls Django `authenticate()` and `login()` and redirects to the root
-dashboard. It currently always redirects to the dashboard rather than consuming
-the `next` parameter. Already-authenticated users visiting login or registration
-are also redirected to the dashboard.
+Models/migrations cover all 22 ERD entities. Most clinical views and workflows
+remain to be built. Normal feature saves validate, but bulk/raw SQL bypasses model
+methods. Billing/visit/audit guards and row constraints cover documented database
+invariants; prescription bulk writes still require a restricted workflow.
 
-Profile and settings views use `get_or_create(user=request.user)`, bind forms
-on POST, save valid submissions, and redirect back to the same page. These
-records are created lazily on the first visit rather than during registration.
-Profile fields are `full_name`, `age`, `home_address`, and `bio`. Profile name
-edits do not update the account's `fname`/`lname`; the dashboard greets by `fname`
-with `school_id` as fallback.
+## Migrations and data
 
-Settings persist `dark_mode` and `email_notifications`. Theme switching and
-notification delivery are not implemented. The dashboard currently provides a
-greeting, navigation, and profile/settings cards, without appointment statistics.
+Keep models and migrations together; do not rewrite the original applied migration
+files or change AUTH_USER_MODEL. Adoption migrations move state across apps while
+preserving original physical tables/IDs. register.0002 archives retired columns
+and renames retired admin/support tables. It is intentionally irreversible:
+rollback uses a verified backup. Never drop legacy_* tables or overwrite archived
+clinical/contact data as routine cleanup.
 
-## Custom user and data relationships
+Unknown legacy patient/visit affiliation and room remain nullable; old slots are
+inactive until verified. Original diagnoses, prescription notes, profile names/
+ages, contacts and other retired values remain in legacy_* snapshots. Do not
+invent birth dates, clinical codes, provider credentials, charges or historical
+timestamps to fill missing data. Preserve BASELINE_COMMIT.txt unchanged.
 
-`AUTH_USER_MODEL = 'register.User'`. This user inherits from `models.Model`,
-not `AbstractUser` or `AbstractBaseUser`. Authentication support is implemented
-manually with `UserManager`, `set_password`, `check_password`, `get_username`,
-and authentication/activity/staff properties.
+Do not apply migrations to the configured hosted database without a verified
+backup and PostgreSQL staging rehearsal. PostgreSQL needs btree_gist and trigger
+privileges. SQLite tests intentionally skip PostgreSQL range exclusions. For future
+SQLite table rebuild migrations, remove/reinstall affected SQL guard triggers.
 
-- Primary key: `user_id`; login identifier: unique `school_id`.
-- Names: `fname` and `lname`; email is unique.
-- Password hashes are stored in `password_hash` using Django hashers.
-- Roles: `Admin`, `Patient`, `Provider`.
-- Statuses: `Active`, `Suspended`; `is_active` is based on this status.
-- `is_staff` is based on the `Admin` role. Standard Django user permission/full
-  name/session-hash APIs are not all present; inspect compatibility when working
-  on auth or admin. Avoid assuming `username`, `password`, or `get_full_name()`.
-- New cross-app user relations should use `settings.AUTH_USER_MODEL`;
-  runtime user-model lookup can use `get_user_model()`.
+## Checks
 
-Core models are all in `apps/register/models.py`, despite that app's name:
-
-| Model | Table | Relationships / purpose |
-| --- | --- | --- |
-| `User` | `user` | Core account |
-| `Admin` | `admin` | One-to-one account; access level and department |
-| `Patient` | `patient` | One-to-one account; emergency contact, history, no-show count |
-| `Provider` | `provider` | One-to-one account; specialization, room, activity flag |
-| `Slot` | `slot` | Provider availability with start/end times and booking flag |
-| `Appointment` | `appointment` | Patient, provider, and a one-to-one slot |
-| `MedicalRecord` | `medical_record` | One-to-one appointment plus patient and provider |
-| `SupportTicket` | `support_ticket` | User request assigned to an admin |
-| `AuditLog` | `audit_log` | Admin action and target-record metadata |
-
-`Admin`, `Patient`, and `Provider` use their user relation as their primary key.
-Clinic models declare explicit ERD table/column names. Existing relationships
-use cascading deletion. Preserve these schema choices unless a requested change
-requires a migration.
-
-`Profile` and `UserSettings` have one-to-one user relations named
-`clinic_profile` and `clinic_settings`. Their default Django table names are
-`profile_profile` and `user_settings_usersettings`. These account details are
-separate from the role-specific `patient_profile`, `provider_profile`, and
-`admin_profile` relations.
-
-Appointment booking, provider scheduling, medical-record management, support
-ticket handling, audit logging, and separate role dashboards currently exist
-only as schema foundations. There are no application views/forms/templates
-implementing those clinic workflows. Only Profile and UserSettings are registered
-with Django admin; the custom user and clinic models are not registered.
-
-## Migrations and checks
-
-- `register/0001_initial` defines the nine core clinic models.
-- `profile/0001_initial` creates the profile;
-  `profile/0002_profile_age_profile_home_address` adds age and address.
-- `user_settings/0001_initial` creates the preference record.
-- Profile/settings initial migrations already depend on the configured user
-  model. The dashboard fix corrected model references without changing schema.
-- These profile/settings migrations were applied to the configured database
-  during this conversation. Inspect migration state again before future work.
-
-The original account suite has 12 tests: two login tests, two registration tests,
-and eight account-page tests. Account tests cover login requirements, page rendering
-and navigation, dashboard cards, profile/settings persistence, user isolation,
-invalid age, unchecked settings, and labels for the custom user.
-The suite passed using an isolated in-memory SQLite database on 2026-10-12;
-that does not establish PostgreSQL-specific behavior or browser visual layout.
-
-For Windows PowerShell, use the existing interpreter directly when activation
-is unnecessary:
-
-```powershell
-.\venv\Scripts\python.exe manage.py runserver
-.\venv\Scripts\python.exe manage.py check
-.\venv\Scripts\python.exe manage.py makemigrations --check --dry-run
-```
-
-For isolated tests, override `DATABASE_URL` in a disposable shell/tool process
-so tests do not require creating a test database on the hosted PostgreSQL server:
+Use the existing interpreter, without depending on shell activation. Override the
+DB URL only in an isolated shell/tool process so tests cannot write hosted data:
 
 ```powershell
 $env:DATABASE_URL = 'sqlite:///:memory:'
-.\venv\Scripts\python.exe manage.py test
+.\venv\Scripts\python.exe manage.py check
+.\venv\Scripts\python.exe manage.py makemigrations --check --dry-run
+.\venv\Scripts\python.exe manage.py test --noinput
 ```
 
-The override lasts for that shell process. Use a fresh terminal afterward for
-running the application against its configured database. Keep model changes and
-their Django migrations together. Check existing local changes before editing;
-the user may have work that is not yet committed.
+These two scripts force isolated in-memory SQLite independently of the .env URL:
 
-## SQL JOIN activity added on 2026-10-12
+```powershell
+.\venv\Scripts\python.exe scripts\verify_erd_upgrade.py
+.\venv\Scripts\python.exe scripts\verify_erd_models.py
+```
 
-The instructor's activity is adapted to existing models; no additional schema
-or project dependencies are required. `apps/joins/queries.py` uses parameterized
-raw SQL for Patient INNER JOIN Appointment and Patient LEFT JOIN Appointment,
-with a required User join for names. The demonstration filters to three reserved
-school IDs AND fictional emails and does not show unrelated clinic records.
+The upgrade script verifies populated old-schema data, not only fresh migrations.
+The ERD checker verifies every model column/type/key/nullability/FK target against
+the diagram source. Update the ERD and rerender assets when model schema changes.
+Run PostgreSQL-specific tests on a disposable staging database before deployment.
 
-`python manage.py seed_join_demo` adds/reuses 3 fictional patients, 1 provider,
-3 slots, and 3 appointments. It uses `JOIN-DEMO-001` through `JOIN-DEMO-004`,
-fake `@join-demo.example.invalid` emails, suspended accounts, and unusable
-passwords. It does not delete or overwrite existing records and uses a
-transaction to roll back conflicts. These samples were added to the configured
-Supabase database during this activity. Database primary keys are not fixed.
+## Interface and evidence workflow
 
-`python manage.py verify_join_demo` is read-only and prints SQL, parameters,
-results, and checks. Ana has 2 appointments, Ben 1, Carlo 0: INNER yields 3
-rows and LEFT yields 4, with Carlo's appointment columns NULL. Visiting `/joins/`
-executes only SELECTs, and SQL joins is linked in the shared navigation.
+Templates live in templates/<feature>, assets in static/css and static/js by
+feature. Preserve the existing dark blue-green/teal style and account navigation.
+Registration now collects a structured emergency contact; profile edits phone,
+address and bio. Names stay on User and birth date stays on Patient.
 
-Review `docs/sql_joins_activity.md`, `docs/sql_joins_examples.sql`, and
-`docs/sql_joins_verification.md` for the activity mapping, all seven JOIN
-definitions, sample SQL, and verification evidence. Activity tests are in
-`apps/joins/tests.py`. The user has now requested the video plan/script;
-`docs/sql_joins_video_script.md` contains spoken lines and screen cues.
-Recording, sharing, and submission remain for the user. Browser visual QA remains for the user because
-no browser surface was available; HTTP checks and PostgreSQL execution succeeded.
+After each meaningful repository change, tell the user whether to commit/push
+and whether application screenshots are needed. Capture every created/modified
+running interface in APPLICATION_SCREENSHOTS. Model source screenshots do not
+replace application screenshots. Model-only changes need Git evidence; form or
+screen changes need running application screenshots too. Collect GitHub history
+screenshots for final submission. Keep BASELINE_COMMIT.txt unchanged.
+
+## SQL JOIN learning feature
+
+Keep queries read-only and parameterized, filtered to reserved fictional JOIN-DEMO
+accounts/emails. The canonical patient/provider/slot/appointment table names stay
+stable; scheduled provider is obtained through Slot. Seed data has unusable
+passwords and suspended accounts; never overwrite mismatched existing records.
+Migrated legacy samples may require review before re-seeding because their new
+fields are intentionally unverified. Tests and verification commands cover the
+2/1/0 sample appointment pattern. Existing SQL activity/video docs remain under
+docs/. Never run seed commands against real records as part of verification.

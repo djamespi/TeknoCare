@@ -1,7 +1,7 @@
-"""Build the proposed ERD's DOT source and data dictionary using only Python stdlib.
+"""Build the implementation ERD's DOT source and data dictionary using stdlib.
 
 Render DOT with Graphviz; see README.md for PNG export instructions.
-This is design documentation, not a database migration.
+This documents the Django model schema; it does not run database migrations.
 """
 from html import escape
 from pathlib import Path
@@ -49,7 +49,7 @@ UQ | email | varchar(100) | NN
 table("patient", "patient", """
 PK,FK | patient_id | integer | NN
 FK | department_id | integer | NULL
- | affiliation | varchar(10) | NN
+ | affiliation | varchar(10) | NULL
  | date_of_birth | date | NULL
  | medical_history_summary | text | NULL
  | created_at | timestamptz | NN
@@ -105,7 +105,7 @@ PK | room_id | integer | NN
 table("slot", "booking", """
 PK | slot_id | integer | NN
 FK | provider_id | integer | NN
-FK | room_id | integer | NN
+FK | room_id | integer | NULL
  | start_time | timestamptz | NN
  | end_time | timestamptz | NN
  | is_active | boolean | NN
@@ -127,7 +127,7 @@ FK,UQ | appointment_id | integer | NULL
 FK | patient_id | integer | NN
 FK | provider_id | integer | NN
  | chief_complaint | text | NN
- | affiliation_at_visit | varchar(10) | NN
+ | affiliation_at_visit | varchar(10) | NULL
  | symptoms | text | NULL
  | examination_notes | text | NULL
  | treatment_plan | text | NULL
@@ -159,8 +159,9 @@ PK | diagnosis_id | integer | NN
 """
 )
 table("record_diagnosis", "clinical", """
-PK,FK | record_id | integer | NN
-PK,FK | diagnosis_id | integer | NN
+PK | record_diagnosis_id | integer | NN
+FK | record_id | integer | NN
+FK | diagnosis_id | integer | NN
  | is_primary | boolean | NN
  | notes | text | NULL
 """
@@ -178,7 +179,7 @@ table("prescription", "medicine", """
 PK | prescription_id | integer | NN
 FK | record_id | integer | NN
 FK | prescriber_id | integer | NN
- | issued_at | timestamptz | NN
+ | issued_at | timestamptz | NULL
  | status | varchar(10) | NN
 """
 )
@@ -222,7 +223,7 @@ FK | term_id | integer | NN
 FK | created_by_user_id | integer | NN
  | description | varchar(255) | NN
  | amount | numeric(12,2) | NN
- | currency_code | char(3) | NN
+ | currency_code | varchar(3) | NN
  | status | varchar(10) | NN
  | billing_reference | varchar(100) | NULL
  | reversal_reference | varchar(100) | NULL
@@ -279,6 +280,7 @@ UNIQUE_GROUPS = {
     "clinic_room": [("campus", "building", "room_number")],
     "diagnosis": [("coding_system", "code")],
     "academic_term": [("academic_year", "semester")],
+    "record_diagnosis": [("record_id", "diagnosis_id")],
 }
 
 
@@ -326,13 +328,14 @@ def build():
              'node [shape=plain, fontname="Arial", fontsize=11];',
              'edge [dir=both, color="#728795", penwidth=1.1, arrowsize=0.7, fontname="Arial", fontsize=9, fontcolor="#19343d", labeldistance=2];',
              'label=<<FONT POINT-SIZE="30" COLOR="#19343d"><B>TeknoCare | University Clinic</B></FONT><BR ALIGN="LEFT"/>'
-             f'<FONT POINT-SIZE="16">Proposed physical ERD / PostgreSQL / {len(TABLES)} entities</FONT><BR ALIGN="LEFT"/>'
+             f'<FONT POINT-SIZE="16">Django model schema / PostgreSQL / {len(TABLES)} entities</FONT><BR ALIGN="LEFT"/>'
              '<FONT POINT-SIZE="12">PK = primary key   FK = foreign key   UQ = unique   NN = not null   NULL = optional</FONT><BR ALIGN="LEFT"/>'
              '<FONT POINT-SIZE="12">Relationship ends: 1 = exactly one   0..1 = optional one   0..* = zero or more</FONT><BR ALIGN="LEFT"/>'
-             '<FONT POINT-SIZE="12">Each solid line represents a foreign key. Composite PK: record_diagnosis(record_id, diagnosis_id).</FONT><BR ALIGN="LEFT"/>'
+             '<FONT POINT-SIZE="12">Each solid line represents a foreign key. Visit/diagnosis pairs are UNIQUE with a surrogate primary key.</FONT><BR ALIGN="LEFT"/>'
              '<FONT POINT-SIZE="12">Slot may retain canceled bookings; only one non-canceled appointment per slot. See README for constraints.</FONT><BR ALIGN="LEFT"/>'
              '<FONT POINT-SIZE="12">Student charges post to tuition; Faculty/Staff visits are free. Posted means billed, not paid.</FONT><BR ALIGN="LEFT"/>'
-             '<FONT POINT-SIZE="12">Design proposal: application models and database have not been migrated.</FONT><BR ALIGN="LEFT"/><BR ALIGN="LEFT"/>'
+             '<FONT POINT-SIZE="12">Nullable affiliation/room preserve unverified legacy data; verification is required for new visits and active slots.</FONT><BR ALIGN="LEFT"/>'
+             '<FONT POINT-SIZE="12">Models and migrations provided; deployment and clinic user interfaces remain pending.</FONT><BR ALIGN="LEFT"/><BR ALIGN="LEFT"/>'
              '<FONT POINT-SIZE="12" COLOR="#117c77">Teal: patients</FONT>  |  <FONT POINT-SIZE="12" COLOR="#365ca1">Blue: scheduling</FONT>  |  '
              '<FONT POINT-SIZE="12" COLOR="#77519b">Purple: clinical</FONT>  |  <FONT POINT-SIZE="12" COLOR="#a36826">Amber: prescriptions</FONT>  |  '
              '<FONT POINT-SIZE="12" COLOR="#9a4864">Rose: tuition charges</FONT>>;']
@@ -348,7 +351,7 @@ def build():
                      f'taillabel="{"0..1" if nullable else "1"}", headlabel="{cardinality}"];')
     lines.append('}')
     (ROOT / "teknocare_improved_erd.dot").write_text("\n".join(lines) + "\n", encoding="utf-8")
-    docs = ["# Proposed data dictionary", "", "Generated from `generate_erd.py`. This describes the proposed schema, not the live database.", "",
+    docs = ["# Django model data dictionary", "", "Generated from `generate_erd.py`. This describes the model/migration target, not deployment status. See model_implementation.md for feature ownership and legacy-data exceptions.", "",
             "NN means NOT NULL. UQ means a single-column UNIQUE constraint. Non-FK primary keys use GENERATED BY DEFAULT AS IDENTITY. See README for additional constraints and deletion rules.", ""]
     for name, (domain, rows) in TABLES.items():
         docs += [f"## `{name}`", "", f"Domain: {DOMAINS[domain][0]}", "", "| Key | Column | PostgreSQL type | Nullability | References |", "| --- | --- | --- | --- | --- |"]
