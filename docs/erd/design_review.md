@@ -31,7 +31,11 @@ The 22-entity, 28-FK ERD now matches the feature models and migration target. It
 | Personnel care | Patient profiles may coexist with provider/admin access; personnel visits cannot be charged | Membership verification and staff intake interface |
 | Audit/history | User-based append-only audit guards, restrictive references, legacy archives | Broader workflow audit coverage and retention/access procedures |
 
-Current `config/urls.py` still exposes account pages, the SQL JOIN learning page, Django admin, and dashboard. No clinic booking/encounter/prescription/billing screens have been added. The migrations were verified on fresh/populated SQLite databases; deployment to the configured database has not occurred.
+Current `config/urls.py` exposes account pages, Django admin, and dashboard. Step 0
+removed the completed SQL JOIN learning page and app; its documents are archived
+under `docs/archive/sql_joins/`. No clinic booking/encounter/prescription/billing
+screens have been added. The migrations were verified on fresh/populated SQLite
+databases; deployment to the configured database has not occurred.
 
 ## Required acceptance checks before calling the application operational
 

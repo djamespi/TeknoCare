@@ -1,5 +1,9 @@
 # Step 1 verification and Git handoff
 
+This is the historical Step 1 handoff. Step 0 has since removed the completed SQL
+assessment; use [the Step 0 handoff](step_0_verification.md) for the current change.
+The test counts and browser limitations below describe Step 1's original review.
+
 Implemented November 18, 2026. Follow [README confirmation steps](../README.md#confirm-step-1-works)
 before approving this checkpoint. Every later feature handoff must likewise give
 the student commands, browser actions and expected results before commit/push.
@@ -47,17 +51,16 @@ contains fictional data only, and is separate from the student's normal local
 
 ## Still to confirm
 
-- Student visual checks/screenshots: browser screenshot capture failed with
-  `FrameArrived timed out`; coordinate input geometry was unavailable. The local
-  sign-in page opened, but the agent does not claim the screenshots were captured
-  or the changed navigation visually verified. Follow the
-  [capture checklist](../APPLICATION_SCREENSHOTS/step_1/README.md).
+- Student visual checks: confirm the current manual checklist in chat. The user
+  has superseded the earlier screenshot requirement; no Computer Use or screenshots
+  are requested. Automated checks do not establish visual approval.
 - GitHub CI: prepared, not remotely run yet. After pushing, inspect
   **Actions → Clinic checks**; both jobs should pass. Report a failed job's log.
 - Supabase schema/version, backup/restore, PostgreSQL staging and concurrency
   remain unverified. No hosted connection or migration occurred in this step.
-- Step 0 is pending because the student explicitly requested Step 1 first; the
-  SQL demo is still installed. Its future removal will have its own commit.
+- Step 0 was pending at this checkpoint because the student requested Step 1 first.
+  It has since removed the assessment app in its own change; do not expect the
+  old SQL demo page/link to exist in the current app.
 
 ## Commit after review
 
@@ -81,7 +84,6 @@ git commit -m "chore: establish reproducible prototype development setup"
 git push origin main
 ```
 
-If you captured the five named screenshots before committing, also stage those
-specific PNG files before reviewing the staged diff. If a new unrelated file or
+No screenshot files are required under the user's current preference. If a new unrelated file or
 already-staged change appears, inspect it separately before committing. The agent
 has not staged, committed, pushed or changed the student's branch.

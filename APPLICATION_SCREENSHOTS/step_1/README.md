@@ -1,5 +1,11 @@
 # Step 1 application screenshots
 
+Historical Step 1 checklist: Step 0 has since removed the SQL assessment page.
+For current navigation evidence, use [the Step 0 checklist](../step_0/README.md).
+The user has superseded all capture instructions below: no Computer Use or
+screenshots are required. Perform manual visual checks and confirm in chat; the
+remaining text describes the earlier checkpoint only.
+
 Capture the running local app with fictional data after following the project
 README's startup/confirmation steps. No application PNGs have been captured by the
 agent for this checkpoint: native browser screenshot capture reported
@@ -13,9 +19,6 @@ Save screenshots here as:
   styled Sign out button visible.
 - `profile.png`: profile form and navigation visible.
 - `settings.png`: settings form and navigation visible.
-- `joins_navigation.png`: existing SQL demo page with the updated navigation;
-  it may show missing samples in the new local database. Do not seed assessment
-  data just for the screenshot. Step 0 will remove this page later.
 - `signed_out.png`: sign-in page after clicking Sign out; attempting `/dashboard/`
   afterwards returns to sign-in.
 

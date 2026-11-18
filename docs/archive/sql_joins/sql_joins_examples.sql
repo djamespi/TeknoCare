@@ -1,7 +1,7 @@
 -- TeknoCare SQL JOIN activity. All statements are read-only SELECT queries.
--- Run python manage.py seed_join_demo first using the project's configured DB.
+-- Archived assessment reference only; the demo and its seed command were removed.
 -- These literal sample values are for pasting into the Supabase SQL Editor.
--- Django uses the parameterized equivalents in apps/joins/queries.py.
+-- The earlier parameterized implementation is preserved in Git history.
 -- Auto-generated patient/appointment IDs depend on your existing database.
 
 -- REQUIRED EXAMPLE 1: INNER JOIN. Expected: Ana twice, Ben once (3 rows).

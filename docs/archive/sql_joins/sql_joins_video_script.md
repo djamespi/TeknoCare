@@ -1,5 +1,10 @@
 # TeknoCare SQL JOIN video script and screen cues
 
+> Historical script for the completed school demonstration, archived after Step 0
+> on November 18, 2026. The referenced page, commands and demo source were removed.
+> Do not follow these preparation/submission instructions for the current app.
+> See the [archive notice](README.md) and [current project guide](../../../README.md).
+
 Plan for approximately 8-10 minutes, including opening files and pointing to
 results. Replace **[Your Name]** with your name. Read only the **Say** passages;
 the **Do** passages are screen directions. You can shorten or rephrase the spoken

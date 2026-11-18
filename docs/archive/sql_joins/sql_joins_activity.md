@@ -1,5 +1,11 @@
 # SQL JOIN activity adapted to TeknoCare
 
+> Historical assessment material, archived after Step 0 on November 18, 2026.
+> The demonstration app, page and management commands have been removed. The
+> instructions, model paths and results below describe the earlier school demo;
+> they are not current startup or database-maintenance instructions. See the
+> [archive notice](README.md) and [current project guide](../../../README.md).
+
 ## Activity requirements and implementation
 
 The supplied instructor guide requires research on seven JOIN types and a working

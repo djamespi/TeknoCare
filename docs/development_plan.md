@@ -13,11 +13,18 @@ These rules are project requirements, not independently verified university poli
 
 Implement one approved step at a time. This document is a plan, not authorization
 to implement all steps now. After each step, provide the changed files, behavior,
-checks and results, remaining limits, review instructions, screenshot requirements,
+checks and results, remaining limits, manual visual checks and expected outcomes,
 exact Git commands, and a suggested commit message. The student reviews, commits,
 and pushes. Do not commit, push, or advance into another feature automatically.
 If a step needs smaller commits, give each delivered change its own commands and
 message. Update this plan's progress and decision records with the implementation.
+
+User preference, November 18, 2026: do not use Computer Use or browser UI automation,
+and do not capture/request screenshots. The user personally checks visual layouts
+and behavior, then confirms in chat. Supply concise page/action/expected-result
+checklists and record visual review as pending until the user confirms. CLI and
+HTTP verification remain part of the agent's work. This supersedes earlier capture
+requirements in historical handoffs and assessment documents.
 
 ## Review baseline
 
@@ -48,7 +55,7 @@ original attachment must be reconciled if it is supplied later.
 | Billing | Terms, student charges, posting/void services, database guards, some audits | Staff screens, demo acknowledgment/export/reconciliation, student view |
 | Audit | Append-only model and database guards | Coverage across features and restricted review UI |
 | Django admin | Route and custom-user compatibility helpers; Profile/Settings registered | Safe account provisioning; clinical/billing changes must use protected workflows |
-| SQL learning activity | Read-only fictional JOIN demo, repeatable reserved seed, tests/docs | Remove the completed school demonstration from the application in Step 0; retain assessment evidence only as historical material |
+| SQL learning activity | Removed in Step 0; assessment documents archived under `docs/archive/sql_joins/` | Existing fictional rows retained; any later data cleanup is a separate reviewed action |
 | Configuration | Environment database URL and secret, pinned requirements | Separate local/staging configuration, Manila presentation time, deploy/static setup and documented startup |
 
 Specific gaps to address in their owning steps:
@@ -82,7 +89,7 @@ deployment, PostgreSQL concurrency, or the visual behavior of running screens.
 
 ## Prototype scope and unresolved policy
 
-Use fictional data throughout development, demonstrations, screenshots, and exports.
+Use fictional data throughout development, demonstrations, manual reviews, and exports.
 The app demonstrates workflows; it is not an approved clinical, identity, or
 university finance system. Keep Django server-rendered feature slices and the
 existing blue-green/teal visual style. No SPA, public API, or background worker is
@@ -165,12 +172,20 @@ patient details, availability, appointments, today's queue, consultations, vital
 diagnoses, prescriptions, referrals, visit summaries, charges, audits and reports.
 List/detail/create/edit/print pages are added where the workflow needs them; final
 page boundaries can be refined during each step. Every changed running interface
-requires visual review and application screenshots.
+requires the user's manual visual review and confirmation, without screenshots.
 
 ### Step 0 — Remove the completed SQL JOIN school demonstration
 
 Depends on: review of this plan. Requested November 18, 2026, because the school
 demonstration is complete. This is application cleanup before new clinic work.
+
+Implementation: removed November 18, 2026, after the student requested Step 0.
+The runtime app, route, navigation entry, stylesheet, templates, demo commands and
+demo-only tests are deleted. Historical assessment docs are clearly marked under
+`docs/archive/sql_joins/`. Clinic schema/migration source, existing rows, legacy
+archives and baseline evidence are unchanged. See the
+[Step 0 confirmation and Git handoff](step_0_verification.md) for current results
+and any outstanding visual review. Supabase was not connected to or modified.
 
 - Remove the SQL joins navigation entry, `/joins/` route and `apps.joins` installed
   app. Remove its views, queries, fictional seed/verification commands, templates,
@@ -192,7 +207,8 @@ demonstration is complete. This is application cleanup before new clinic work.
 Acceptance: clinic/account pages work without `apps.joins`; no navigation or active
 setup instructions reference the removed feature; `/joins/` is unavailable; checks
 and the remaining test suite pass. Removing source code leaves existing clinic
-database records intact. Capture changed navigation/dashboard screenshots.
+database records intact. The user checks the changed navigation/dashboard and
+confirms the expected results in chat; no screenshots are required.
 
 Commit: `chore: remove completed SQL join demonstration`
 
@@ -200,7 +216,7 @@ Commit: `chore: remove completed SQL join demonstration`
 
 Depends on: review of this plan. The student explicitly requested Step 1 before
 Step 0 on November 18, 2026; setup can proceed independently. SQL demo removal
-remains its own pending checkpoint.
+was subsequently completed in Step 0 as a separate checkpoint.
 
 Implementation: prepared November 18, 2026; awaiting student verification/approval.
 See [startup and confirmation steps](../README.md) and the
@@ -208,7 +224,7 @@ See [startup and confirmation steps](../README.md) and the
 bootstrap, automated checks, GitHub CI and the Supabase runbook are implemented.
 Django is upgraded to 5.2.19 LTS, with a retained-original profile replacement
 migration and POST sign-out compatibility. No hosted database was inspected or
-migrated. PostgreSQL CI/staging and application screenshot review remain pending.
+migrated. PostgreSQL CI/staging and user-confirmed visual review remain pending.
 
 - Add startup/development instructions, a credential-free `.env.example`, and an
   isolated local/test settings path. Keep the configured hosted database separate.
@@ -483,11 +499,11 @@ Depends on: 13.
   Correct failures in the relevant feature and document any remaining limitation.
 - Rehearse populated legacy upgrade, backup/restore and unverified-data review on
   staging before any separately authorized hosted database migration.
-- Complete accessibility/mobile/empty/error-state review; inspect each changed
-  running screen and collect screenshots in `APPLICATION_SCREENSHOTS`.
+- Provide accessibility/mobile/empty/error-state review checklists for each changed
+  running screen; the user performs visual checks and confirms without screenshots.
 - Produce setup/user guides, prototype limitations, final ERD/data dictionary,
-  fictional demo accounts and a defense/demo script. Collect GitHub history
-  screenshots after student-approved pushes.
+  fictional demo accounts and a defense/demo script. Review GitHub commit history
+  after student-approved pushes; screenshots are not required.
 - Prepare environment/static/host settings for the selected demo deployment. Actual
   publishing and hosted upgrades are separate explicit actions; a local functional
   prototype remains the deliverable if hosting is outside the assignment.
@@ -597,9 +613,10 @@ changes need link/diff review, not a new behavioral test.
 
 For schema changes, include migration source and applicable ERD source/generated
 artifacts together; keep populated legacy and metadata checks aligned. Do not edit
-already applied migrations. Inspect running UI changes and save screenshots under
-`APPLICATION_SCREENSHOTS`. Step 1's shared navigation change needs screenshots;
-see `APPLICATION_SCREENSHOTS/step_1/README.md` for the outstanding capture checklist.
+already applied migrations. Give the user a manual checklist for running UI changes
+and wait for confirmation. Do not use Computer Use or request/capture screenshots.
+Earlier capture checklists are superseded; visual review remains pending until
+confirmed by the user.
 Never include `.env`, passwords, real health information or database dumps in Git
 or screenshots.
 
@@ -641,12 +658,12 @@ do not recommend force push, hard reset, or discarding work.
 | Item | Status |
 | --- | --- |
 | Repository/ERD review and roadmap | Prepared November 18, 2026; awaiting student review |
-| Step 0: SQL JOIN demonstration removal | Planned at the student's request November 18, 2026; not implemented yet |
-| Step 1: reproducible local setup | Implemented November 18, 2026; isolated checks and HTTP smoke verification pass; student review/screenshots and remote CI pending |
+| Step 0: SQL JOIN demonstration removal | Implemented November 18, 2026; see `docs/step_0_verification.md` for checks and review instructions |
+| Step 1: reproducible local setup | Implemented November 18, 2026; isolated checks and HTTP smoke verification pass; student visual confirmation and remote CI pending |
 | Steps 2–14 | Pending; include working page creation/changes; implement only the step requested next |
 | Official ID formats, personnel/contracted provider identity, hours, fees, calendar | Unconfirmed; use documented fictional defaults until supplied |
 | Configured hosted migration status | Not inspected or changed in this review |
 | Existing Supabase upgrade | Planned through staged migration checkpoints; no hosted migration authorized or applied by this planning update |
 | PostgreSQL staging/concurrency/restore | Not run in this review; required before claiming those guarantees |
-| Verification handoff requirement | For every subsequent change, provide exact commands/browser checks, expected outcomes, limits and screenshot instructions before Git commit/push |
+| Verification handoff requirement | Provide exact commands/manual browser checks, expected outcomes and limits; no Computer Use or screenshots; wait for user visual confirmation before recording visual approval |
 

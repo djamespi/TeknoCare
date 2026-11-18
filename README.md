@@ -81,7 +81,37 @@ Keep existing `.env` unchanged. No `.env` file is required for local startup.
    migrations to work around a local setup error.
 
 Every later feature handoff will include its own commands, browser actions,
-expected results and screenshot checklist before Git commit/push instructions.
+expected results and a manual visual checklist before Git commit/push instructions.
+The user checks the visuals and confirms in chat. Computer Use and screenshots
+are not part of the development workflow.
+
+## Confirm Step 0 works
+
+The completed SQL JOIN school demo has been removed from the application. Its
+[historical documents](docs/archive/sql_joins/README.md) remain available, while
+clinic models, tables, migrations and existing data are preserved. No database
+migration or dependency installation is needed for this removal.
+
+With your venv active, stop any older development server with **Ctrl+C** and run:
+
+```powershell
+python scripts\check_project.py
+python manage.py runserver --settings=config.settings_local
+```
+
+The checks should end with **All isolated project checks passed. Supabase was not
+used.** In the browser, sign in and open Dashboard, Profile and Settings. Expected:
+all three pages work and the navigation contains Dashboard, Profile, Settings and
+Sign out, with no SQL joins entry. Sign out should still return to the login page.
+Open `http://127.0.0.1:8000/joins/` directly: expected **404 / Page not found**,
+whether signed in or signed out. This missing page is intentional.
+
+Check the updated navigation on the three account pages following the
+[Step 0 manual checklist](APPLICATION_SCREENSHOTS/step_0/README.md), then confirm
+the results in chat; no screenshots are needed. The
+[Step 0 handoff](docs/step_0_verification.md) records validation results and the
+exact Git commands. Do not run the retired assessment seed/verification commands;
+they are no longer installed. Existing historical sample rows are not deleted.
 
 ## Configuration boundaries
 
@@ -161,8 +191,9 @@ should be green. A configured workflow is not evidence that a remote run passed.
 The PostgreSQL job exercises the existing database guards/exclusion test; it does
 not yet prove concurrent-request behavior or upgrade the real hosted database.
 
-Screenshots for changed navigation belong in `APPLICATION_SCREENSHOTS/step_1/`.
-Use fictional local accounts only and avoid showing passwords, `.env`, real health
-information or unrelated browser tabs. Preserve `BASELINE_COMMIT.txt` and legacy
-archives. Step 0's SQL demonstration removal remains pending because the student
-explicitly requested Step 1 first; seeing its old link is not a Step 1 regression.
+The user reviews running screens and confirms the checklist results in chat.
+No Computer Use or screenshots are required. `APPLICATION_SCREENSHOTS` retains its
+historical folder name; its current checklist is text-only. Use fictional local
+accounts for review. Preserve `BASELINE_COMMIT.txt` and legacy
+archives. Step 0's SQL demonstration removal is implemented; its old page/link and
+demo commands should no longer be available.

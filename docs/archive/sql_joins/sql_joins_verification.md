@@ -1,5 +1,10 @@
 # SQL JOIN verification evidence
 
+> Historical assessment evidence, archived after Step 0 on November 18, 2026.
+> The demo and its commands are no longer part of the application. The old test
+> counts, database output and pending recording notes below are retained as a
+> dated record, not evidence for the current app. See the [archive notice](README.md).
+
 Verified on 2026-10-12 using the existing TeknoCare project.
 
 ## Completed checks

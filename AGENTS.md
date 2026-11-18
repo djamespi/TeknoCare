@@ -1,6 +1,6 @@
 # TeknoCare project guide
 
-Updated for the local setup checkpoint on November 18, 2026. Check Git status
+Updated for the SQL demo removal checkpoint on November 18, 2026. Check Git status
 before editing. The configured hosted database has not been upgraded by this task.
 
 ## Architecture and stack
@@ -26,7 +26,6 @@ boundaries and `docs/erd/README.md` for the target clinic rules.
 | prescriptions | Medication, Prescription, PrescriptionItem |
 | billing | AcademicTerm, StudentCharge; finance acknowledgment services |
 | audit | User-based, append-only AuditLog |
-| joins | Read-only SQL JOIN learning feature and fictional data commands |
 | common | Small abstract validated-save and PostgreSQL constraint primitives |
 
 Use lazy model labels for cross-feature FKs and `settings.AUTH_USER_MODEL` for
@@ -104,17 +103,23 @@ Follow `docs/development_plan.md` for the phased school-project prototype roadma
 ERD boundaries, and unresolved university-policy assumptions. Implement only the
 feature/step requested by the user; do not automatically implement the whole plan.
 After every delivered change, provide behavior and validation results, remaining
-limits, review/screenshot instructions, exact Git staging/commit/push commands for
+limits, manual visual-review instructions, exact Git staging/commit/push commands for
 the actual changed files and branch, and a suggested commit message. The user
 reviews, commits, and pushes; do not perform those Git writes unless explicitly
 asked. Update roadmap progress and decisions as features are completed.
 For every future change, include exact verification commands and browser actions
 with expected results so the user can confirm it works before committing. State
-what is still unverified and what screenshots to capture. Use `git --no-pager diff`
+what is still unverified and await the user's visual confirmation. Do not use
+Computer Use, browser UI automation, or request/capture screenshots. The user
+personally checks the visuals without screenshots. Continue appropriate CLI and
+HTTP checks, and distinguish those results from user-confirmed visual review.
+Use `git --no-pager diff`
 in handoff commands to avoid trapping the user in Git's pager. See `README.md` for
 the Step 1 confirmation checklist and `docs/supabase_migration_checklist.md` for
-the separate hosted database gate. Step 0 remains pending; the user chose Step 1
-first. Preserve the original profile migration alongside its Django 5.2-compatible
+the separate hosted database gate. The user normally activates the venv; use
+`python` in user-facing commands, and the explicit venv interpreter in tool calls
+when needed. Step 0's completed removal is recorded in `docs/step_0_verification.md`.
+Preserve the original profile migration alongside its Django 5.2-compatible
 replacement; do not delete or rewrite either migration as routine cleanup.
 
 ## Interface and evidence workflow
@@ -124,27 +129,20 @@ feature. Preserve the existing dark blue-green/teal style and account navigation
 Registration now collects a structured emergency contact; profile edits phone,
 address and bio. Names stay on User and birth date stays on Patient.
 
-After each meaningful repository change, tell the user whether to commit/push
-and whether application screenshots are needed. Capture every created/modified
-running interface in APPLICATION_SCREENSHOTS. Model source screenshots do not
-replace application screenshots. Model-only changes need Git evidence; form or
-screen changes need running application screenshots too. Collect GitHub history
-screenshots for final submission. Keep BASELINE_COMMIT.txt unchanged.
+After each meaningful repository change, provide a short manual checklist of
+pages/actions and expected outcomes, including desktop/narrow layout checks when
+relevant. The user checks visuals and confirms in chat; screenshots are not
+required. Do not mark visual review passed until the user confirms. Older capture
+instructions in historical evidence documents are superseded by this preference.
+Provide Git commands after review; preserve BASELINE_COMMIT.txt unchanged.
 
-## SQL JOIN learning feature
+## Retired assessment material
 
-The user has completed the assessment and requested its removal in the roadmap.
-Step 0 of `docs/development_plan.md` removes the demo app, route, navigation,
-assets, commands and demo-only tests when that implementation step is requested.
-Preserve clinic models/tables, migrations, legacy archives and baseline evidence;
-hosted sample-data deletion is a separate reviewed action. Until removal, the
-following rules govern the existing demo.
-
-Keep queries read-only and parameterized, filtered to reserved fictional JOIN-DEMO
-accounts/emails. The canonical patient/provider/slot/appointment table names stay
-stable; scheduled provider is obtained through Slot. Seed data has unusable
-passwords and suspended accounts; never overwrite mismatched existing records.
-Migrated legacy samples may require review before re-seeding because their new
-fields are intentionally unverified. Tests and verification commands cover the
-2/1/0 sample appointment pattern. Existing SQL activity/video docs remain under
-docs/. Never run seed commands against real records as part of verification.
+Step 0 removed the completed SQL JOIN demo from the application. Its documents
+are historical material under `docs/archive/sql_joins/`; do not follow their old
+startup/seed instructions or restore the demo during clinic work. Preserve the
+clinic models/tables, migrations, legacy archives and baseline evidence. Existing
+fictional JOIN-DEMO rows were not deleted. Any future data cleanup must first
+report exact reserved ID/email matches and dependencies and receive its own review;
+never delete by name or prefix alone. Keep remaining known assessment fixtures
+out of operational reports when those reports are implemented.

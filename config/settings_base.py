@@ -19,7 +19,6 @@ INSTALLED_APPS = [
     'apps.home',
     'apps.profile',
     'apps.user_settings',
-    'apps.joins',
     'apps.university',
     'apps.patients',
     'apps.providers',

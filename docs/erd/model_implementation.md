@@ -86,6 +86,13 @@ No ERD columns or relationships change, and this is not a hosted migration resul
 
 Registration now saves structured emergency contacts in one transaction with User/Patient creation. The public flow remains Student registration; staff intake must verify university membership before opening a visit or charging it. The profile form now edits phone/address/bio; names remain on User, and the Patient birth date replaces the old duplicate age field. Old display names/ages remain in the migration snapshot.
 
-The SQL JOIN learning feature imports canonical models from their slices and resolves appointment provider through Slot. Its fictional seed data uses explicit rooms and verified provider designation. Existing migrated demo rows may require deliberate reconciliation before re-seeding because the seed refuses to overwrite differing records; the read-only JOIN demonstration still preserves the original table names/records.
+Step 0 removed the completed SQL JOIN assessment app, page and commands. Its
+documents are retained under [the historical archive](../archive/sql_joins/README.md).
+The clinic models/table names and any existing fictional sample rows are unchanged.
+Do not re-seed or delete assessment records as part of ordinary clinic validation;
+future sample cleanup requires exact ID/email matching and dependency review.
 
-Commit and push this implementation after checks pass. Capture actual running **registration and profile screens** after the database upgrade because their form fields changed. Save those in `APPLICATION_SCREENSHOTS`. Model source screenshots do not replace application screenshots. Keep `BASELINE_COMMIT.txt` unchanged; collect GitHub commit-history screenshots for final submission.
+Commit and push after checks and student review. The user personally checks the
+running registration/profile screens after a database upgrade and confirms in
+chat. No Computer Use or screenshots are required under the current preference.
+Keep `BASELINE_COMMIT.txt` unchanged and preserve Git history for the school project.
