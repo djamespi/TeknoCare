@@ -113,6 +113,42 @@ the results in chat; no screenshots are needed. The
 exact Git commands. Do not run the retired assessment seed/verification commands;
 they are no longer installed. Existing historical sample rows are not deleted.
 
+## Confirm Step 2 works
+
+Step 2 adds validated account provisioning, shared role/ownership policies,
+password change, Admin-assisted non-Admin reset and read-only Django admin.
+See the [complete checks and Git handoff](docs/step_2_verification.md) and
+[prototype access policy](docs/access_policy.md). Later appointment, clinical,
+reference-management and billing screens are not implemented by this foundation.
+
+With your existing venv active, stop the old server, then run:
+
+```powershell
+python scripts\check_project.py
+python manage.py migrate --settings=config.settings_local
+python manage.py bootstrap_local_demo --settings=config.settings_local
+python manage.py runserver --settings=config.settings_local
+```
+
+The new migration adds normalized ID/email unique indexes without changing ERD
+columns or rewriting identities. It refuses ambiguous legacy duplicates; stop
+and review instead of deleting accounts or faking migrations. These commands use
+local/test databases, not Supabase. Existing sessions may need to sign in again
+because the authentication backend changed.
+
+Register a fictional Student, verify weak-password/duplicate errors, then sign in
+and use **Change password**. Confirm the current window stays signed in and a
+second independent session is signed out on its next request. As `DEMO-ADMIN`,
+use **Reset account password** for that Student with your current Admin password;
+confirm old credentials fail and replacement credentials work. No email is sent.
+A Student opening `/login/reset-password/` must receive 403. `/admin/` is now
+read-only for Admin; account details must not display password hashes.
+
+Follow the linked checklist for desktop/narrow layouts, field errors and notices,
+then confirm in chat without screenshots. New providers/personnel and suspension
+are tested service APIs here; their management pages are later work. Use only
+fictional local data. This is not a production identity/security deployment.
+
 ## Configuration boundaries
 
 | Settings module | Purpose | Database / secrets |

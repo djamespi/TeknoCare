@@ -2,6 +2,7 @@ from django.test import Client, TestCase
 from django.urls import reverse
 
 from apps.register.models import User
+from apps.patients.models import Patient
 
 
 class LoginFeatureTests(TestCase):
@@ -10,7 +11,7 @@ class LoginFeatureTests(TestCase):
         self.assertEqual(response.status_code, 200)
 
     def test_user_can_login_and_reach_home(self):
-        User.objects.create_user(
+        user = User.objects.create_user(
             school_id="2026-0001",
             email="student@example.com",
             fname="Campus",
@@ -19,6 +20,7 @@ class LoginFeatureTests(TestCase):
             user_type=User.UserType.PATIENT,
             account_status=User.AccountStatus.ACTIVE,
         )
+        Patient.objects.create(patient=user, affiliation="Student")
         response = self.client.post(
             reverse("login:login"),
             {"university_id": "2026-0001", "password": "test-password-123"},
@@ -27,7 +29,9 @@ class LoginFeatureTests(TestCase):
 
     def test_password_change_invalidates_existing_session(self):
         user = User.objects.create_user(school_id="SESSION-TEST", email="session@example.invalid", password="old-password")
+        Patient.objects.create(patient=user, affiliation="Student")
         self.client.force_login(user)
+        self.assertEqual(self.client.get(reverse("home:home")).status_code, 200)
         user.set_password("new-password")
         user.save(update_fields=["password_hash"])
         url = reverse("home:home")

@@ -1,7 +1,7 @@
 from datetime import date
 from decimal import Decimal
 from django.conf import settings
-from django.core.exceptions import ValidationError
+from django.core.exceptions import PermissionDenied, ValidationError
 from django.db import IntegrityError, transaction
 from django.test import TestCase
 from django.utils import timezone
@@ -83,7 +83,7 @@ class TuitionChargeTests(TestCase):
 
     def test_non_admin_cannot_acknowledge_posting(self):
         charge = self.new_charge(); charge.save()
-        with self.assertRaises(ValidationError):
+        with self.assertRaises(PermissionDenied):
             record_posting(charge_id=charge.pk, billing_reference="TEST-REF", actor=self.patient.patient)
 
     def test_posting_requires_finalized_record(self):

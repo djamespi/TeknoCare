@@ -1,6 +1,6 @@
 # TeknoCare project guide
 
-Updated for the SQL demo removal checkpoint on November 18, 2026. Check Git status
+Updated for the account/access foundation on November 18, 2026. Check Git status
 before editing. The configured hosted database has not been upgraded by this task.
 
 ## Architecture and stack
@@ -38,8 +38,17 @@ aliases. Keep dependencies one-way; do not add generic repository layers.
 account, not AbstractUser: PK user_id; login school_id; names fname/lname;
 password hashes in password_hash. Use its password and session-hash APIs.
 Roles are Admin/Patient/Provider; Active/Suspended status governs authentication.
-Admin accounts currently have full admin permissions; do not infer granular
-finance/clinical authorization merely from FK existence.
+Clinic Admin is not a Django superuser. Django admin is limited to read-only
+account/display-profile/preferences inspection and must never expose password
+hashes. Use `apps/common/permissions.py` at feature service boundaries; reload and
+scope targets, not just navigation links. See `docs/access_policy.md` for the
+role/action matrix. Admin status alone does not grant clinical authority.
+Public registration is Student only; personnel/provider subtype provisioning uses
+the atomic services in `apps/register/services.py`. Providers start inactive.
+Preserve ID case and leading zeros; trim IDs and trim/lowercase emails. No official
+ID format/domain or verified university identity is assumed. The normalized unique
+indexes reject legacy collisions without rewriting identities; reconcile privately
+before any migration that fails preflight. Never fake migrations to bypass it.
 
 Patient profiles may coexist with Admin/Provider account roles so personnel can
 receive care. Affiliation is Student/Faculty/Staff, separately from account role.
@@ -47,6 +56,15 @@ Old unknown affiliation is NULL and must be reviewed; never assume it is billabl
 Faculty/Staff care is free. Student charges post to tuition; Posted does not mean
 paid. Currency is configured by CLINIC_CURRENCY_CODE (default PHP). No direct
 payment or university finance integration exists yet.
+
+Password change and Admin-assisted non-Admin resets invoke validators and audit
+without logging credentials. Never reset self/other Admin accounts through the
+assistance page; use own password change or trusted operator recovery. No reset
+email or mandatory next-login change is implemented. Suspension must use the
+account-status service to revoke database sessions. Authentication denies missing
+required Patient/Provider profiles and suspended accounts on every session lookup.
+POST+CSRF protects mutations; GET profile/settings must not create rows. Keep
+booking/cancellation/billing actor checks when building later feature pages.
 
 Models/migrations cover all 22 ERD entities. Most clinical views and workflows
 remain to be built. Normal feature saves validate, but bulk/raw SQL bypasses model
@@ -121,6 +139,8 @@ the separate hosted database gate. The user normally activates the venv; use
 when needed. Step 0's completed removal is recorded in `docs/step_0_verification.md`.
 Preserve the original profile migration alongside its Django 5.2-compatible
 replacement; do not delete or rewrite either migration as routine cleanup.
+Step 2's access policy and manual/Git handoff are in `docs/access_policy.md` and
+`docs/step_2_verification.md`. New pages still require the user's visual approval.
 
 ## Interface and evidence workflow
 

@@ -1,8 +1,9 @@
 from django import forms
-from django.db import transaction
+from django.contrib.auth.password_validation import validate_password
 
-from apps.patients.models import Affiliation, EmergencyContact, Patient
+from .identity import identity_matches, normalize_email, normalize_school_id
 from .models import User
+from .services import register_student
 
 
 class RegistrationForm(forms.Form):
@@ -17,12 +18,12 @@ class RegistrationForm(forms.Form):
         label="Medical history summary",
         widget=forms.Textarea(attrs={"rows": 3}),
     )
-    password1 = forms.CharField(label="Password", widget=forms.PasswordInput)
-    password2 = forms.CharField(label="Confirm password", widget=forms.PasswordInput)
+    password1 = forms.CharField(label="Password", strip=False, widget=forms.PasswordInput(attrs={"autocomplete": "new-password"}))
+    password2 = forms.CharField(label="Confirm password", strip=False, widget=forms.PasswordInput(attrs={"autocomplete": "new-password"}))
 
     def clean_university_id(self):
-        university_id = self.cleaned_data["university_id"].strip()
-        if User.objects.filter(school_id=university_id).exists():
+        university_id = normalize_school_id(self.cleaned_data["university_id"])
+        if identity_matches(User.objects.all(), school_id=university_id).exists():
             raise forms.ValidationError("That University ID is already registered.")
         return university_id
 
@@ -30,32 +31,30 @@ class RegistrationForm(forms.Form):
         cleaned_data = super().clean()
         if cleaned_data.get("password1") != cleaned_data.get("password2"):
             self.add_error("password2", "Passwords do not match.")
+        if cleaned_data.get("password1"):
+            candidate = User(school_id=cleaned_data.get("university_id", ""), email=cleaned_data.get("email", ""),
+                fname=cleaned_data.get("first_name", ""), lname=cleaned_data.get("last_name", ""))
+            try:
+                validate_password(cleaned_data["password1"], candidate)
+            except forms.ValidationError as error:
+                self.add_error("password1", error)
         return cleaned_data
 
     def clean_email(self):
-        email = self.cleaned_data["email"].strip()
-        if User.objects.filter(email__iexact=email).exists():
+        email = normalize_email(self.cleaned_data["email"])
+        if identity_matches(User.objects.all(), email=email).exists():
             raise forms.ValidationError("That email is already registered.")
         return email
 
-    @transaction.atomic
     def save(self):
-        user = User.objects.create_user(
+        return register_student(
             school_id=self.cleaned_data["university_id"],
-            fname=self.cleaned_data["first_name"],
-            lname=self.cleaned_data["last_name"],
+            first_name=self.cleaned_data["first_name"],
+            last_name=self.cleaned_data["last_name"],
             email=self.cleaned_data["email"],
             password=self.cleaned_data["password1"],
-            user_type=User.UserType.PATIENT,
-            account_status=User.AccountStatus.ACTIVE,
-        )
-        patient = Patient.objects.create(
-            patient=user,
-            affiliation=Affiliation.STUDENT,
+            contact_name=self.cleaned_data["emergency_contact_name"],
+            contact_relationship=self.cleaned_data["emergency_contact_relationship"],
+            contact_phone=self.cleaned_data["emergency_contact"],
             medical_history_summary=self.cleaned_data["medical_history_summary"],
         )
-        EmergencyContact.objects.create(patient=patient,
-            full_name=self.cleaned_data["emergency_contact_name"],
-            relationship=self.cleaned_data["emergency_contact_relationship"],
-            phone_number=self.cleaned_data["emergency_contact"], is_primary=True)
-        return user

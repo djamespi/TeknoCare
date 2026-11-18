@@ -29,6 +29,14 @@ has not been inspected or changed during this step. Work locally using the
 - Check extension/function/trigger permissions, source-table grants and RLS, and
   restricted access to `legacy_*` archives. Django object authorization does not
   replace database grants/RLS. No public exposure is needed for this prototype.
+- Step 2 adds `register.0004_normalized_identity_uniqueness`. Inventory duplicates
+  of SQL `TRIM(school_id)` and `LOWER(TRIM(email))` privately before the migration.
+  Its preflight stops on collisions without rewriting identities. Resolve any
+  collision through a reviewed reconciliation, not by deleting accounts, inventing
+  IDs or faking migration records. Rehearse the expression indexes with the actual
+  PostgreSQL collation and representative legacy whitespace/email values. Existing
+  sessions need to sign in again after the authentication-backend change. Check
+  required subtype presence and [Admin/access policy](access_policy.md) as well.
 
 ## Backup and staging gate
 

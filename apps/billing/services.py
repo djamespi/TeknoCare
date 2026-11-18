@@ -3,18 +3,13 @@ from django.core.exceptions import ValidationError
 from django.conf import settings
 from django.db import transaction
 from django.utils import timezone
+from apps.common.permissions import require_permission
 from .models import AcademicTerm, StudentCharge
-
-
-def _authorized(actor):
-    # Explicit conservative policy until granular finance permissions are added.
-    if not actor.is_active or not actor.is_staff:
-        raise ValidationError("An active administrative account is required for charge actions.")
 
 
 @transaction.atomic
 def create_charge(*, record_id, term_id, description, amount, actor):
-    _authorized(actor)
+    actor = require_permission(actor, "billing.manage")
     from apps.clinical.models import MedicalRecord
     record = MedicalRecord.objects.select_for_update().get(pk=record_id)
     term = AcademicTerm.objects.select_for_update().get(pk=term_id)
@@ -27,7 +22,7 @@ def create_charge(*, record_id, term_id, description, amount, actor):
 
 @transaction.atomic
 def record_posting(*, charge_id, billing_reference, actor):
-    _authorized(actor)
+    actor = require_permission(actor, "billing.manage")
     charge = StudentCharge.objects.select_for_update().select_related("record").get(pk=charge_id)
     AcademicTerm.objects.select_for_update().get(pk=charge.term_id)
     if charge.status == StudentCharge.Status.POSTED and charge.billing_reference == billing_reference:
@@ -45,7 +40,7 @@ def record_posting(*, charge_id, billing_reference, actor):
 
 @transaction.atomic
 def void_charge(*, charge_id, reason, actor, reversal_reference=None):
-    _authorized(actor)
+    actor = require_permission(actor, "billing.manage")
     charge = StudentCharge.objects.select_for_update().get(pk=charge_id)
     if charge.status == StudentCharge.Status.VOIDED:
         raise ValidationError("Charge has already been voided.")

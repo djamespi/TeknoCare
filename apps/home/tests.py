@@ -2,6 +2,7 @@ from django.test import TestCase
 from django.urls import reverse
 
 from apps.profile.models import Profile
+from apps.patients.models import Patient
 from apps.register.models import User
 from apps.user_settings.models import UserSettings
 
@@ -27,6 +28,9 @@ class AccountPagesTests(TestCase):
             user_type=User.UserType.PATIENT,
             account_status=User.AccountStatus.ACTIVE,
         )
+
+        for user in (cls.user, cls.other_user):
+            Patient.objects.create(patient=user, affiliation="Student")
 
     def test_account_pages_require_login(self):
         for name in ("home:home", "home:dashboard", "profile:profile", "user_settings:settings"):
@@ -55,6 +59,15 @@ class AccountPagesTests(TestCase):
         self.assertContains(response, "Good to see you, Alex.")
         self.assertContains(response, "Your profile")
         self.assertContains(response, "YOUR PREFERENCES")
+
+    def test_account_form_gets_do_not_write_rows_and_other_methods_are_rejected(self):
+        self.client.force_login(self.user)
+        for name in ("profile:profile", "user_settings:settings"):
+            url = reverse(name)
+            self.assertEqual(self.client.get(url).status_code, 200)
+            self.assertEqual(self.client.put(url).status_code, 405)
+        self.assertFalse(Profile.objects.filter(user=self.user).exists())
+        self.assertFalse(UserSettings.objects.filter(user=self.user).exists())
 
     def test_profile_changes_only_current_user(self):
         other_profile = Profile.objects.create(user=self.other_user, phone_number="09000000000")

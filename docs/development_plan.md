@@ -253,6 +253,16 @@ Commit: `chore: establish reproducible prototype development setup`
 
 Depends on: 1.
 
+Implementation: prepared November 18, 2026 after the student pushed Step 0.
+See the [access matrix and prototype limits](access_policy.md) and
+[verification/Git handoff](step_2_verification.md). Account services, server-side
+policies, password pages, safe login redirects, required-profile/session checks
+and read-only Django admin are implemented. Existing appointment/billing services
+now enforce actor authorization. The normalized-identity index migration preserves
+ERD columns and refuses legacy collisions without rewriting data. User visual
+approval and PostgreSQL/hosted rehearsal remain pending; no Supabase migration
+has been applied. Later reference, appointment and clinical screens remain planned.
+
 - Add shared, small role/object policy helpers; enforce at the server and service
   boundary. Define patient ownership, assigned clinical access, nursing triage,
   clinical finalization/prescribing, and Admin operations explicitly.
@@ -660,7 +670,8 @@ do not recommend force push, hard reset, or discarding work.
 | Repository/ERD review and roadmap | Prepared November 18, 2026; awaiting student review |
 | Step 0: SQL JOIN demonstration removal | Implemented November 18, 2026; see `docs/step_0_verification.md` for checks and review instructions |
 | Step 1: reproducible local setup | Implemented November 18, 2026; isolated checks and HTTP smoke verification pass; student visual confirmation and remote CI pending |
-| Steps 2–14 | Pending; include working page creation/changes; implement only the step requested next |
+| Step 2: authentication/provisioning/access | Implemented November 18, 2026; isolated tests/HTTP checks and ERD/legacy checks pass; user visual confirmation and PostgreSQL/hosted checks pending |
+| Steps 3–14 | Pending; include working page creation/changes; implement only the step requested next |
 | Official ID formats, personnel/contracted provider identity, hours, fees, calendar | Unconfirmed; use documented fictional defaults until supplied |
 | Configured hosted migration status | Not inspected or changed in this review |
 | Existing Supabase upgrade | Planned through staged migration checkpoints; no hosted migration authorized or applied by this planning update |

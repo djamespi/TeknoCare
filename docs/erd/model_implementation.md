@@ -50,7 +50,7 @@ When adding future SQLite schema migrations to tables referenced by the guards, 
 2. Audit actors are remapped from Admin's shared user key to User before retiring the old Admin state.
 3. `register.0002_move_clinic_features` checks appointment/provider consistency, snapshots old patient/provider/appointment/medical-record/profile/settings rows into `legacy_*` tables, and renames old admin/support tables to `legacy_admin` and `legacy_support_ticket`. Retired data stays in the database, not in repository files. PostgreSQL archives have row-level security enabled and PUBLIC privileges revoked because snapshots do not inherit source policies. Review owner/service-role access in staging; snapshots contain the original health/contact information.
 4. Feature migrations then change fields, move profile/settings primary keys to the user FK, and create the new tables/constraints. Unknown affiliation and historical clinical text remain available for verified reconciliation rather than being guessed. Patient/contact names, diagnosis codes, dates of birth, and medicine doses are not parsed from ambiguous legacy text.
-5. Existing admin access-level data is preserved in the legacy table. The current app's Admin role has full administrative permissions; review that policy before granting access to former Standard accounts. Retired support/admin tables and other archives are not active Django models.
+5. Existing admin access-level data is preserved in the legacy table. Clinic Admin now has explicit operational service permissions, not unrestricted Django superuser editing or automatic clinical powers; review the [access policy](../access_policy.md) before granting access to former Standard accounts. Retired support/admin tables and other archives are not active Django models.
 6. The archival migration is intentionally irreversible through `migrate` because reconstructing a changed clinical database by guessing is unsafe. Rollback uses a verified database backup. Do not delete migration history or fake migrations to avoid this upgrade.
 
 The update was tested on fresh and populated in-memory SQLite databases. Before deploying to the configured Supabase/PostgreSQL database: take and verify a backup, rehearse the full upgrade on a staging copy, review archived/unverified records and access policies, then apply migrations with the expected database privileges. No production migration has been run here.
@@ -83,6 +83,15 @@ replacement's schema operations. The populated-upgrade script covers both paths.
 No ERD columns or relationships change, and this is not a hosted migration result.
 
 ## Existing interface integration and evidence
+
+Step 2 adds `register.0004_normalized_identity_uniqueness`: unique expression
+indexes on `TRIM(school_id)` and `LOWER(TRIM(email))` strengthen existing identity
+uniqueness without changing any ERD column, entity or FK. Diagram rerendering is
+not needed for these indexes. A preflight rejects ambiguous existing identities
+without rewriting/merging data. Tests cover rejection and preservation, bulk-write
+duplicates, and populated legacy upgrade. PostgreSQL collation/whitespace behavior
+and real legacy conflicts must still be reviewed in staging before hosted migration.
+The old full-admin permission assumption is superseded by the access policy.
 
 Registration now saves structured emergency contacts in one transaction with User/Patient creation. The public flow remains Student registration; staff intake must verify university membership before opening a visit or charging it. The profile form now edits phone/address/bio; names remain on User, and the Patient birth date replaces the old duplicate age field. Old display names/ages remain in the migration snapshot.
 

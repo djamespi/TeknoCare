@@ -13,16 +13,16 @@ class AppointmentModelTests(TestCase):
         self.admin, self.patient, self.provider, self.slot, self.record = clinic_data()
 
     def test_cancel_frees_slot_and_preserves_history(self):
-        first = book_appointment(patient_id=self.patient.pk, slot_id=self.slot.pk, reason_for_visit="First visit")
-        cancel_appointment(appointment_id=first.pk)
-        second = book_appointment(patient_id=self.patient.pk, slot_id=self.slot.pk, reason_for_visit="Replacement")
+        first = book_appointment(patient_id=self.patient.pk, slot_id=self.slot.pk, reason_for_visit="First visit", actor=self.patient.patient)
+        cancel_appointment(appointment_id=first.pk, actor=self.patient.patient)
+        second = book_appointment(patient_id=self.patient.pk, slot_id=self.slot.pk, reason_for_visit="Replacement", actor=self.admin)
         self.assertEqual(self.slot.appointments.count(), 2)
         self.assertNotEqual(first.pk, second.pk)
         self.assertTrue(self.slot.is_booked)
         self.assertEqual(second.provider, self.provider)
 
     def test_database_rejects_bulk_double_booking(self):
-        book_appointment(patient_id=self.patient.pk, slot_id=self.slot.pk, reason_for_visit="First")
+        book_appointment(patient_id=self.patient.pk, slot_id=self.slot.pk, reason_for_visit="First", actor=self.patient.patient)
         with self.assertRaises(IntegrityError), transaction.atomic():
             Appointment.objects.bulk_create([Appointment(patient=self.patient, slot=self.slot, reason_for_visit="Duplicate")])
 
@@ -32,7 +32,7 @@ class AppointmentModelTests(TestCase):
                 end_time=self.slot.end_time, is_active=True)
 
     def test_occupied_slot_cannot_be_rescheduled(self):
-        book_appointment(patient_id=self.patient.pk, slot_id=self.slot.pk, reason_for_visit="Visit")
+        book_appointment(patient_id=self.patient.pk, slot_id=self.slot.pk, reason_for_visit="Visit", actor=self.patient.patient)
         self.slot.start_time += timedelta(minutes=1)
         with self.assertRaises(ValidationError):
             self.slot.save()

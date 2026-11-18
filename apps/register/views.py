@@ -1,16 +1,26 @@
 from django.contrib import messages
+from django.core.exceptions import ValidationError
+from django.db import IntegrityError
 from django.shortcuts import redirect, render
+from django.views.decorators.http import require_http_methods
 
 from .forms import RegistrationForm
 
 
+@require_http_methods(["GET", "POST"])
 def register_view(request):
     if request.user.is_authenticated:
         return redirect("home:home")
 
-    form = RegistrationForm(request.POST or None)
-    if form.is_valid():
-        form.save()
-        messages.success(request, "Your TeknoCare account has been created. You can now sign in.")
-        return redirect("login:login")
+    form = RegistrationForm(request.POST if request.method == "POST" else None)
+    if request.method == "POST" and form.is_valid():
+        try:
+            form.save()
+        except IntegrityError:
+            form.add_error(None, "That University ID or email was just registered. Check your details or sign in.")
+        except ValidationError as error:
+            form.add_error(None, " ".join(error.messages))
+        else:
+            messages.success(request, "Your prototype Student account has been created. You can now sign in.")
+            return redirect("login:login")
     return render(request, "register/register.html", {"form": form})

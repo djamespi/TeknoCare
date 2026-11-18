@@ -60,6 +60,7 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'config.wsgi.application'
 AUTH_USER_MODEL = 'register.User'
+AUTHENTICATION_BACKENDS = ['apps.login.backends.ClinicBackend']
 
 
 # Password validation
@@ -68,6 +69,7 @@ AUTH_USER_MODEL = 'register.User'
 AUTH_PASSWORD_VALIDATORS = [
     {
         'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator',
+        'OPTIONS': {'user_attributes': ('school_id', 'fname', 'lname', 'email')},
     },
     {
         'NAME': 'django.contrib.auth.password_validation.MinimumLengthValidator',
