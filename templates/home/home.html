@@ -1,27 +1,59 @@
+{% extends 'base.html' %}
 {% load static %}
-<!DOCTYPE html>
-<html lang="en">
-<head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Dashboard | TeknoCare</title><link rel="stylesheet" href="{% static 'css/home/home.css' %}"></head>
-<body>
-{% include 'includes/navigation.html' %}
-<main class="home-shell">
-  <p class="eyebrow">YOUR DASHBOARD</p>
+{% block title %}Dashboard{% endblock %}
+{% block styles %}<link rel="stylesheet" href="{% static 'css/home/home.css' %}">{% endblock %}
+{% block main_class %}home-shell{% endblock %}
+{% block content %}
+  <p class="eyebrow">{% if request.user.user_type == 'Admin' %}ADMIN WORKSPACE{% elif request.user.user_type == 'Provider' %}PROVIDER WORKSPACE{% else %}PATIENT WORKSPACE{% endif %}</p>
   <h1>Good to see you, {{ request.user.fname|default:request.user.school_id }}.</h1>
-  <p class="lead">Your university health services, organized around you.</p>
-  <section class="home-grid" aria-label="Your clinic account">
-    <a class="feature-panel panel-primary" href="{% url 'profile:profile' %}">
-      <span class="panel-kicker">YOUR DETAILS</span>
-      <h2>Your profile</h2>
-      <p>Update your name, age, home address, and bio for the clinic team.</p>
-      <span class="arrow" aria-hidden="true">&rarr;</span>
-    </a>
-    <a class="feature-panel panel-light" href="{% url 'user_settings:settings' %}">
-      <span class="panel-kicker">YOUR PREFERENCES</span>
-      <h2>Settings</h2>
-      <p>Manage your display and email notification preferences.</p>
-      <span class="arrow" aria-hidden="true">&rarr;</span>
-    </a>
+  <p class="lead">{% if request.user.user_type == 'Admin' %}Support fictional clinic accounts and review account details. Your Admin role does not grant clinical access.{% elif request.user.user_type == 'Provider' %}Keep your account ready for clinic work. Clinical activation is separate from account access.{% else %}Keep your contact details and account preferences up to date for the clinic team.{% endif %}</p>
+  <section class="info-card" aria-labelledby="account-heading">
+    <h2 id="account-heading">Your account</h2>
+    <dl class="account-details">
+      <dt>University ID</dt><dd>{{ request.user.school_id }}</dd>
+      <dt>Account role</dt><dd>{{ request.user.get_user_type_display }}</dd>
+      <dt>Account status</dt><dd><span class="badge">{{ request.user.get_account_status_display }}</span></dd>
+      {% if patient %}<dt>Patient affiliation</dt><dd>{{ patient.affiliation|default:'Awaiting verification' }}</dd>{% endif %}
+      {% if provider %}
+        <dt>Provider designation</dt><dd>{{ provider.provider_type }}</dd>
+        <dt>Clinical profile</dt><dd>{% if provider_ready %}Active{% else %}Not activated for clinical work{% endif %}</dd>
+      {% endif %}
+    </dl>
+    {% if provider and not provider_ready %}<p class="notice workspace-note">Ask the clinic Admin to review your designation and activation before clinical work. Account access does not verify professional credentials.</p>{% endif %}
   </section>
-</main>
-<script src="{% static 'js/home/home.js' %}"></script>
-</body></html>
+  <section class="home-grid" aria-label="Available account tasks">
+    <a class="feature-panel panel-primary" href="{% url 'profile:profile' %}">
+      <span class="panel-kicker">YOUR DETAILS</span><h2>Your profile</h2>
+      <p>Update your contact phone, home address and non-clinical bio. Name and birth-date corrections require a separate clinic workflow.</p>
+    </a>
+    <a class="feature-panel" href="{% url 'user_settings:settings' %}">
+      <span class="panel-kicker">YOUR PREFERENCES</span><h2>Settings</h2>
+      <p>Choose light or dark mode. Email preferences can be saved, but email delivery is not available.</p>
+    </a>
+    <a class="feature-panel" href="{% url 'login:password_change' %}">
+      <span class="panel-kicker">ACCOUNT SECURITY</span><h2>Change password</h2>
+      <p>Update your own password and end your other signed-in sessions.</p>
+    </a>
+    {% if request.user.is_staff %}
+      <a class="feature-panel" href="{% url 'login:admin_password_reset' %}">
+        <span class="panel-kicker">ADMIN ASSISTANCE</span><h2>Reset account password</h2>
+        <p>Verify a fictional account holder in person, then reset a non-Admin password. No email is sent.</p>
+      </a>
+      <a class="feature-panel" href="{% url 'admin:register_user_changelist' %}">
+        <span class="panel-kicker">READ-ONLY ADMIN</span><h2>Inspect accounts</h2>
+        <p>Review account details in Django admin. Adding, editing and deleting accounts here is disabled.</p>
+      </a>
+    {% endif %}
+  </section>
+  <section class="info-card" aria-labelledby="workspace-heading">
+    <h2 id="workspace-heading">Workspace availability</h2>
+    {% if request.user.user_type == 'Admin' %}
+      <p>Department, practitioner, room and academic-term management are planned next. Clinic operations and reports are not available yet.</p>
+    {% elif request.user.user_type == 'Provider' %}
+      {% if provider.provider_type == 'Nurse' %}<p>Nursing triage and vitals pages are not available yet. Nurses will not finalize consultations or issue prescriptions.</p>{% else %}<p>Provider scheduling, consultations and prescribing pages are not available yet. A qualified, active designation and an assigned encounter will be required.</p>{% endif %}
+    {% else %}
+      <p>Appointment booking, visit summaries and tuition-charge pages are not available yet. No online payment or university finance connection is provided.</p>
+    {% endif %}
+    <p class="lead">This school-project prototype is not an emergency service or an official university medical record system.</p>
+  </section>
+{% endblock %}

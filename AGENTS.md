@@ -1,6 +1,6 @@
 # TeknoCare project guide
 
-Updated for the account/access foundation on November 18, 2026. Check Git status
+Updated for the shared clinic interface on November 18, 2026. Check Git status
 before editing. The configured hosted database has not been upgraded by this task.
 
 ## Architecture and stack
@@ -148,6 +148,20 @@ Templates live in templates/<feature>, assets in static/css and static/js by
 feature. Preserve the existing dark blue-green/teal style and account navigation.
 Registration now collects a structured emergency contact; profile edits phone,
 address and bio. Names stay on User and birth date stays on Patient.
+
+All clinic pages extend `templates/base.html`; reuse shared navigation, messages
+and `includes/form_fields.html` instead of duplicating page shells or form errors.
+`static/css/includes/site.css` owns theme tokens, navigation, forms, tables and
+pagination. Consume its variables in feature styles; do not restore the retired
+duplicate CSS/import chains or obsolete per-page focus/animation scripts.
+The appearance context processor reads the signed-in user's saved preference
+without creating rows on GET; signed-out pages are light. Django admin retains
+its own framework theme. Email delivery is unavailable even with its preference
+enabled. Keep dashboard data own-account scoped and link only implemented,
+authorized features, never invented metrics or unfinished clinic endpoints.
+Use the shared table/empty/pagination patterns in `docs/interface_patterns.md` for
+later lists. Step 3's manual/Git handoff is `docs/step_3_verification.md`; visual
+and keyboard review still require the user's confirmation, without screenshots.
 
 After each meaningful repository change, provide a short manual checklist of
 pages/actions and expected outcomes, including desktop/narrow layout checks when

@@ -149,6 +149,33 @@ then confirm in chat without screenshots. New providers/personnel and suspension
 are tested service APIs here; their management pages are later work. Use only
 fictional local data. This is not a production identity/security deployment.
 
+## Confirm Step 3 works
+
+The clinic pages now share a base layout, form/error/status styles and saved
+light/dark theme. Dashboards show role-specific available tasks without pretending
+unfinished appointment/clinical/billing screens exist. Profile copy matches its
+actual editable fields; email notifications remain a preference with no delivery.
+
+With your venv active, run the isolated checks and restart the local server:
+
+```powershell
+python scripts\check_project.py
+python manage.py runserver --settings=config.settings_local
+```
+
+No new migration or dependency installation is required for Step 3. In Settings,
+save dark mode, visit Dashboard/Profile/password pages, then sign out and back in:
+expect the saved theme to return only for that account. Signed-out public pages
+default to light. Django admin keeps its separate framework theme controls.
+
+Check the Admin and fictional Student dashboards, profile-save confirmation,
+password error summaries, email-delivery notices, keyboard focus and narrow-window
+layout using [the full Step 3 checklist and Git handoff](docs/step_3_verification.md).
+Provider cases are tested automatically and can be checked manually if you already
+have a fictional Provider account; its provisioning page is still planned.
+Confirm the visuals in chat without screenshots. Supabase is not changed.
+Future pages should follow [the shared interface patterns](docs/interface_patterns.md).
+
 ## Configuration boundaries
 
 | Settings module | Purpose | Database / secrets |

@@ -1,5 +1,5 @@
 from django import forms
-from django.contrib.auth.password_validation import validate_password
+from django.contrib.auth.password_validation import password_validators_help_text_html, validate_password
 
 from .identity import identity_matches, normalize_email, normalize_school_id
 from .models import User
@@ -20,6 +20,10 @@ class RegistrationForm(forms.Form):
     )
     password1 = forms.CharField(label="Password", strip=False, widget=forms.PasswordInput(attrs={"autocomplete": "new-password"}))
     password2 = forms.CharField(label="Confirm password", strip=False, widget=forms.PasswordInput(attrs={"autocomplete": "new-password"}))
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields["password1"].help_text = password_validators_help_text_html()
 
     def clean_university_id(self):
         university_id = normalize_school_id(self.cleaned_data["university_id"])

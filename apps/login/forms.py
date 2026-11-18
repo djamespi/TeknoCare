@@ -1,5 +1,6 @@
 from django import forms
 from django.contrib.auth import authenticate
+from django.contrib.auth.password_validation import password_validators_help_text_html
 
 
 class LoginForm(forms.Form):
@@ -28,6 +29,10 @@ class PasswordChangeForm(forms.Form):
         widget=forms.PasswordInput(attrs={"autocomplete": "new-password"}))
     new_password2 = forms.CharField(label="Confirm new password", strip=False,
         widget=forms.PasswordInput(attrs={"autocomplete": "new-password"}))
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields["new_password1"].help_text = password_validators_help_text_html()
 
     def clean(self):
         cleaned = super().clean()

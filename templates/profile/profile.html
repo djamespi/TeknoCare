@@ -1,5 +1,22 @@
-{% load static %}
-<!DOCTYPE html>
-<html lang="en">
-<head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Profile | TeknoCare</title><link rel="stylesheet" href="{% static 'css/profile/profile.css' %}"></head>
-<body>{% include 'includes/navigation.html' %}<main class="screen-shell"><p class="eyebrow">PROFILE</p><h1>Your profile</h1><p class="lead">Tell the clinic team a little about you.</p><section class="form-card"><form method="post">{% csrf_token %}{{ form.as_p }}<button type="submit">Save profile</button></form></section></main><script src="{% static 'js/profile/profile.js' %}"></script></body></html>
+{% extends 'base.html' %}
+{% block title %}Profile{% endblock %}
+{% block content %}
+  <p class="eyebrow">YOUR DETAILS</p>
+  <h1>Your profile</h1>
+  <p class="lead">Update your contact phone, home address and non-clinical bio. This form does not change your account name, university ID or patient birth date.</p>
+  <section class="info-card" aria-labelledby="identity-heading">
+    <h2 id="identity-heading">Account identity</h2>
+    <dl class="account-details">
+      <dt>Name</dt><dd>{{ request.user.get_full_name|default:'Not recorded' }}</dd>
+      <dt>University ID</dt><dd>{{ request.user.school_id }}</dd>
+    </dl>
+    <p>Ask the clinic Admin about identity corrections; the correction workflow is not available yet.</p>
+  </section>
+  <section class="form-card" aria-label="Edit contact details">
+    <form method="post">
+      {% csrf_token %}
+      {% include 'includes/form_fields.html' %}
+      <button class="button" type="submit">Save profile</button>
+    </form>
+  </section>
+{% endblock %}

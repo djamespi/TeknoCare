@@ -1,7 +1,25 @@
+{% extends 'base.html' %}
 {% load static %}
-<!DOCTYPE html>
-<html lang="en">
-<head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Create account | TeknoCare</title><link rel="stylesheet" href="{% static 'css/register/register.css' %}"></head>
-<body>
-<main class="auth-layout"><section class="auth-brand"><p class="eyebrow">TEKNOCARE</p><h1>Your health workspace starts here.</h1><p>Student self-registration is for this school-project prototype only. University membership is not verified. Personnel accounts are provisioned by the clinic Admin.</p></section><section class="auth-card"><p class="eyebrow">GET STARTED</p><h2>Create Student account</h2><p>Use at least eight characters for your password. Avoid common, numeric-only passwords and your account details.</p><form method="post">{% csrf_token %}{{ form.as_p }}<button type="submit">Create account</button></form><p class="auth-link">Already registered? <a href="{% url 'login:login' %}">Sign in</a></p></section></main><script src="{% static 'js/register/register.js' %}"></script>
-</body></html>
+{% block title %}Create account{% endblock %}
+{% block styles %}<link rel="stylesheet" href="{% static 'css/login/login.css' %}">{% endblock %}
+{% block main_class %}auth-shell{% endblock %}
+{% block content %}
+  <div class="auth-layout">
+    <section class="auth-brand" aria-labelledby="register-intro">
+      <p class="eyebrow">TEKNOCARE</p>
+      <h2 id="register-intro">Your health workspace starts here.</h2>
+      <p>Student self-registration is for this school-project prototype only. University membership is not verified. Personnel accounts are provisioned by the clinic Admin.</p>
+      <p>Use fictional identity and health details only.</p>
+    </section>
+    <section class="auth-card" aria-labelledby="register-heading">
+      <p class="eyebrow">GET STARTED</p>
+      <h1 id="register-heading">Create Student account</h1>
+      <form method="post">
+        {% csrf_token %}
+        {% include 'includes/form_fields.html' %}
+        <button class="button" type="submit">Create account</button>
+      </form>
+      <p class="auth-link">Already registered? <a href="{% url 'login:login' %}">Sign in</a></p>
+    </section>
+  </div>
+{% endblock %}

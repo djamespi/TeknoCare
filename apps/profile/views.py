@@ -1,3 +1,4 @@
+from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import redirect, render
 from django.views.decorators.http import require_http_methods
@@ -13,5 +14,6 @@ def profile_view(request):
     form = ProfileForm(request.POST if request.method == "POST" else None, instance=profile)
     if request.method == "POST" and form.is_valid():
         form.save()
+        messages.success(request, "Your profile has been saved.")
         return redirect("profile:profile")
     return render(request, "profile/profile.html", {"form": form})

@@ -1,0 +1,5 @@
+{% if messages %}
+  <div class="messages" aria-label="Notifications">
+    {% for message in messages %}<p class="notice{% if message.level >= 40 %} notice-error{% endif %}" role="{% if message.level >= 40 %}alert{% else %}status{% endif %}">{{ message }}</p>{% endfor %}
+  </div>
+{% endif %}

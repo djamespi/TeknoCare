@@ -289,6 +289,15 @@ Commit: `feat: enforce account provisioning and clinic access policies`
 
 Depends on: 2.
 
+Implementation: prepared November 18, 2026 after the Step 2 commit. All clinic
+pages now extend a shared base with accessible form/error/status patterns,
+responsive light/dark styles and saved account-specific theme. Role dashboards
+show only working tasks and own-account context; profile and email-delivery copy
+is corrected. Reusable table/empty/pagination patterns support later list pages.
+See [interface conventions](interface_patterns.md) and the
+[manual verification/Git handoff](step_3_verification.md). No new schema or hosted
+database change is needed. User visual/keyboard approval remains pending.
+
 - Introduce a base template, shared navigation, messages/errors, form/table styles,
   pagination patterns, accessible focus/labels, and mobile layouts.
 - Show Patient, Provider and Admin tasks appropriate to permissions. Add data cards
@@ -671,7 +680,8 @@ do not recommend force push, hard reset, or discarding work.
 | Step 0: SQL JOIN demonstration removal | Implemented November 18, 2026; see `docs/step_0_verification.md` for checks and review instructions |
 | Step 1: reproducible local setup | Implemented November 18, 2026; isolated checks and HTTP smoke verification pass; student visual confirmation and remote CI pending |
 | Step 2: authentication/provisioning/access | Implemented November 18, 2026; isolated tests/HTTP checks and ERD/legacy checks pass; user visual confirmation and PostgreSQL/hosted checks pending |
-| Steps 3–14 | Pending; include working page creation/changes; implement only the step requested next |
+| Step 3: shared interface and role dashboards | Implemented November 18, 2026; isolated/HTTP checks pass; user visual/keyboard confirmation pending |
+| Steps 4–14 | Pending; include working page creation/changes; implement only the step requested next |
 | Official ID formats, personnel/contracted provider identity, hours, fees, calendar | Unconfirmed; use documented fictional defaults until supplied |
 | Configured hosted migration status | Not inspected or changed in this review |
 | Existing Supabase upgrade | Planned through staged migration checkpoints; no hosted migration authorized or applied by this planning update |

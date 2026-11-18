@@ -1,5 +1,15 @@
-{% load static %}
-<!DOCTYPE html>
-<html lang="en">
-<head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Settings | TeknoCare</title><link rel="stylesheet" href="{% static 'css/user_settings/user_settings.css' %}"></head>
-<body>{% include 'includes/navigation.html' %}<main class="screen-shell"><p class="eyebrow">PREFERENCES</p><h1>Settings</h1><p class="lead">Make TeknoCare work the way you prefer.</p><section class="form-card"><form method="post">{% csrf_token %}{{ form.as_p }}<button type="submit">Save settings</button></form></section></main><script src="{% static 'js/user_settings/user_settings.js' %}"></script></body></html>
+{% extends 'base.html' %}
+{% block title %}Settings{% endblock %}
+{% block content %}
+  <p class="eyebrow">PREFERENCES</p>
+  <h1>Settings</h1>
+  <p class="lead">Choose how your signed-in clinic workspace looks. Changes apply after saving and are kept with your account.</p>
+  <p class="notice">Email delivery is not available. Saving an email preference does not send messages or enable password-recovery emails.</p>
+  <section class="form-card" aria-label="Edit preferences">
+    <form method="post">
+      {% csrf_token %}
+      {% include 'includes/form_fields.html' %}
+      <button class="button" type="submit">Save settings</button>
+    </form>
+  </section>
+{% endblock %}
