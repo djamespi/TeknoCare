@@ -98,6 +98,17 @@ The ERD checker verifies every model column/type/key/nullability/FK target again
 the diagram source. Update the ERD and rerender assets when model schema changes.
 Run PostgreSQL-specific tests on a disposable staging database before deployment.
 
+## Development checkpoints
+
+Follow `docs/development_plan.md` for the phased school-project prototype roadmap,
+ERD boundaries, and unresolved university-policy assumptions. Implement only the
+feature/step requested by the user; do not automatically implement the whole plan.
+After every delivered change, provide behavior and validation results, remaining
+limits, review/screenshot instructions, exact Git staging/commit/push commands for
+the actual changed files and branch, and a suggested commit message. The user
+reviews, commits, and pushes; do not perform those Git writes unless explicitly
+asked. Update roadmap progress and decisions as features are completed.
+
 ## Interface and evidence workflow
 
 Templates live in templates/<feature>, assets in static/css and static/js by
@@ -113,6 +124,13 @@ screen changes need running application screenshots too. Collect GitHub history
 screenshots for final submission. Keep BASELINE_COMMIT.txt unchanged.
 
 ## SQL JOIN learning feature
+
+The user has completed the assessment and requested its removal in the roadmap.
+Step 0 of `docs/development_plan.md` removes the demo app, route, navigation,
+assets, commands and demo-only tests when that implementation step is requested.
+Preserve clinic models/tables, migrations, legacy archives and baseline evidence;
+hosted sample-data deletion is a separate reviewed action. Until removal, the
+following rules govern the existing demo.
 
 Keep queries read-only and parameterized, filtered to reserved fictional JOIN-DEMO
 accounts/emails. The canonical patient/provider/slot/appointment table names stay
