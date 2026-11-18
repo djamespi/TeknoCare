@@ -25,5 +25,10 @@ urlpatterns = [
     path('register/', include('apps.register.urls')),
     path('profile/', include('apps.profile.urls')),
     path('settings/', include('apps.user_settings.urls')),
+    path('clinic/', include('apps.university.urls')),
+    path('clinic/rooms/', include('apps.appointments.urls')),
+    path('clinic/terms/', include('apps.billing.urls')),
+    path('clinic/providers/', include('apps.providers.urls')),
+    path('clinic/personnel/', include('apps.register.account_urls')),
     path('', include('apps.home.urls')),
 ]

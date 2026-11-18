@@ -52,20 +52,26 @@ The dashboard shows the current account's role/status, optional Patient affiliat
 and optional Provider designation/clinical activation. It does not display other
 accounts, clinical notes, invented operational totals or unimplemented feature
 links. Existing profile, settings and password tasks work for all three roles.
-Admin additionally gets password assistance and a read-only account inspection link.
+Admin additionally gets Clinic setup, password assistance and a read-only account
+inspection link. Clinic setup's reference/account lists are Admin-only and do not
+publish patient clinical notes.
 Providers see clinical activation separately from account activity, with nursing
 limits made explicit. Admin/Provider secondary Patient profiles do not switch their
 primary workspace or grant extra permissions.
 
 Later feature cards must have an implemented, authorized destination and real
 scoped data before being added. Hiding a card never replaces service authorization.
-Name/ID/birth-date corrections and clinical/reference workflows remain later work;
-the display profile edits only contact phone, home address and non-clinical bio.
+Name/ID/birth-date corrections and clinical workflows remain later work; reference
+administration is available in Step 4. The display profile edits only contact
+phone, home address and non-clinical bio.
 
 ## Tables, empty states and pagination
 
-The shared table styles and includes are patterns for later list pages, not new
-live clinic endpoints. Use a caption, header scopes and an accessible horizontal
+The shared table styles and includes are now used by Step 4's paginated reference
+lists. `includes/management_list.html` provides their shared actions, bound search
+and status filters, empty state and pagination; `includes/management_form.html`
+provides simple Admin forms. Keep feature models/forms/services/views in their
+owning apps. Use a caption, header scopes and an accessible horizontal
 scroll region for a wide table:
 
 ```html

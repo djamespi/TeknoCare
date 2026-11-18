@@ -171,10 +171,40 @@ default to light. Django admin keeps its separate framework theme controls.
 Check the Admin and fictional Student dashboards, profile-save confirmation,
 password error summaries, email-delivery notices, keyboard focus and narrow-window
 layout using [the full Step 3 checklist and Git handoff](docs/step_3_verification.md).
-Provider cases are tested automatically and can be checked manually if you already
-have a fictional Provider account; its provisioning page is still planned.
-Confirm the visuals in chat without screenshots. Supabase is not changed.
+Provider cases are tested automatically; Step 4 now provides fictional Provider
+account provisioning for manual review. The user confirmed Step 3 checks looked
+good before Step 4. Supabase is not changed.
 Future pages should follow [the shared interface patterns](docs/interface_patterns.md).
+
+## Confirm Step 4 works
+
+Admin's **Clinic setup** now manages departments, rooms, academic terms,
+Provider accounts/activation and Faculty/Staff Patient accounts. Search/filter
+lists are paginated; changes are audited. Non-Admin roles receive 403 even when
+opening the management URLs directly. Django admin remains read-only.
+
+No new migration or dependency installation is needed for this step. With the
+venv active, restart the existing local server:
+
+```powershell
+python scripts\check_project.py
+python manage.py runserver --settings=config.settings_local
+```
+
+Sign in as `DEMO-ADMIN`, open `/clinic/`, and follow
+[the Step 4 manual checklist and Git handoff](docs/step_4_verification.md).
+Prepare clearly fictional departments/rooms/dates, provision Faculty/Staff and
+Provider logins with passwords you choose privately, then review activation.
+Provider account creation never activates clinical work automatically. Blank
+licenses stay unknown; manual review is not external credential verification.
+
+Deactivation/closure preserves history. Rooms/providers with unresolved live
+work cannot be clinically deactivated silently; account suspension is separate
+and revokes sessions without deleting bookings. Reactivation does not reopen
+disabled slots. No tuition charge or payment is created by setup. Actual patient
+intake, availability and clinical pages are still later steps. Supabase remains
+untouched. Check desktop/narrow layouts in both themes and confirm in chat;
+no screenshots are needed.
 
 ## Configuration boundaries
 

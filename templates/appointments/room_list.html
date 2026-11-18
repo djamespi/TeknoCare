@@ -1,0 +1,9 @@
+{% extends 'includes/management_list.html' %}
+{% block title %}Clinic rooms{% endblock %}
+{% block heading %}Clinic rooms{% endblock %}
+{% block introduction %}Location changes are blocked after availability exists. Deactivation disables unbooked future slots but never cancels bookings; resolve live bookings first.{% endblock %}
+{% block actions %}<a class="button" href="{% url 'appointments:room_create' %}">Add clinic room</a>{% endblock %}
+{% block table %}
+<table><caption>Clinic room locations</caption><thead><tr><th scope="col">Campus</th><th scope="col">Building</th><th scope="col">Room</th><th scope="col">Status</th><th scope="col">Action</th></tr></thead>
+<tbody>{% for room in page_obj %}<tr><td>{{ room.campus }}</td><td>{{ room.building }}</td><th scope="row">{{ room.room_number }}</th><td>{{ room.is_active|yesno:'Active,Inactive' }}</td><td><a href="{% url 'appointments:room_edit' room.pk %}" aria-label="Edit room {{ room.campus }} {{ room.building }} {{ room.room_number }}">Edit</a></td></tr>{% endfor %}</tbody></table>
+{% endblock %}

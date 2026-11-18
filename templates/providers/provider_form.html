@@ -1,0 +1,10 @@
+{% extends 'base.html' %}
+{% block title %}Review provider{% endblock %}
+{% block content %}
+  <p class="eyebrow">CLINIC ADMINISTRATION</p><h1>Review provider</h1>
+  <p class="lead">{{ provider_account.school_id }} — {{ provider_account.get_full_name }}. Account access: {{ provider_account.account_status }}.</p>
+  <p><a href="{% url 'providers:provider_list' %}">Back to providers</a>{% if provider_account.user_type != 'Admin' %} &middot; <a href="{% url 'accounts:status' provider_account.pk %}">Change account access</a>{% endif %}</p>
+  <p class="notice">Review designation and supplied credentials manually before activation. Leave unknown license numbers blank. Unverified or suspended accounts cannot be activated. Referenced known designations are protected; legacy Unverified designations require explicit review. Nurse activation never grants prescribing/finalization rights.</p>
+  <p>Deactivation preserves visits and charges. Resolve live bookings and Draft encounters first; unbooked future availability is disabled. Reactivation does not reopen slots.</p>
+  <section class="form-card" aria-label="Review provider profile"><form method="post">{% csrf_token %}{% include 'includes/form_fields.html' %}<button class="button" type="submit">Save provider</button></form></section>
+{% endblock %}

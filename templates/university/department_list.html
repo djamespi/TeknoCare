@@ -1,0 +1,9 @@
+{% extends 'includes/management_list.html' %}
+{% block title %}Departments{% endblock %}
+{% block heading %}Departments{% endblock %}
+{% block introduction %}Use supplied or clearly fictional codes and names. Deactivation preserves patient links; referenced codes are protected.{% endblock %}
+{% block actions %}<a class="button" href="{% url 'university:department_create' %}">Add department</a>{% endblock %}
+{% block table %}
+<table><caption>Departments</caption><thead><tr><th scope="col">Code</th><th scope="col">Name</th><th scope="col">Status</th><th scope="col">Action</th></tr></thead>
+<tbody>{% for department in page_obj %}<tr><th scope="row">{{ department.code }}</th><td>{{ department.name }}</td><td>{{ department.is_active|yesno:'Active,Inactive' }}</td><td><a href="{% url 'university:department_edit' department.pk %}" aria-label="Edit department {{ department.code }}">Edit</a></td></tr>{% endfor %}</tbody></table>
+{% endblock %}

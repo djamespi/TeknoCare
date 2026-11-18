@@ -85,6 +85,12 @@ thead { background: var(--soft); }
 .pagination { display: flex; align-items: center; justify-content: center; flex-wrap: wrap; gap: 12px; margin-top: 24px; }
 .pagination a { padding: 8px; }
 .empty-state { border: 1px dashed var(--line); border-radius: 8px; padding: 28px; background: var(--surface); }
+.page-actions { display: flex; flex-wrap: wrap; gap: 12px; margin: 24px 0; }
+.button-secondary { background: var(--soft); color: var(--ink); border: 1px solid var(--line); }
+.filter-form { display: flex; align-items: flex-end; flex-wrap: wrap; gap: 16px; }
+.filter-form .form-field { flex: 1 1 180px; min-width: 0; margin: 0; }
+.filter-form .notice { flex: 1 1 100%; }
+.results-table, .empty-state { margin-top: 28px; }
 .site-footer { text-align: center; color: var(--muted); padding: 24px; font-size: .85rem; }
 @media (max-width: 600px) {
   .screen-shell, .home-shell { padding-top: 32px; }

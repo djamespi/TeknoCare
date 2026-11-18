@@ -35,6 +35,10 @@
       <p>Update your own password and end your other signed-in sessions.</p>
     </a>
     {% if request.user.is_staff %}
+      <a class="feature-panel" href="{% url 'university:management' %}">
+        <span class="panel-kicker">CLINIC ADMINISTRATION</span><h2>Clinic setup</h2>
+        <p>Manage departments, rooms, academic terms, provider activation and personnel accounts.</p>
+      </a>
       <a class="feature-panel" href="{% url 'login:admin_password_reset' %}">
         <span class="panel-kicker">ADMIN ASSISTANCE</span><h2>Reset account password</h2>
         <p>Verify a fictional account holder in person, then reset a non-Admin password. No email is sent.</p>
@@ -48,7 +52,7 @@
   <section class="info-card" aria-labelledby="workspace-heading">
     <h2 id="workspace-heading">Workspace availability</h2>
     {% if request.user.user_type == 'Admin' %}
-      <p>Department, practitioner, room and academic-term management are planned next. Clinic operations and reports are not available yet.</p>
+      <p>Clinic setup is available. Patient intake, scheduling, clinical operations and reports are still planned.</p>
     {% elif request.user.user_type == 'Provider' %}
       {% if provider.provider_type == 'Nurse' %}<p>Nursing triage and vitals pages are not available yet. Nurses will not finalize consultations or issue prescriptions.</p>{% else %}<p>Provider scheduling, consultations and prescribing pages are not available yet. A qualified, active designation and an assigned encounter will be required.</p>{% endif %}
     {% else %}

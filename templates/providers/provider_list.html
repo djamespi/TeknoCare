@@ -1,0 +1,9 @@
+{% extends 'includes/management_list.html' %}
+{% block title %}Providers{% endblock %}
+{% block heading %}Providers{% endblock %}
+{% block introduction %}Clinical activation requires a known designation AND an Active Admin/Provider account. A flag or license field is not evidence of credential verification. Review both status columns.{% endblock %}
+{% block actions %}<a class="button" href="{% url 'providers:provider_create' %}">Add provider account</a> <a class="button button-secondary" href="{% url 'providers:provider_attach' %}">Attach existing account</a>{% endblock %}
+{% block table %}
+<table><caption>Provider designations and account access</caption><thead><tr><th scope="col">University ID</th><th scope="col">Name</th><th scope="col">Designation</th><th scope="col">Clinical flag</th><th scope="col">Account access</th><th scope="col">Action</th></tr></thead>
+<tbody>{% for provider in page_obj %}<tr><th scope="row">{{ provider.provider.school_id }}</th><td>{{ provider.provider.get_full_name }}</td><td>{{ provider.provider_type }}</td><td>{{ provider.is_active|yesno:'Active,Inactive' }}</td><td>{{ provider.provider.account_status }}</td><td><a href="{% url 'providers:provider_edit' provider.pk %}" aria-label="Review provider {{ provider.provider.school_id }}">Review</a></td></tr>{% endfor %}</tbody></table>
+{% endblock %}

@@ -4,6 +4,7 @@ from django.db import models
 from django.utils import timezone
 from apps.common.constraints import PostgresExclusionConstraint, TimestampRange
 from apps.common.models import ValidatedModel
+from apps.providers.eligibility import provider_is_eligible
 
 
 class ClinicRoom(ValidatedModel):
@@ -46,9 +47,9 @@ class Slot(ValidatedModel):
         if self.start_time and self.end_time and self.end_time <= self.start_time:
             raise ValidationError({"end_time": "Slot must end after it starts."})
         if self.is_active:
-            if not self.room_id or not self.room.is_active:
+            if not self.room_id or not ClinicRoom.objects.filter(pk=self.room_id, is_active=True).exists():
                 raise ValidationError({"room": "Active availability needs an active, verified room."})
-            if not self.provider.is_active or self.provider.provider_type == "Unverified":
+            if not provider_is_eligible(self.provider_id):
                 raise ValidationError({"provider": "Verify and activate this provider before scheduling."})
             overlap = type(self).objects.filter(is_active=True, start_time__lt=self.end_time, end_time__gt=self.start_time).exclude(pk=self.pk)
             if overlap.filter(models.Q(provider_id=self.provider_id) | models.Q(room_id=self.room_id)).exists():

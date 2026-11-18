@@ -1,0 +1,17 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block title %}Clinic setup{% endblock %}
+{% block main_class %}home-shell{% endblock %}
+{% block styles %}<link rel="stylesheet" href="{% static 'css/home/home.css' %}">{% endblock %}
+{% block content %}
+  <p class="eyebrow">CLINIC ADMINISTRATION</p><h1>Clinic setup</h1>
+  <p class="lead">Prepare reference data and fictional personnel accounts. No official university directory, calendar, credential verification or finance connection is loaded.</p>
+  <div class="home-grid">
+    <a class="feature-panel" href="{% url 'university:department_list' %}"><h2>Departments</h2><p>Maintain codes and names; deactivate without changing patient affiliation.</p></a>
+    <a class="feature-panel" href="{% url 'appointments:room_list' %}"><h2>Clinic rooms</h2><p>Prepare locations without rewriting historical visits or canceling bookings.</p></a>
+    <a class="feature-panel" href="{% url 'billing:term_list' %}"><h2>Academic terms</h2><p>Open or close terms for later charges. This is not a payment flow.</p></a>
+    <a class="feature-panel" href="{% url 'providers:provider_list' %}"><h2>Providers</h2><p>Provision logins, attach existing Admin/Provider accounts, and review clinical activation separately.</p></a>
+    <a class="feature-panel" href="{% url 'accounts:personnel_list' %}"><h2>Personnel accounts</h2><p>Create Faculty/Staff Patient accounts with verified fictional affiliation.</p></a>
+  </div>
+  <p class="notice workspace-note">Do not invent IDs, licenses, departments, room locations or calendar dates to represent real university policy. No delete actions are provided. Patient intake, scheduling and clinical pages are later steps.</p>
+{% endblock %}

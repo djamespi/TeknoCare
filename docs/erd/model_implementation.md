@@ -84,6 +84,18 @@ No ERD columns or relationships change, and this is not a hosted migration resul
 
 ## Existing interface integration and evidence
 
+Step 4 adds Admin reference/provisioning pages and atomic, audited services without
+changing ERD fields, FKs, indexes or migrations. Department codes, room locations,
+provider designations and charged term identity have documented service-level
+history guards. Controlled room/provider deactivation disables future slots only
+after checking live work. Account suspension preserves work and history while
+blocking eligibility. Normal Slot/MedicalRecord saves now query current provider
+and account eligibility to reject stale cached Active state. These rules do not
+add database triggers; trusted direct/bulk SQL still needs restricted access.
+Booking resource locks are compatible with the new deactivation paths and avoid
+a nullable-join FOR UPDATE query; PostgreSQL concurrency still needs staging.
+See [the operational rules and verification limits](../step_4_verification.md).
+
 Step 2 adds `register.0004_normalized_identity_uniqueness`: unique expression
 indexes on `TRIM(school_id)` and `LOWER(TRIM(email))` strengthen existing identity
 uniqueness without changing any ERD column, entity or FK. Diagram rerendering is

@@ -296,7 +296,8 @@ show only working tasks and own-account context; profile and email-delivery copy
 is corrected. Reusable table/empty/pagination patterns support later list pages.
 See [interface conventions](interface_patterns.md) and the
 [manual verification/Git handoff](step_3_verification.md). No new schema or hosted
-database change is needed. User visual/keyboard approval remains pending.
+database change is needed. The user confirmed their checks looked good before
+requesting Step 4; Step 3 manual review is approved.
 
 - Introduce a base template, shared navigation, messages/errors, form/table styles,
   pagination patterns, accessible focus/labels, and mobile layouts.
@@ -315,6 +316,18 @@ Commit: `feat: add shared clinic interface and role dashboards`
 ### Step 4 — University, provider, room and term administration
 
 Depends on: 3.
+
+Implementation: prepared November 18, 2026 after Step 3 manual approval and commit
+`826a606`. Admin-only Clinic setup pages now manage departments, rooms, academic
+terms, provider provisioning/attachment/review, Faculty/Staff accounts and
+non-Admin account access. Service authorization, atomic audit, protected references
+and conservative deactivation rules preserve history. Optional unknown licenses
+stay NULL, and activation requires explicit prototype manual review. Scheduling
+and encounter eligibility now checks fresh account/provider state. No new schema
+or hosted migration is required. See [the Step 4 checks and decisions](step_4_verification.md).
+Isolated tests and HTTP checks pass; Step 4 user visual review and PostgreSQL
+staging/concurrency verification remain pending. Patient intake/allergies and
+actual availability/clinical workflows stay in their planned later steps.
 
 - Build restricted lists/forms for Department, ClinicRoom, AcademicTerm and Provider.
   Provision Faculty/Staff/Provider accounts through the Step 2 services.
@@ -680,8 +693,9 @@ do not recommend force push, hard reset, or discarding work.
 | Step 0: SQL JOIN demonstration removal | Implemented November 18, 2026; see `docs/step_0_verification.md` for checks and review instructions |
 | Step 1: reproducible local setup | Implemented November 18, 2026; isolated checks and HTTP smoke verification pass; student visual confirmation and remote CI pending |
 | Step 2: authentication/provisioning/access | Implemented November 18, 2026; isolated tests/HTTP checks and ERD/legacy checks pass; user visual confirmation and PostgreSQL/hosted checks pending |
-| Step 3: shared interface and role dashboards | Implemented November 18, 2026; isolated/HTTP checks pass; user visual/keyboard confirmation pending |
-| Steps 4–14 | Pending; include working page creation/changes; implement only the step requested next |
+| Step 3: shared interface and role dashboards | Implemented and committed (`826a606`); user confirmed manual checks looked good before Step 4 |
+| Step 4: clinic reference and personnel/provider administration | Implemented November 18, 2026; isolated/HTTP checks pass; user visual review and PostgreSQL staging pending |
+| Steps 5–14 | Pending; include working page creation/changes; implement only the step requested next |
 | Official ID formats, personnel/contracted provider identity, hours, fees, calendar | Unconfirmed; use documented fictional defaults until supplied |
 | Configured hosted migration status | Not inspected or changed in this review |
 | Existing Supabase upgrade | Planned through staged migration checkpoints; no hosted migration authorized or applied by this planning update |

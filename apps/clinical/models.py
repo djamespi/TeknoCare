@@ -6,6 +6,7 @@ from django.db import models
 from django.utils import timezone
 from apps.common.models import ValidatedModel
 from apps.patients.models import Affiliation
+from apps.providers.eligibility import provider_is_eligible
 
 
 class MedicalRecord(ValidatedModel):
@@ -46,7 +47,7 @@ class MedicalRecord(ValidatedModel):
     def clean(self):
         if self._state.adding and not self.affiliation_at_visit:
             raise ValidationError("Verify patient affiliation before opening a visit.")
-        if self._state.adding and self.provider_id and (not self.provider.is_active or self.provider.provider_type == "Unverified"):
+        if self._state.adding and self.provider_id and not provider_is_eligible(self.provider_id):
             raise ValidationError({"provider": "Verify and activate the attending provider."})
         if self.appointment_id:
             if self.appointment.patient_id != self.patient_id:

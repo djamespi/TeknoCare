@@ -21,6 +21,22 @@ def create_charge(*, record_id, term_id, description, amount, actor):
 
 
 @transaction.atomic
+def save_term(*, actor, academic_year, semester, start_date, end_date, is_open_for_charges, term_id=None):
+    actor = require_permission(actor, "reference.manage")
+    term = AcademicTerm.objects.select_for_update().get(pk=term_id) if term_id else AcademicTerm()
+    identity = (academic_year.strip(), semester.strip(), start_date, end_date)
+    if term_id and term.student_charges.exists() and identity != (term.academic_year, term.semester, term.start_date, term.end_date):
+        raise ValidationError("Keep the identity/calendar of a charged term. Close it and create a new term instead.")
+    term.academic_year, term.semester, term.start_date, term.end_date = identity
+    term.is_open_for_charges = is_open_for_charges
+    term.save()
+    from apps.audit.models import AuditLog
+    AuditLog.objects.create(actor_user=actor, action_performed="Academic term updated" if term_id else "Academic term created",
+        target_table="academic_term", target_record_id=term.pk)
+    return term
+
+
+@transaction.atomic
 def record_posting(*, charge_id, billing_reference, actor):
     actor = require_permission(actor, "billing.manage")
     charge = StudentCharge.objects.select_for_update().select_related("record").get(pk=charge_id)

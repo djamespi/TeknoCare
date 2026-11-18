@@ -1,9 +1,10 @@
 # Prototype account and access policy
 
-Implemented in Step 2, November 18, 2026. These are conservative school-project
-rules, not confirmed CIT-University operating policy. Clinical/reference screens
-are still scheduled for later steps. Never infer permission just from a visible
-link or a related patient/provider row.
+Introduced in Step 2 and extended in Step 4, November 18, 2026. These are
+conservative school-project rules, not confirmed CIT-University operating policy.
+Admin reference/provisioning screens are available under `/clinic/`; clinical
+screens remain later work. Never infer permission just from a visible link or a
+related patient/provider row.
 
 ## Accounts and identity
 
@@ -91,7 +92,10 @@ not secure an unfinished workflow or direct database access.
   non-Admin user's unexpired database sessions when suspending them. Reactivation
   does not resurrect those sessions. Direct SQL status changes are not a substitute
   for this service; all authentication still denies accounts while Suspended.
-  An account-management page will use the service in a later step.
+  Step 4's Change account access page uses this service. Existing bookings/clinical
+  history and the separate clinical activation flag are preserved; the clinic must
+  follow up unresolved work. Suspended practitioners are ineligible for new slots,
+  bookings and encounters regardless of a previously active clinical flag.
 - Switching to the clinic authentication backend signs out sessions established
   with the previous backend. Sign in again after this update; do not fake/clear
   migration history to work around a sign-in problem.
@@ -104,6 +108,46 @@ of accounts, display profiles and preferences only. Account details exclude
 password hashes; add/change/delete and auth group management are denied. Clinical
 tables are not registered as unrestricted model editors. Future feature pages use
 authorized services instead of re-enabling generic admin editing.
+
+## Step 4 reference administration
+
+All Clinic setup list/create/edit pages require an Active Admin, even for GETs.
+They expose only operational reference/account information, not clinical notes.
+Write services recheck the actor and whitelist data; POSTed primary keys, roles,
+creators and clinical activation on account creation cannot override server values.
+Lists search/filter with bound forms, paginate deterministically and escape data.
+Mutation forms use CSRF, atomic writes/audit and friendly validation/race errors.
+There are no delete actions or unrestricted Django-admin model editors.
+
+- Departments preserve patient links; a referenced code cannot be changed.
+  Inactive departments are unavailable for new personnel assignments. Affiliation
+  never changes merely because its department is deactivated.
+- Room location cannot be rewritten once any slot references it. Deactivation
+  blocks on unresolved Scheduled/Checked-In bookings, including overdue ones;
+  otherwise it disables active future slots and preserves all historical rows.
+- Provider creation always starts clinically inactive. Existing Admin/Provider
+  accounts without a Provider profile can receive an inactive Unverified profile,
+  preserving the primary role, password and any secondary Patient profile.
+  Activation or designation change requires a fresh manual-review confirmation.
+  Activation also requires a known designation and Active Admin/Provider account.
+  This checkbox is a prototype attestation recorded in audit, not external license
+  verification or stored documentary proof. License remains optional/NULL.
+- Referenced known provider designations are protected from silent changes.
+  Legacy Unverified designation can be reconciled with explicit review. Clinical
+  deactivation blocks on live bookings or Draft attending encounters; otherwise
+  future active slots are disabled, not deleted. Reactivation of a room/provider
+  does not reopen availability. Account suspension remains available to revoke
+  access immediately without canceling unresolved work.
+- Charged academic terms keep their year/semester/calendar identity. Opening or
+  closing them preserves charges; closing still allows later audited reversals.
+  No charge, payment, receipt or university acknowledgment is created by term setup.
+
+Normal new active-slot and encounter saves query current provider/account
+eligibility rather than trusting cached related objects. Booking locks provider
+account, provider, room and slot in a consistent resource order before validating;
+it avoids PostgreSQL FOR UPDATE on a nullable outer join. Later slot/clinical
+services must preserve that lock order and recheck eligibility. These are
+application guards, not new database constraints or proof of PostgreSQL concurrency.
 
 ## Limits before any real deployment
 

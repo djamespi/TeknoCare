@@ -2,7 +2,8 @@
 
 Implemented November 18, 2026 after the Step 2 commit (`7d41a70`). The user reviews,
 commits and pushes. No Computer Use, browser UI automation or screenshot capture
-is used. Visual approval remains pending until the user confirms in chat.
+is used. Before requesting Step 4, the user confirmed the checks looked good.
+This records the user's manual approval, not a complete accessibility certification.
 
 ## What changed
 

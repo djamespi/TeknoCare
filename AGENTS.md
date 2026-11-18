@@ -1,6 +1,6 @@
 # TeknoCare project guide
 
-Updated for the shared clinic interface on November 18, 2026. Check Git status
+Updated for clinic reference administration on November 18, 2026. Check Git status
 before editing. The configured hosted database has not been upgraded by this task.
 
 ## Architecture and stack
@@ -161,7 +161,28 @@ enabled. Keep dashboard data own-account scoped and link only implemented,
 authorized features, never invented metrics or unfinished clinic endpoints.
 Use the shared table/empty/pagination patterns in `docs/interface_patterns.md` for
 later lists. Step 3's manual/Git handoff is `docs/step_3_verification.md`; visual
-and keyboard review still require the user's confirmation, without screenshots.
+review was confirmed by the user before Step 4. Each new step still requires its
+own manual confirmation, without screenshots.
+
+Step 4's `/clinic/` pages are Active-Admin-only, including GETs; use the feature
+services rather than ModelForm.save or unrestricted admin editing. Shared list/
+form shells are under templates/includes; common/web.py contains small permission,
+filter and form-error helpers, not a generic repository. New provisioning uses
+Step 2 account services and never accepts role/activation injection. Providers
+start inactive; explicit manual-review confirmation is required for activation or
+designation changes, without claiming external credential verification. Licenses
+remain optional/NULL. Clinical and account status are separate.
+Reference edits preserve history: protect referenced department codes, room
+locations, known provider designations and charged term identity/calendar. Room/
+provider deactivation blocks live work then disables future slots, never deletes
+history; reactivation does not reopen slots. Account suspension revokes access
+without canceling unresolved bookings. See docs/access_policy.md for exact rules.
+Booking locks provider account, provider, room and slot after the patient lock;
+future slot writers must use compatible ordering and fresh eligibility checks.
+Do not reintroduce FOR UPDATE over a nullable outer join. Normal new active slots/
+encounters use providers/eligibility.py to reject stale account/provider state.
+No new schema change is needed for Step 4; PostgreSQL concurrency/hosted rehearsal
+is still separate. See docs/step_4_verification.md for manual checks and Git handoff.
 
 After each meaningful repository change, provide a short manual checklist of
 pages/actions and expected outcomes, including desktop/narrow layout checks when

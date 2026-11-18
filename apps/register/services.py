@@ -50,6 +50,11 @@ def create_personnel_account(*, actor, school_id, email, first_name, last_name, 
     actor = require_permission(actor, "accounts.manage")
     if affiliation not in {Affiliation.FACULTY, Affiliation.STAFF}:
         raise ValidationError({"affiliation": "Choose Faculty or Staff for personnel intake."})
+    if department:
+        from apps.university.models import Department
+        department = Department.objects.select_for_update().get(pk=department.pk)
+        if not department.is_active:
+            raise ValidationError({"department": "Choose an active department or leave it unspecified."})
     user = _new_user(school_id=school_id, email=email, first_name=first_name, last_name=last_name,
         password=password, role=User.UserType.PATIENT)
     Patient.objects.create(patient=user, affiliation=affiliation, department=department)
