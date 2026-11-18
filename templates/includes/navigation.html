@@ -5,6 +5,8 @@
     <a href="{% url 'profile:profile' %}"{% if request.resolver_match.namespace == 'profile' %} aria-current="page"{% endif %}>Profile</a>
     <a href="{% url 'user_settings:settings' %}"{% if request.resolver_match.namespace == 'user_settings' %} aria-current="page"{% endif %}>Settings</a>
     <a href="{% url 'joins:demo' %}"{% if request.resolver_match.namespace == 'joins' %} aria-current="page"{% endif %}>SQL joins</a>
-    <a href="{% url 'logout' %}">Sign out</a>
+    <form method="post" action="{% url 'logout' %}" class="logout-form">
+      {% csrf_token %}<button type="submit" class="logout-button">Sign out</button>
+    </form>
   </nav>
 </header>

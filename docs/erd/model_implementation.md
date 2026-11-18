@@ -57,13 +57,11 @@ The update was tested on fresh and populated in-memory SQLite databases. Before 
 
 ## Verification commands
 
-Use an isolated shell for checks; the environment override is only for that process:
+Step 1 adds isolated settings and a repeatable runner. See the project `README.md`
+for local startup; tests do not need `.env` or a Supabase connection:
 
 ```powershell
-$env:DATABASE_URL = 'sqlite:///:memory:'
-.\venv\Scripts\python.exe manage.py check
-.\venv\Scripts\python.exe manage.py makemigrations --check --dry-run
-.\venv\Scripts\python.exe manage.py test --noinput
+.\venv\Scripts\python.exe scripts\check_project.py
 ```
 
 These scripts force an in-memory SQLite connection regardless of the configured database URL:
@@ -74,6 +72,15 @@ These scripts force an in-memory SQLite connection regardless of the configured 
 ```
 
 Run the test suite on a disposable PostgreSQL database in staging to exercise its range exclusions and trigger implementation. The PostgreSQL-only test is skipped on SQLite.
+
+The runtime is now Django 5.2 LTS. A replacement migration,
+`profile.0003_profile_upgrade_compat`, performs non-key field changes before the
+original ID removal/user-key promotion. This avoids an intermediate-primary-key
+failure when rebuilding a populated SQLite profile table under Django 5.2, while
+reaching the same final schema. The original migration is retained unchanged;
+Django recognizes databases where it was already applied and does not rerun its
+replacement's schema operations. The populated-upgrade script covers both paths.
+No ERD columns or relationships change, and this is not a hosted migration result.
 
 ## Existing interface integration and evidence
 

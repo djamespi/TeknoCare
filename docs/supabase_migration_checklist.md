@@ -1,0 +1,89 @@
+# Supabase migration checkpoint
+
+Prepared in Step 1. This is a runbook, not a record of a hosted upgrade. Supabase
+has not been inspected or changed during this step. Work locally using the
+[startup guide](../README.md) until this checkpoint is explicitly requested.
+
+## Inventory before changing data
+
+- Identify the intended Supabase project, database, PostgreSQL version and connection
+  mode privately. Django 5.2 requires PostgreSQL 14 or newer. Keep URLs/passwords
+  out of Git, screenshots, command history and reports.
+- Use reviewed environment-backed settings, not local/test settings. Environment
+  variables take precedence over `.env`; confirm the target privately before any
+  connection. No test, seed or migration command runs against hosted data merely
+  because its URL already exists in `.env`.
+- At the requested read-only inventory checkpoint, set `DEBUG=false`, the intended
+  hosts/secret and reviewed database connection. These commands read migration state
+  and preview pending work without applying migrations:
+
+  ```powershell
+  .\venv\Scripts\python.exe manage.py showmigrations --settings=config.settings
+  .\venv\Scripts\python.exe manage.py migrate --plan --settings=config.settings
+  ```
+
+- Compare the actual schema to recorded Django migrations and the checked-in
+  22-entity ERD. Earlier manually created tables are not proof migrations ran.
+  Investigate missing/extra columns, provider mismatches and unverified legacy
+  affiliation/rooms before proposing a fix; do not fabricate clinical values.
+- Check extension/function/trigger permissions, source-table grants and RLS, and
+  restricted access to `legacy_*` archives. Django object authorization does not
+  replace database grants/RLS. No public exposure is needed for this prototype.
+
+## Backup and staging gate
+
+1. Create a backup of the current application schema/data and required database
+   objects, using a method available on the actual Supabase plan. Protect dumps
+   outside Git. Record the backup time/location privately.
+2. Restore the backup into isolated PostgreSQL staging; verify it really restores,
+   including IDs, links, legacy archives and migration history. Use fictional or
+   appropriately de-identified representative data for demonstrations/tests.
+3. Rehearse pending migrations with the same code/dependency revision intended for
+   hosting. Use a direct database connection for migration work, following
+   [Supabase's connection guidance](https://supabase.com/docs/guides/database/connecting-to-postgres).
+   If networking requires a session-pooler alternative, validate it in staging.
+   Do not assume the transaction pooler has the same migration/session behavior.
+4. Verify `btree_gist`, range exclusions and trigger installation. Test normal,
+   invalid, direct/bulk and concurrent write cases against disposable PostgreSQL.
+   SQLite and the GitHub baseline test job do not replace this rehearsal.
+5. Verify account/profile keys, visit timestamps, structured patient/clinical
+   relationships and every retired-field archive after the upgrade. The new profile
+   replacement must be recognized as already satisfied if its original was applied.
+   Preserve all original migration files and `BASELINE_COMMIT.txt`.
+6. Record validation results and unresolved data issues. `register.0002` cannot be
+   reversed through Django; rehearse recovery from the verified backup. Plan a
+   write pause/compatible code deployment if the schema update needs one.
+
+Consult the official [backup/restore guide](https://supabase.com/docs/guides/platform/migrating-within-supabase/backup-restore)
+for commands appropriate to the actual project. No backup, external restore,
+privilege change or hosted migration is performed just by adding this runbook.
+
+## Reviewed hosted upgrade and confirmation
+
+Provide the student with the concrete target, pending migration list, verified
+backup/restore result, staging evidence and expected effects. The project guide
+requires a verified backup and PostgreSQL rehearsal before a hosted upgrade.
+Only at the separately authorized checkpoint apply the reviewed migration plan,
+deploy the compatible app revision, and check the applied state afterwards.
+
+Do not run the automated test suite or demo seed on Supabase. Do not use `--fake`,
+delete migration history, drop application tables or delete ambiguous records to
+force a migration through. Git push does not apply database migrations.
+
+Post-upgrade confirmation includes migration status, preserved row/link checks,
+constraints/triggers, authorized fictional-account sign-in and the feature's
+screens. Avoid editing real records to prove a screen works. Record the actual
+outcome in `development_plan.md`; if an upgrade fails, stop writes and follow the
+rehearsed recovery plan instead of guessing a reverse migration.
+
+## Current checkpoint record
+
+| Check | Current evidence |
+| --- | --- |
+| Local fresh SQLite migration | Covered by local rehearsal and isolated tests |
+| Populated legacy SQLite upgrade | Automated script, including replacement/already-applied recognition |
+| ERD/model agreement | Automated metadata comparison for 22 entities / 28 relationships |
+| Disposable PostgreSQL baseline | GitHub Actions workflow prepared; remote result pending push |
+| Current Supabase schema/version | Not inspected in Step 1 |
+| Verified hosted backup/restore and staging rehearsal | Pending |
+| Hosted upgrade authorization/application | Not requested/performed in Step 1 |

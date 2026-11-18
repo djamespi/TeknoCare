@@ -1,11 +1,11 @@
 # TeknoCare project guide
 
-Updated for the ERD model implementation on November 16, 2026. Check Git status
+Updated for the local setup checkpoint on November 18, 2026. Check Git status
 before editing. The configured hosted database has not been upgraded by this task.
 
 ## Architecture and stack
 
-TeknoCare is a university clinic Django 4.2 application with PostgreSQL/Supabase,
+TeknoCare is a university clinic Django 5.2 LTS application with PostgreSQL/Supabase,
 server-rendered templates, CSS, and vanilla JavaScript. Keep vertical feature
 slices under `apps/<feature>/`: that feature owns its models, migrations, tests,
 services, forms, views, and URLs. Avoid putting unrelated clinic models back in
@@ -76,17 +76,17 @@ SQLite table rebuild migrations, remove/reinstall affected SQL guard triggers.
 
 ## Checks
 
-Use the existing interpreter, without depending on shell activation. Override the
-DB URL only in an isolated shell/tool process so tests cannot write hosted data:
+Use the existing interpreter, without depending on shell activation. Local preview
+uses `config.settings_local` (SQLite), tests use `config.settings_test` (in-memory
+SQLite), and only explicit hosted/staging use loads `.env` via `config.settings`.
+Local/test modules ignore `DATABASE_URL`. Never preview against hosted data by
+accident. The repeatable check runner forces test settings in child processes:
 
 ```powershell
-$env:DATABASE_URL = 'sqlite:///:memory:'
-.\venv\Scripts\python.exe manage.py check
-.\venv\Scripts\python.exe manage.py makemigrations --check --dry-run
-.\venv\Scripts\python.exe manage.py test --noinput
+.\venv\Scripts\python.exe scripts\check_project.py
 ```
 
-These two scripts force isolated in-memory SQLite independently of the .env URL:
+These two scripts also force test settings independently of the .env URL:
 
 ```powershell
 .\venv\Scripts\python.exe scripts\verify_erd_upgrade.py
@@ -108,6 +108,14 @@ limits, review/screenshot instructions, exact Git staging/commit/push commands f
 the actual changed files and branch, and a suggested commit message. The user
 reviews, commits, and pushes; do not perform those Git writes unless explicitly
 asked. Update roadmap progress and decisions as features are completed.
+For every future change, include exact verification commands and browser actions
+with expected results so the user can confirm it works before committing. State
+what is still unverified and what screenshots to capture. Use `git --no-pager diff`
+in handoff commands to avoid trapping the user in Git's pager. See `README.md` for
+the Step 1 confirmation checklist and `docs/supabase_migration_checklist.md` for
+the separate hosted database gate. Step 0 remains pending; the user chose Step 1
+first. Preserve the original profile migration alongside its Django 5.2-compatible
+replacement; do not delete or rewrite either migration as routine cleanup.
 
 ## Interface and evidence workflow
 

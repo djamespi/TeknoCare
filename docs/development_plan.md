@@ -198,7 +198,17 @@ Commit: `chore: remove completed SQL join demonstration`
 
 ### Step 1 — Reproducible local setup and baseline
 
-Depends on: 0.
+Depends on: review of this plan. The student explicitly requested Step 1 before
+Step 0 on November 18, 2026; setup can proceed independently. SQL demo removal
+remains its own pending checkpoint.
+
+Implementation: prepared November 18, 2026; awaiting student verification/approval.
+See [startup and confirmation steps](../README.md) and the
+[Step 1 evidence/Git handoff](step_1_verification.md). Local/test settings, demo
+bootstrap, automated checks, GitHub CI and the Supabase runbook are implemented.
+Django is upgraded to 5.2.19 LTS, with a retained-original profile replacement
+migration and POST sign-out compatibility. No hosted database was inspected or
+migrated. PostgreSQL CI/staging and application screenshot review remain pending.
 
 - Add startup/development instructions, a credential-free `.env.example`, and an
   isolated local/test settings path. Keep the configured hosted database separate.
@@ -237,6 +247,8 @@ Depends on: 1.
 - Use POST+CSRF logout and other mutations; handle safe return-to-page redirects.
   Add password change and a documented Admin-assisted reset for fictional accounts.
   No email recovery claim without a configured delivery mechanism.
+- POST sign-out was brought forward into Step 1 for Django 5.2 compatibility;
+  retain it while extending the remaining account security workflows here.
 - Keep a bootstrap Admin path available without granting ordinary clinic Admin
   unrestricted model editing through Django admin. Verify custom-user forms before
   registering User with the admin site.
@@ -574,16 +586,11 @@ checks in an isolated tool process or dedicated test terminal; never accidentall
 run tests/seed data against the configured hosted database.
 
 ```powershell
-$env:DATABASE_URL = 'sqlite:///:memory:'
-.\venv\Scripts\python.exe manage.py check
-.\venv\Scripts\python.exe manage.py makemigrations --check --dry-run
-.\venv\Scripts\python.exe manage.py test --noinput
-.\venv\Scripts\python.exe scripts\verify_erd_models.py
-.\venv\Scripts\python.exe scripts\verify_erd_upgrade.py
+.\venv\Scripts\python.exe scripts\check_project.py
 ```
 
-The override lasts for that shell; use a fresh terminal for the intended local
-preview configuration. An in-memory database is for checks/tests, not a persistent
+The runner forces isolated test settings for its children and does not change
+your terminal configuration. Use `config.settings_local` for a persistent local
 demo server. Start with tests for changed behavior; run broader regression checks
 when shared auth, schema or cross-feature workflows change. Documentation-only
 changes need link/diff review, not a new behavioral test.
@@ -591,7 +598,8 @@ changes need link/diff review, not a new behavioral test.
 For schema changes, include migration source and applicable ERD source/generated
 artifacts together; keep populated legacy and metadata checks aligned. Do not edit
 already applied migrations. Inspect running UI changes and save screenshots under
-`APPLICATION_SCREENSHOTS`; no UI screenshot is required for this planning change.
+`APPLICATION_SCREENSHOTS`. Step 1's shared navigation change needs screenshots;
+see `APPLICATION_SCREENSHOTS/step_1/README.md` for the outstanding capture checklist.
 Never include `.env`, passwords, real health information or database dumps in Git
 or screenshots.
 
@@ -601,22 +609,23 @@ Commands are run from `C:\Users\ADMIN\CITU_TeknoCare\TeknoCare`, the actual Git
 repository. Current branch at review was `main`, with remote named `origin`. Never
 assume a later branch/remote is identical: inspect status before each handoff.
 
-For this planning change, after approval:
+The original planning change used the following handoff; Step 1's current changed
+file list and Git commands are in [its handoff](step_1_verification.md):
 
 ```powershell
 cd C:\Users\ADMIN\CITU_TeknoCare\TeknoCare
 git status --short
-git diff -- AGENTS.md
+git --no-pager diff -- AGENTS.md
 git add -- AGENTS.md docs/development_plan.md
 git diff --cached --check
-git diff --cached
+git --no-pager diff --cached
 git commit -m "docs: plan clinic pages Supabase upgrades and SQL demo removal"
 git push origin main
 ```
 
 Review the new plan in the editor before staging; ordinary `git diff` does not
 display an untracked file. Review both files again with `git diff --cached` after
-staging. A later handoff should use `git diff` for tracked files and list new files
+staging. A later handoff should use `git --no-pager diff` for tracked files and list new files
 explicitly for editor review.
 
 For every subsequent feature, provide concrete commands with the actual changed
@@ -633,9 +642,11 @@ do not recommend force push, hard reset, or discarding work.
 | --- | --- |
 | Repository/ERD review and roadmap | Prepared November 18, 2026; awaiting student review |
 | Step 0: SQL JOIN demonstration removal | Planned at the student's request November 18, 2026; not implemented yet |
-| Steps 1–14 | Pending; include working page creation/changes; implement only the step requested next |
+| Step 1: reproducible local setup | Implemented November 18, 2026; isolated checks and HTTP smoke verification pass; student review/screenshots and remote CI pending |
+| Steps 2–14 | Pending; include working page creation/changes; implement only the step requested next |
 | Official ID formats, personnel/contracted provider identity, hours, fees, calendar | Unconfirmed; use documented fictional defaults until supplied |
 | Configured hosted migration status | Not inspected or changed in this review |
 | Existing Supabase upgrade | Planned through staged migration checkpoints; no hosted migration authorized or applied by this planning update |
 | PostgreSQL staging/concurrency/restore | Not run in this review; required before claiming those guarantees |
+| Verification handoff requirement | For every subsequent change, provide exact commands/browser checks, expected outcomes, limits and screenshot instructions before Git commit/push |
 

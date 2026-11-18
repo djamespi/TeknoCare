@@ -1,4 +1,4 @@
-from django.test import TestCase
+from django.test import Client, TestCase
 from django.urls import reverse
 
 from apps.register.models import User
@@ -37,3 +37,15 @@ class LoginFeatureTests(TestCase):
         admin = User.objects.create_superuser(school_id="ADMIN-TEST", email="admin@example.invalid", password="test-password")
         self.client.force_login(admin)
         self.assertEqual(self.client.get(reverse("admin:index")).status_code, 200)
+
+    def test_logout_requires_post_and_valid_csrf_token(self):
+        user = User.objects.create_superuser(school_id="LOGOUT-TEST", email="logout@example.invalid", password="test-password")
+        client = Client(enforce_csrf_checks=True)
+        client.force_login(user)
+        self.assertEqual(client.get(reverse("logout")).status_code, 405)
+        self.assertEqual(client.post(reverse("logout")).status_code, 403)
+        self.assertEqual(client.get(reverse("home:home")).status_code, 200)
+        token = client.cookies["csrftoken"].value
+        response = client.post(reverse("logout"), {"csrfmiddlewaretoken": token})
+        self.assertRedirects(response, reverse("login:login"))
+        self.assertNotIn("_auth_user_id", client.session)

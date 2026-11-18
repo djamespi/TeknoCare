@@ -6,8 +6,7 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT))
-os.environ["DJANGO_SETTINGS_MODULE"] = "config.settings"
-os.environ["DATABASE_URL"] = "sqlite:///:memory:"
+os.environ["DJANGO_SETTINGS_MODULE"] = "config.settings_test"
 import django
 django.setup()
 from django.apps import apps

@@ -1,0 +1,34 @@
+"""Keep a primary key present until the final user-key conversion on SQLite."""
+from django.conf import settings
+from django.db import migrations, models
+import django.db.models.deletion
+
+
+class Migration(migrations.Migration):
+    replaces = [("profile", "0003_remove_profile_age_remove_profile_full_name_and_more")]
+
+    dependencies = [
+        ("register", "__first__"),
+        ("profile", "0002_profile_age_profile_home_address"),
+        ("register", "0002_move_clinic_features"),
+    ]
+
+    operations = [
+        migrations.RemoveField(model_name="profile", name="age"),
+        migrations.RemoveField(model_name="profile", name="full_name"),
+        migrations.AddField(
+            model_name="profile", name="phone_number",
+            field=models.CharField(blank=True, max_length=30, null=True),
+        ),
+        migrations.AlterField(model_name="profile", name="bio", field=models.TextField(blank=True, null=True)),
+        migrations.AlterField(model_name="profile", name="home_address", field=models.TextField(blank=True, null=True)),
+        migrations.RemoveField(model_name="profile", name="id"),
+        migrations.AlterField(
+            model_name="profile", name="user",
+            field=models.OneToOneField(
+                on_delete=django.db.models.deletion.CASCADE, primary_key=True,
+                related_name="clinic_profile", serialize=False, to=settings.AUTH_USER_MODEL,
+            ),
+        ),
+        migrations.AlterModelTable(name="profile", table="user_profile"),
+    ]

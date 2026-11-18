@@ -9,13 +9,13 @@ from datetime import datetime, timedelta, timezone
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
-os.environ["DJANGO_SETTINGS_MODULE"] = "config.settings"
-os.environ["DATABASE_URL"] = "sqlite:///:memory:"
+os.environ["DJANGO_SETTINGS_MODULE"] = "config.settings_test"
 import django
 django.setup()
 
 from django.db import connection
 from django.db.migrations.executor import MigrationExecutor
+from django.db.migrations.recorder import MigrationRecorder
 
 old_targets = [("register", "0001_initial"), ("profile", "0002_profile_age_profile_home_address"), ("user_settings", "0001_initial")]
 executor = MigrationExecutor(connection)
@@ -75,4 +75,13 @@ with connection.cursor() as cursor:
         assert cursor.fetchone() == expected, query
 print("PASS: populated legacy upgrade preserves IDs, account links, visit timestamps, profile/settings data, and audit actors.")
 print("PASS: retired contact/history/admin/ticket data archived; unknown affiliation/room/designation remains unverified.")
+recorder = MigrationRecorder(connection)
+recorder.record_unapplied("profile", "0003_profile_upgrade_compat")
+executor = MigrationExecutor(connection)
+targets = executor.loader.graph.leaf_nodes()
+assert not executor.migration_plan(targets), "An already-applied original profile migration must not rerun its replacement."
+executor.migrate(targets)
+assert Profile.objects.get(pk=21).home_address == "Original address"
+assert ("profile", "0003_profile_upgrade_compat") in recorder.applied_migrations()
+print("PASS: previously applied original profile migration is recognized without rerunning schema changes.")
 print("SQLite only: PostgreSQL exclusion constraints and production upgrade still require staging verification.")
