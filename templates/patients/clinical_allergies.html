@@ -1,0 +1,12 @@
+{% extends 'base.html' %}
+{% block title %}Patient allergies{% endblock %}
+{% block main_class %}home-shell{% endblock %}
+{% block content %}
+  <h1>Patient allergies</h1>
+  <p class="lead">{{ patient.patient.get_full_name }} ({{ patient.patient.school_id }})</p>
+  <p><a href="{% url 'patients:allergy_lookup' %}">Find another patient</a></p>
+  <section class="info-card" aria-label="Recorded allergies">
+    <p><a class="button" href="{% url 'patients:allergy_create' patient.pk %}">Record allergy</a></p>
+    {% include 'patients/allergy_table.html' with clinical=True %}
+  </section>
+{% endblock %}

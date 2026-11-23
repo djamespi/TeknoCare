@@ -1,0 +1,49 @@
+{% extends 'base.html' %}
+{% block title %}Your patient details{% endblock %}
+{% block main_class %}home-shell{% endblock %}
+{% block content %}
+  <h1>Your patient details</h1>
+  <p><a href="{% url 'profile:profile' %}">Back to profile</a></p>
+  <section class="info-card" aria-labelledby="patient-heading">
+    <h2 id="patient-heading">Personal details</h2>
+    <dl class="account-details">
+      <dt>Date of birth</dt><dd>{{ patient.date_of_birth|date:"F j, Y"|default:"Not recorded" }}</dd>
+      {% if patient.date_of_birth %}<dt>Age</dt><dd>{{ patient.age }}</dd>{% endif %}
+      <dt>University affiliation</dt><dd>{{ patient.get_affiliation_display|default:"Awaiting review" }}</dd>
+      <dt>Department</dt><dd>{{ patient.department|default:"Not recorded" }}</dd>
+    </dl>
+    <a href="{% url 'patients:birth_date' %}">Edit birth date</a>
+  </section>
+  <section class="info-card" aria-labelledby="contacts-heading">
+    <h2 id="contacts-heading">Emergency contacts</h2>
+    <p><a class="button" href="{% url 'patients:contact_create' %}">Add emergency contact</a></p>
+    {% if contacts %}
+      <div class="table-scroll" role="region" aria-label="Emergency contacts" tabindex="0">
+        <table>
+          <caption>Your emergency contacts</caption>
+          <thead><tr><th scope="col">Name</th><th scope="col">Relationship</th><th scope="col">Phone</th><th scope="col">Actions</th></tr></thead>
+          <tbody>
+            {% for contact in contacts %}
+              <tr>
+                <th scope="row">{{ contact.full_name }}{% if contact.is_primary %} <span class="badge">Primary</span>{% endif %}</th>
+                <td>{{ contact.relationship }}</td>
+                <td>{{ contact.phone_number }}</td>
+                <td>
+                  <a href="{% url 'patients:contact_edit' contact.pk %}" aria-label="Edit {{ contact.full_name }}">Edit</a>
+                  &middot; <a href="{% url 'patients:contact_remove' contact.pk %}" aria-label="Remove {{ contact.full_name }}">Remove</a>
+                </td>
+              </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    {% else %}
+      <p>No emergency contacts on file.</p>
+    {% endif %}
+  </section>
+  <section class="info-card" aria-labelledby="allergy-heading">
+    <h2 id="allergy-heading">Recorded allergies</h2>
+    <p>Contact the clinic if an allergy needs to be recorded or corrected.</p>
+    {% include 'patients/allergy_table.html' %}
+  </section>
+{% endblock %}

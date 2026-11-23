@@ -201,10 +201,18 @@ licenses stay unknown; manual review is not external credential verification.
 Deactivation/closure preserves history. Rooms/providers with unresolved live
 work cannot be clinically deactivated silently; account suspension is separate
 and revokes sessions without deleting bookings. Reactivation does not reopen
-disabled slots. No tuition charge or payment is created by setup. Actual patient
-intake, availability and clinical pages are still later steps. Supabase remains
-untouched. Check desktop/narrow layouts in both themes and confirm in chat;
-no screenshots are needed.
+disabled slots. The user confirmed Step 4 visual approval before Step 5.
+
+## Confirm Step 5 works
+
+Open **Patient details** from the dashboard or profile to edit a birth date,
+manage emergency contacts and view recorded allergies. Active Admins use
+**Patient intake** to search, create or attach patient profiles and correct
+affiliation or identity. Active qualified practitioners use **Allergy review**
+for patients within their care scope.
+
+Use the [Step 5 manual checklist and Git handoff](docs/step_5_verification.md) to
+review the new pages with fictional accounts. Step 5 requires no new migrations.
 
 ## Configuration boundaries
 

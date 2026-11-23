@@ -24,8 +24,20 @@
   <section class="home-grid" aria-label="Available account tasks">
     <a class="feature-panel panel-primary" href="{% url 'profile:profile' %}">
       <span class="panel-kicker">YOUR DETAILS</span><h2>Your profile</h2>
-      <p>Update your contact phone, home address and non-clinical bio. Name and birth-date corrections require a separate clinic workflow.</p>
+      <p>Update your contact phone, home address and non-clinical bio.</p>
     </a>
+    {% if patient %}
+      <a class="feature-panel" href="{% url 'patients:details' %}">
+        <h2>Patient details</h2>
+        <p>Manage your birth date and emergency contacts, and view recorded allergies.</p>
+      </a>
+    {% endif %}
+    {% if provider_ready %}
+      <a class="feature-panel" href="{% url 'patients:allergy_lookup' %}">
+        <h2>Allergy review</h2>
+        <p>Review and record allergies for patients under your care.</p>
+      </a>
+    {% endif %}
     <a class="feature-panel" href="{% url 'user_settings:settings' %}">
       <span class="panel-kicker">YOUR PREFERENCES</span><h2>Settings</h2>
       <p>Choose light or dark mode. Email preferences can be saved, but email delivery is not available.</p>
@@ -35,6 +47,10 @@
       <p>Update your own password and end your other signed-in sessions.</p>
     </a>
     {% if request.user.is_staff %}
+      <a class="feature-panel" href="{% url 'patient_intake:list' %}">
+        <h2>Patient intake</h2>
+        <p>Find patients, add profiles and correct university affiliation or account identity.</p>
+      </a>
       <a class="feature-panel" href="{% url 'university:management' %}">
         <span class="panel-kicker">CLINIC ADMINISTRATION</span><h2>Clinic setup</h2>
         <p>Manage departments, rooms, academic terms, provider activation and personnel accounts.</p>
@@ -52,7 +68,7 @@
   <section class="info-card" aria-labelledby="workspace-heading">
     <h2 id="workspace-heading">Workspace availability</h2>
     {% if request.user.user_type == 'Admin' %}
-      <p>Clinic setup is available. Patient intake, scheduling, clinical operations and reports are still planned.</p>
+      <p>Clinic setup and patient intake are available. Scheduling, consultations and reporting are still planned.</p>
     {% elif request.user.user_type == 'Provider' %}
       {% if provider.provider_type == 'Nurse' %}<p>Nursing triage and vitals pages are not available yet. Nurses will not finalize consultations or issue prescriptions.</p>{% else %}<p>Provider scheduling, consultations and prescribing pages are not available yet. A qualified, active designation and an assigned encounter will be required.</p>{% endif %}
     {% else %}

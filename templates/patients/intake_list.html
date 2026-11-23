@@ -1,0 +1,29 @@
+{% extends 'includes/management_list.html' %}
+{% block title %}Patient intake{% endblock %}
+{% block heading %}Patient intake{% endblock %}
+{% block introduction %}Find patient accounts, confirm university affiliation, and correct account identity.{% endblock %}
+{% block actions %}
+  <a class="button" href="{% url 'patient_intake:create' %}">Create patient account</a>
+  <a href="{% url 'patient_intake:account_lookup' %}">Add a patient profile to an existing account</a>
+{% endblock %}
+{% block table %}
+  <table>
+    <caption>Patient profiles</caption>
+    <thead><tr><th scope="col">University ID</th><th scope="col">Name</th><th scope="col">Affiliation</th><th scope="col">Department</th><th scope="col">Account role</th><th scope="col">Actions</th></tr></thead>
+    <tbody>
+      {% for patient in page_obj %}
+        <tr>
+          <th scope="row">{{ patient.patient.school_id }}</th>
+          <td>{{ patient.patient.get_full_name }}</td>
+          <td>{{ patient.get_affiliation_display|default:"Awaiting review" }}</td>
+          <td>{{ patient.department.code|default:"Not recorded" }}</td>
+          <td>{{ patient.patient.get_user_type_display }}</td>
+          <td>
+            <a href="{% url 'patient_intake:affiliation' patient.pk %}" aria-label="Correct affiliation for {{ patient.patient.school_id }}">Affiliation</a>
+            &middot; <a href="{% url 'patient_intake:identity' patient.pk %}" aria-label="Correct identity for {{ patient.patient.school_id }}">Identity</a>
+          </td>
+        </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+{% endblock %}

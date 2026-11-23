@@ -61,9 +61,10 @@ primary workspace or grant extra permissions.
 
 Later feature cards must have an implemented, authorized destination and real
 scoped data before being added. Hiding a card never replaces service authorization.
-Name/ID/birth-date corrections and clinical workflows remain later work; reference
-administration is available in Step 4. The display profile edits only contact
-phone, home address and non-clinical bio.
+Step 5 links owners to their patient details and gives Admin a patient intake
+directory with separate identity and affiliation forms. The display profile edits
+contact phone, home address and non-clinical bio. Owners edit birth dates and
+emergency contacts through the patient details page.
 
 ## Tables, empty states and pagination
 

@@ -1,0 +1,16 @@
+{% extends 'base.html' %}
+{% block title %}Remove emergency contact{% endblock %}
+{% block content %}
+  <h1>Remove emergency contact</h1>
+  <p class="lead">Remove {{ contact.full_name }} from your emergency contacts?</p>
+  {% if contact.is_primary %}<p>You can choose a new primary contact on your patient details page.</p>{% endif %}
+  <section class="form-card" aria-label="Confirm emergency contact removal">
+    <form method="post">
+      {% csrf_token %}
+      <div class="page-actions">
+        <button class="button" type="submit">Remove contact</button>
+        <a href="{% url 'patients:details' %}">Cancel</a>
+      </div>
+    </form>
+  </section>
+{% endblock %}

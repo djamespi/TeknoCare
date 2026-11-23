@@ -2,7 +2,8 @@
 
 Implemented November 18, 2026 after the user approved Step 3 and committed it as
 `826a606`. The user reviews, commits and pushes this step. No Computer Use, browser
-UI automation or screenshots are used. Step 4 visual approval remains pending.
+UI automation or screenshots were used. The user confirmed Step 4 visual
+approval on November 23, 2026 before requesting Step 5.
 
 ## Pages and scope
 
@@ -189,7 +190,7 @@ Live-booking/Draft deactivation blocks, historical charged-term protection and
 audit-failure rollback have automated fixtures; there are no manual clinical/
 booking pages yet to generate those cases. Do not alter/delete database history
 to force a visual test. If a check fails, share the page/action and error text,
-not passwords or private records. Step 4 manual approval is pending your response.
+not passwords or private records. The user has confirmed Step 4 manual approval.
 
 ## Commit and push after approval
 

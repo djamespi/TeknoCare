@@ -1,0 +1,29 @@
+{% extends 'base.html' %}
+{% block title %}Find an existing account{% endblock %}
+{% block content %}
+  <h1>Find an existing account</h1>
+  <p class="lead">Enter an exact University ID to find a login before adding a patient profile.</p>
+  <p><a href="{% url 'patient_intake:list' %}">Back to patient intake</a></p>
+  <section class="form-card" aria-label="Find an account">
+    <form method="get">
+      {% include 'includes/form_fields.html' %}
+      <button class="button" type="submit">Find account</button>
+    </form>
+  </section>
+  {% if account %}
+    <section class="info-card" aria-labelledby="match-heading">
+      <h2 id="match-heading">Matching account</h2>
+      <dl class="account-details">
+        <dt>University ID</dt><dd>{{ account.school_id }}</dd>
+        <dt>Name</dt><dd>{{ account.get_full_name|default:"Not recorded" }}</dd>
+        <dt>Account role</dt><dd>{{ account.get_user_type_display }}</dd>
+      </dl>
+      {% if account.patient_profile %}
+        <p>This account already has a patient profile.</p>
+        <a href="{% url 'patient_intake:affiliation' account.pk %}">Review affiliation</a>
+      {% else %}
+        <a class="button" href="{% url 'patient_intake:attach' account.pk %}">Add patient profile</a>
+      {% endif %}
+    </section>
+  {% endif %}
+{% endblock %}

@@ -9,6 +9,7 @@ from apps.audit.models import AuditLog
 from apps.common.permissions import require_permission
 from apps.patients.models import Affiliation, EmergencyContact, Patient
 from apps.providers.models import Provider
+from apps.university.models import Department
 from .identity import identity_matches, normalize_email, normalize_school_id
 from .models import User
 
@@ -50,15 +51,36 @@ def create_personnel_account(*, actor, school_id, email, first_name, last_name, 
     actor = require_permission(actor, "accounts.manage")
     if affiliation not in {Affiliation.FACULTY, Affiliation.STAFF}:
         raise ValidationError({"affiliation": "Choose Faculty or Staff for personnel intake."})
-    if department:
-        from apps.university.models import Department
-        department = Department.objects.select_for_update().get(pk=department.pk)
-        if not department.is_active:
-            raise ValidationError({"department": "Choose an active department or leave it unspecified."})
+    return _provision_patient_account(actor=actor, school_id=school_id, email=email, first_name=first_name,
+        last_name=last_name, password=password, affiliation=affiliation, department=department,
+        date_of_birth=None, action="Personnel account provisioned")
+
+
+@transaction.atomic
+def create_patient_account(*, actor, school_id, email, first_name, last_name, password,
+    affiliation, department=None, date_of_birth=None):
+    actor = require_permission(actor, "accounts.manage")
+    return _provision_patient_account(actor=actor, school_id=school_id, email=email, first_name=first_name,
+        last_name=last_name, password=password, affiliation=affiliation, department=department,
+        date_of_birth=date_of_birth, action="Patient account provisioned")
+
+
+def _intake_department(department):
+    if department is None:
+        return None
+    active_department = Department.objects.select_for_update().filter(pk=department.pk, is_active=True).first()
+    if active_department is None:
+        raise ValidationError({"department": "Choose an active department or leave it unspecified."})
+    return active_department
+
+
+def _provision_patient_account(*, actor, school_id, email, first_name, last_name, password,
+    affiliation, department, date_of_birth, action):
+    department = _intake_department(department)
     user = _new_user(school_id=school_id, email=email, first_name=first_name, last_name=last_name,
         password=password, role=User.UserType.PATIENT)
-    Patient.objects.create(patient=user, affiliation=affiliation, department=department)
-    _audit(actor, "Personnel account provisioned", user)
+    Patient.objects.create(patient=user, affiliation=affiliation, department=department, date_of_birth=date_of_birth)
+    _audit(actor, action, user)
     return user
 
 
@@ -80,9 +102,24 @@ def add_patient_profile(*, actor, user_id, affiliation, department=None, date_of
     user = User.objects.select_for_update().get(pk=user_id)
     if Patient.objects.filter(pk=user.pk).exists():
         raise ValidationError("This account already has a patient profile; use the patient correction workflow.")
+    department = _intake_department(department)
     patient = Patient.objects.create(patient=user, affiliation=affiliation, department=department, date_of_birth=date_of_birth)
     _audit(actor, "Patient profile provisioned", user)
     return patient
+
+
+@transaction.atomic
+def correct_patient_identity(*, actor, user_id, school_id, email, first_name, last_name):
+    actor = require_permission(actor, "accounts.manage")
+    Patient.objects.select_for_update().get(pk=user_id)
+    user = User.objects.select_for_update().get(pk=user_id)
+    user.school_id = normalize_school_id(school_id)
+    user.email = normalize_email(email)
+    user.fname = first_name.strip()
+    user.lname = last_name.strip()
+    user.full_clean()
+    user.save(update_fields=["school_id", "email", "fname", "lname"])
+    _audit(actor, "Patient account identity corrected", user)
 
 
 def _credential_target(actor, user):

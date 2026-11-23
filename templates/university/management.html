@@ -12,6 +12,7 @@
     <a class="feature-panel" href="{% url 'billing:term_list' %}"><h2>Academic terms</h2><p>Open or close terms for later charges. This is not a payment flow.</p></a>
     <a class="feature-panel" href="{% url 'providers:provider_list' %}"><h2>Providers</h2><p>Provision logins, attach existing Admin/Provider accounts, and review clinical activation separately.</p></a>
     <a class="feature-panel" href="{% url 'accounts:personnel_list' %}"><h2>Personnel accounts</h2><p>Create Faculty/Staff Patient accounts with verified fictional affiliation.</p></a>
+    <a class="feature-panel" href="{% url 'patient_intake:list' %}"><h2>Patient intake</h2><p>Find patients, add profiles, and correct membership or identity details.</p></a>
   </div>
-  <p class="notice workspace-note">Do not invent IDs, licenses, departments, room locations or calendar dates to represent real university policy. No delete actions are provided. Patient intake, scheduling and clinical pages are later steps.</p>
+  <p class="notice workspace-note">Use fictional IDs, licenses, departments, room locations and calendar dates for prototype setup.</p>
 {% endblock %}

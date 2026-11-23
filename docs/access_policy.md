@@ -49,6 +49,9 @@ active Provider profile designated Physician, Dentist or Nurse.
 | Cancel appointment | Own future Scheduled booking, no encounter | Same ownership rule | Same ownership rule | Same state rules, any patient |
 | Manage provider availability | No | Own provider | Own provider | Any provider; scheduling validation still required |
 | Patient operational details | Self | Assigned Draft encounter or live/current-or-future booking | Same assignment, or today's Draft triage queue | Operational access, not full clinical notes |
+| Patient intake and identity/affiliation correction | No | No | No | Yes |
+| Birth date and emergency contact changes | Own Patient profile | Own Patient profile if present | Own Patient profile if present | Own Patient profile if present |
+| Structured allergy review and recording | Read own list | Review and record for patients under care. Read own list if present. | Same care scope plus today's Draft triage queue. Read own list if present. | Read own list if present. |
 | Full clinical record access | No; own Finalized summary only | Assigned encounter; other Finalized history only while under care | No full-note access | No |
 | Record vitals | No | Own assigned Draft encounter | Own assigned Draft or today's Draft triage | No |
 | Finalize consultation / issue prescription | No | Own assigned Draft encounter | No | No |
@@ -148,6 +151,24 @@ account, provider, room and slot in a consistent resource order before validatin
 it avoids PostgreSQL FOR UPDATE on a nullable outer join. Later slot/clinical
 services must preserve that lock order and recheck eligibility. These are
 application guards, not new database constraints or proof of PostgreSQL concurrency.
+
+## Step 5 patient details and intake
+
+- Patient self-service resolves the Patient by the signed-in account. Emergency
+  contact IDs are scoped to that Patient for editing and removal. Primary
+  replacement is atomic and retains the previous contact as a secondary contact.
+  The database allows zero or one primary contact.
+- Admin's patient directory at `/clinic/patients/` shows operational identity and
+  affiliation fields. New or attached profiles require explicit affiliation
+  confirmation. A legacy affiliation stays unknown until reviewed. Corrections
+  apply to the current Patient and User, preserving account roles, profile links
+  and visit affiliation snapshots. Admin intake does not expose allergy or visit notes.
+- Allergy review requires an active, qualified Provider and a current care
+  relationship, including a Nurse's access to today's Draft triage queue.
+  The clinician workflow denies self-editing. The patient sees the recorded list
+  through their own details page. Allergy changes record the actor and row ID in
+  the audit log and preserve the original recording timestamp. Empty lists
+  indicate that allergies are undocumented. No allergy deletion is exposed.
 
 ## Limits before any real deployment
 

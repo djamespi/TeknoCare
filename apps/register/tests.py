@@ -17,7 +17,6 @@ class RegisterFeatureTests(TestCase):
                 "emergency_contact": "09171234567",
                 "emergency_contact_name": "Jamie Student",
                 "emergency_contact_relationship": "Parent",
-                "medical_history_summary": "No known allergies",
                 "password1": "test-password-123",
                 "password2": "test-password-123",
             },
@@ -31,6 +30,7 @@ class RegisterFeatureTests(TestCase):
         self.assertEqual(user.user_type, User.UserType.PATIENT)
         self.assertEqual(user.patient_profile.emergency_contacts.get(is_primary=True).phone_number, "09171234567")
         self.assertIsInstance(user.patient_profile, Patient)
+        self.assertFalse(user.patient_profile.medical_history_summary)
 
     def test_duplicate_university_id_is_rejected(self):
         User.objects.create_user(

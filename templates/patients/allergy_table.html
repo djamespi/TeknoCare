@@ -1,0 +1,23 @@
+{% if allergies %}
+  <div class="table-scroll" role="region" aria-label="Recorded allergies" tabindex="0">
+    <table>
+      <caption>Allergies on file</caption>
+      <thead>
+        <tr><th scope="col">Allergen</th><th scope="col">Reaction</th><th scope="col">Severity</th><th scope="col">Recorded</th>{% if clinical %}<th scope="col">Action</th>{% endif %}</tr>
+      </thead>
+      <tbody>
+        {% for allergy in allergies %}
+          <tr>
+            <th scope="row">{{ allergy.allergen }}</th>
+            <td>{{ allergy.reaction|default:"Not documented"|linebreaksbr }}</td>
+            <td>{{ allergy.get_severity_display }}</td>
+            <td>{{ allergy.recorded_at|date:"M j, Y" }}</td>
+            {% if clinical %}<td><a href="{% url 'patients:allergy_edit' patient.pk allergy.pk %}" aria-label="Edit {{ allergy.allergen }}">Edit</a></td>{% endif %}
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+{% else %}
+  <p>Allergies are not documented.</p>
+{% endif %}

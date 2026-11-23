@@ -3,15 +3,18 @@
 {% block content %}
   <p class="eyebrow">YOUR DETAILS</p>
   <h1>Your profile</h1>
-  <p class="lead">Update your contact phone, home address and non-clinical bio. This form does not change your account name, university ID or patient birth date.</p>
+  <p class="lead">Update your contact phone, home address and non-clinical bio.</p>
   <section class="info-card" aria-labelledby="identity-heading">
     <h2 id="identity-heading">Account identity</h2>
     <dl class="account-details">
       <dt>Name</dt><dd>{{ request.user.get_full_name|default:'Not recorded' }}</dd>
       <dt>University ID</dt><dd>{{ request.user.school_id }}</dd>
     </dl>
-    <p>Ask the clinic Admin about identity corrections; the correction workflow is not available yet.</p>
+    <p>Contact the clinic Admin to correct your account identity.</p>
   </section>
+  {% if has_patient_profile %}
+    <p><a href="{% url 'patients:details' %}">Patient details, emergency contacts and allergies</a></p>
+  {% endif %}
   <section class="form-card" aria-label="Edit contact details">
     <form method="post">
       {% csrf_token %}

@@ -325,9 +325,8 @@ and conservative deactivation rules preserve history. Optional unknown licenses
 stay NULL, and activation requires explicit prototype manual review. Scheduling
 and encounter eligibility now checks fresh account/provider state. No new schema
 or hosted migration is required. See [the Step 4 checks and decisions](step_4_verification.md).
-Isolated tests and HTTP checks pass; Step 4 user visual review and PostgreSQL
-staging/concurrency verification remain pending. Patient intake/allergies and
-actual availability/clinical workflows stay in their planned later steps.
+Isolated tests and HTTP checks pass. The user confirmed Step 4 visual approval
+on November 23, 2026. PostgreSQL staging and concurrency verification remain pending.
 
 - Build restricted lists/forms for Department, ClinicRoom, AcademicTerm and Provider.
   Provision Faculty/Staff/Provider accounts through the Step 2 services.
@@ -346,6 +345,15 @@ Commit: `feat: manage clinic reference data and practitioner accounts`
 ### Step 5 — Patient profile, personnel intake and allergies
 
 Depends on: 4.
+
+Implemented November 23, 2026. Patients use their own account to update birth
+date and emergency contacts and read recorded allergies. Admin manages intake and
+corrections for Student, Faculty and Staff, including accounts that already
+have a Provider or Admin role. Active qualified providers record or correct
+allergies only within the existing care and nursing triage scopes. Unknown
+affiliation stays unknown until confirmed, and corrections preserve the affiliation
+snapshot on each visit. Public registration accepts a blank medical-history summary.
+No schema change is needed. See [Step 5 verification](step_5_verification.md).
 
 - Patient edits permitted personal contacts, date of birth and emergency contacts;
   account identity/affiliation corrections use authorized staff workflows.
@@ -694,8 +702,9 @@ do not recommend force push, hard reset, or discarding work.
 | Step 1: reproducible local setup | Implemented November 18, 2026; isolated checks and HTTP smoke verification pass; student visual confirmation and remote CI pending |
 | Step 2: authentication/provisioning/access | Implemented November 18, 2026; isolated tests/HTTP checks and ERD/legacy checks pass; user visual confirmation and PostgreSQL/hosted checks pending |
 | Step 3: shared interface and role dashboards | Implemented and committed (`826a606`); user confirmed manual checks looked good before Step 4 |
-| Step 4: clinic reference and personnel/provider administration | Implemented November 18, 2026; isolated/HTTP checks pass; user visual review and PostgreSQL staging pending |
-| Steps 5–14 | Pending; include working page creation/changes; implement only the step requested next |
+| Step 4: clinic reference and personnel/provider administration | Implemented as `d020095`; user confirmed manual approval on November 23, 2026. PostgreSQL staging pending. |
+| Step 5: patient profile, personnel intake and allergies | Implemented November 23, 2026. Step 5 manual visual approval pending. |
+| Steps 6–14 | Pending. Step 6 is provider and room availability. |
 | Official ID formats, personnel/contracted provider identity, hours, fees, calendar | Unconfirmed; use documented fictional defaults until supplied |
 | Configured hosted migration status | Not inspected or changed in this review |
 | Existing Supabase upgrade | Planned through staged migration checkpoints; no hosted migration authorized or applied by this planning update |

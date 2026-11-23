@@ -34,6 +34,16 @@ def patient_under_care(provider, patient):
     )
 
 
+def _clinical_patient_access(provider, patient):
+    return bool(provider and (
+        patient_under_care(provider, patient)
+        or (
+            provider.provider_type == "Nurse"
+            and patient.medical_records.filter(status="Draft", visited_at__date=timezone.localdate()).exists()
+        )
+    ))
+
+
 def allowed(user, action, target=None):
     if not user or not required_profile_exists(user):
         return False
@@ -42,6 +52,8 @@ def allowed(user, action, target=None):
         return is_admin
     if action == "account.use":
         return True
+    if action == "patient.allergy_lookup":
+        return bool(clinical_provider(user))
     if target is None:
         return False
     if action == "appointment.book":
@@ -56,13 +68,9 @@ def allowed(user, action, target=None):
     if action == "schedule.manage":
         return is_admin or bool(provider and provider.pk == target.pk)
     if action == "patient.view":
-        if is_admin or target.pk == user.pk:
-            return True
-        if not provider:
-            return False
-        if patient_under_care(provider, target):
-            return True
-        return provider.provider_type == "Nurse" and target.medical_records.filter(status="Draft", visited_at__date=timezone.localdate()).exists()
+        return is_admin or target.pk == user.pk or _clinical_patient_access(provider, target)
+    if action == "patient.allergy_edit":
+        return target.pk != user.pk and _clinical_patient_access(provider, target)
     if action == "record.view":
         if target.patient_id == user.pk:
             return target.status == "Finalized"

@@ -1,0 +1,12 @@
+{% extends 'base.html' %}
+{% block title %}Allergy review{% endblock %}
+{% block content %}
+  <h1>Allergy review</h1>
+  <p class="lead">Enter the exact University ID of a patient you are caring for.</p>
+  <section class="form-card" aria-label="Find a patient">
+    <form method="get">
+      {% include 'includes/form_fields.html' %}
+      <button class="button" type="submit">Find patient</button>
+    </form>
+  </section>
+{% endblock %}

@@ -17,7 +17,8 @@ class RegistrationForm(forms.Form):
     emergency_contact_relationship = forms.CharField(label="Relationship", max_length=50)
     emergency_contact = forms.CharField(label="Emergency contact phone", max_length=30)
     medical_history_summary = forms.CharField(
-        label="Medical history summary",
+        label="Medical history summary (optional)",
+        required=False,
         widget=forms.Textarea(attrs={"rows": 3}),
     )
     password1 = forms.CharField(label="Password", strip=False, widget=forms.PasswordInput(attrs={"autocomplete": "new-password"}))

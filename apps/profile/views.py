@@ -3,6 +3,8 @@ from django.contrib.auth.decorators import login_required
 from django.shortcuts import redirect, render
 from django.views.decorators.http import require_http_methods
 
+from apps.patients.models import Patient
+
 from .forms import ProfileForm
 from .models import Profile
 
@@ -16,4 +18,6 @@ def profile_view(request):
         form.save()
         messages.success(request, "Your profile has been saved.")
         return redirect("profile:profile")
-    return render(request, "profile/profile.html", {"form": form})
+    return render(request, "profile/profile.html", {
+        "form": form, "has_patient_profile": Patient.objects.filter(pk=request.user.pk).exists(),
+    })

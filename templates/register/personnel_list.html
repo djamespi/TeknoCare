@@ -1,8 +1,8 @@
 {% extends 'includes/management_list.html' %}
 {% block title %}Personnel accounts{% endblock %}
 {% block heading %}Personnel accounts{% endblock %}
-{% block introduction %}Faculty/Staff Patient profiles, including existing personnel who also have another account role. Affiliation corrections and further patient intake are later work. Personnel care creates no charge.{% endblock %}
-{% block actions %}<a class="button" href="{% url 'accounts:personnel_create' %}">Add personnel account</a>{% endblock %}
+{% block introduction %}Faculty and Staff patient profiles, including personnel with another account role. Personnel care creates no charge.{% endblock %}
+{% block actions %}<a class="button" href="{% url 'accounts:personnel_create' %}">Add personnel account</a> <a href="{% url 'patient_intake:list' %}">Patient intake and corrections</a>{% endblock %}
 {% block table %}
 <table><caption>Faculty and Staff patient accounts</caption><thead><tr><th scope="col">University ID</th><th scope="col">Name</th><th scope="col">Affiliation</th><th scope="col">Department</th><th scope="col">Access</th><th scope="col">Action</th></tr></thead>
 <tbody>{% for personnel in page_obj %}<tr><th scope="row">{{ personnel.patient.school_id }}</th><td>{{ personnel.patient.get_full_name }}</td><td>{{ personnel.affiliation }}</td><td>{{ personnel.department.code|default:'Not specified' }}</td><td>{{ personnel.patient.account_status }}</td><td>{% if personnel.patient.user_type != 'Admin' %}<a href="{% url 'accounts:status' personnel.pk %}" aria-label="Change access for {{ personnel.patient.school_id }}">Change access</a>{% else %}Trusted operator only{% endif %}</td></tr>{% endfor %}</tbody></table>
