@@ -84,6 +84,13 @@ No ERD columns or relationships change, and this is not a hosted migration resul
 
 ## Existing interface integration and evidence
 
+Step 9 adds clinical documentation pages and the
+`clinical.0005_protect_finalized_clinical_details` trigger migration. The
+existing ERD columns and relationships remain in place. The guards protect
+finalized vitals, linked diagnoses, referral content, and encounter deletion.
+Status-only referral follow-up is reserved for a later authorized workflow.
+Catalog labels and codes remain stable while linked to any encounter.
+
 Step 4 adds Admin reference/provisioning pages and atomic, audited services without
 changing ERD fields, FKs, indexes or migrations. Department codes, room locations,
 provider designations and charged term identity have documented service-level

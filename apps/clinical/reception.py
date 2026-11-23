@@ -103,6 +103,26 @@ def _lock_intake_providers(actor_id, patient_id, provider_ids):
     list(Provider.objects.select_for_update().filter(pk__in=provider_ids).order_by("pk").values_list("pk", flat=True))
 
 
+def lock_encounter_for_update(snapshot, *, actor_id, additional_provider_ids=()):
+    providers = (snapshot.provider_id, *additional_provider_ids)
+    appointment = None
+    if snapshot.appointment_id is None:
+        Patient.objects.select_for_update().get(pk=snapshot.patient_id)
+        _lock_intake_providers(actor_id, snapshot.patient_id, providers)
+    else:
+        appointment = lock_appointment_for_update(
+            snapshot.appointment, actor_id=actor_id, attending_provider_ids=providers,
+        )
+    visit = MedicalRecord.objects.select_for_update().get(pk=snapshot.pk)
+    if (visit.provider_id, visit.patient_id, visit.appointment_id) != (
+        snapshot.provider_id, snapshot.patient_id, snapshot.appointment_id,
+    ):
+        raise ValidationError("This encounter changed. Review it again before saving.")
+    if appointment is not None:
+        visit.appointment = appointment
+    return visit
+
+
 @transaction.atomic
 def open_walkin_encounter(*, actor, patient_id, provider_id):
     actor = require_permission(actor, "reception.walkin")
@@ -118,21 +138,14 @@ def open_walkin_encounter(*, actor, patient_id, provider_id):
 def assign_encounter(*, actor, record_id, provider_id, expected_provider_id):
     actor = require_permission(actor, "reception.assign")
     snapshot = MedicalRecord.objects.get(pk=record_id)
-    providers = (snapshot.provider_id, provider_id)
-    if snapshot.appointment_id is None:
-        Patient.objects.select_for_update().get(pk=snapshot.patient_id)
-        _lock_intake_providers(actor.pk, snapshot.patient_id, providers)
-    else:
-        appointment = lock_appointment_for_update(snapshot.appointment, actor_id=actor.pk, attending_provider_ids=providers)
-        if appointment.status != Appointment.Status.CHECKED_IN:
-            raise ValidationError("An attended appointment is required to change the attending provider.")
-    visit = MedicalRecord.objects.select_for_update().get(pk=record_id)
+    visit = lock_encounter_for_update(snapshot, actor_id=actor.pk, additional_provider_ids=(provider_id,))
     actor = require_permission(actor, "reception.assign")
     require_permission(actor, "reception.record", visit)
+    if visit.appointment_id and visit.appointment.status != Appointment.Status.CHECKED_IN:
+        raise ValidationError("An attended appointment is required to change the attending provider.")
     if visit.status != MedicalRecord.Status.DRAFT:
         raise ValidationError("Only Draft encounters can be reassigned.")
-    if (visit.provider_id != expected_provider_id or visit.provider_id != snapshot.provider_id
-        or visit.patient_id != snapshot.patient_id or visit.appointment_id != snapshot.appointment_id):
+    if visit.provider_id != expected_provider_id:
         raise ValidationError("This encounter changed. Review it again before assigning.")
     _check_attending(provider_id)
     if provider_id == visit.patient_id:

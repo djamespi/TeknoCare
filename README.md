@@ -237,6 +237,24 @@ queue supports check-in, no-shows and Draft encounters. Admin starts walk-ins
 by exact patient University ID, and authorized staff assign an attending
 provider. See [the Step 8 checklist and Git handoff](docs/step_8_verification.md).
 
+## Confirm Step 9 works
+
+Approved clinicians can open **Clinical encounters** from their dashboard.
+Nurses record vitals within their triage scope. The attending Physician or
+Dentist saves consultation notes, selects catalog diagnoses and finalizes the
+encounter. Finalization also completes a linked Checked in appointment.
+
+With the venv active, apply the new history guards to your local SQLite database
+and run the preview.
+
+```powershell
+python manage.py migrate --settings=config.settings_local
+python manage.py runserver --settings=config.settings_local
+```
+
+Use [the Step 9 verification checklist](docs/step_9_verification.md) for the
+fictional account setup, role checks, expected results and Git handoff.
+
 ## Configuration boundaries
 
 | Settings module | Purpose | Database / secrets |

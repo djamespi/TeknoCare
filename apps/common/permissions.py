@@ -55,6 +55,8 @@ def allowed(user, action, target=None):
         return True
     if action == "patient.allergy_lookup":
         return bool(clinical_provider(user))
+    if action == "consultation.access":
+        return bool(clinical_provider(user))
     if action in {"schedule.access", "reception.access"}:
         return is_admin or bool(clinical_provider(user))
     if action == "reception.walkin":
@@ -95,7 +97,7 @@ def allowed(user, action, target=None):
             target.provider_id == provider.pk
             or (provider.provider_type in {"Physician", "Dentist"} and target.status == "Finalized" and patient_under_care(provider, target.patient))
         ))
-    if action in {"vitals.record", "record.finalize", "prescription.issue"}:
+    if action in {"vitals.record", "record.edit", "record.finalize", "prescription.issue"}:
         if not provider or target.patient_id == user.pk or target.status != "Draft":
             return False
         if action == "vitals.record":

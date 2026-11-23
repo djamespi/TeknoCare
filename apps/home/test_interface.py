@@ -146,7 +146,7 @@ class RoleDashboardTests(TestCase):
                     with self.subTest(role=user.user_type, target=attrs["href"]):
                         resolve(attrs["href"])
                         self.assertEqual(self.client.get(attrs["href"]).status_code, 200)
-            for unavailable in ("/clinical/", "/billing/", "/joins/"):
+            for unavailable in ("/billing/", "/joins/"):
                 self.assertNotContains(response, f'href="{unavailable}"')
             if user.user_type == "Admin":
                 self.assertContains(response, "Inspect accounts")

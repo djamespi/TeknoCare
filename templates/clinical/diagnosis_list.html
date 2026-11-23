@@ -1,0 +1,21 @@
+{% extends 'base.html' %}
+{% block title %}Diagnosis catalog{% endblock %}
+{% block content %}
+  <h1>Diagnosis catalog</h1>
+  <p>Add supplied codes or clearly fictional entries for the prototype. Clinicians choose from this catalog when documenting a visit.</p>
+  <div class="page-actions">
+    <a class="button" href="{% url 'consultation:diagnosis_create' %}">Add diagnosis</a>
+    <a href="{% url 'university:management' %}">Back to clinic setup</a>
+  </div>
+  {% if page_obj.object_list %}
+    <div class="table-scroll results-table" role="region" aria-label="Diagnosis catalog" tabindex="0">
+      <table><thead><tr><th scope="col">Coding system</th><th scope="col">Code</th><th scope="col">Description</th></tr></thead>
+      <tbody>{% for entry in page_obj %}
+        <tr><td>{{ entry.coding_system }}</td><th scope="row">{{ entry.code }}</th><td>{{ entry.description }}</td></tr>
+      {% endfor %}</tbody></table>
+    </div>
+  {% else %}
+    {% include 'includes/empty_state.html' with empty_title="No diagnoses in the catalog" empty_message="Add a reviewed or fictional entry when one is needed." %}
+  {% endif %}
+  {% include 'includes/pagination.html' %}
+{% endblock %}

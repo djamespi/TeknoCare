@@ -14,6 +14,9 @@
       <dt>Attending provider</dt><dd>{{ visit.provider.provider.get_full_name }}</dd>
     </dl>
   </section>
+  {% if clinical_access %}
+    <p><a class="button" href="{% url 'consultation:workspace' visit.pk %}">Open clinical workspace</a></p>
+  {% endif %}
   {% if form %}
     <section class="form-card" aria-labelledby="assign-heading">
       <h2 id="assign-heading">Change attending provider</h2>

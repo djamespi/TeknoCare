@@ -173,4 +173,9 @@ def encounter(request, pk):
     elif request.method == "POST":
         messages.error(request, "Only Draft encounters can be reassigned.")
         return redirect("reception:encounter", pk=pk)
-    return render(request, "clinical/reception_encounter.html", {"visit": visit, "form": form})
+    clinical_access = visit.patient_id != actor.pk and allowed(actor, "consultation.access") and (
+        allowed(actor, "record.view", visit) or allowed(actor, "vitals.record", visit)
+    )
+    return render(request, "clinical/reception_encounter.html", {
+        "visit": visit, "form": form, "clinical_access": clinical_access,
+    })

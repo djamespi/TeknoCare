@@ -1,0 +1,32 @@
+{% extends 'base.html' %}
+{% block title %}Clinical encounters{% endblock %}
+{% block main_class %}home-shell{% endblock %}
+{% block content %}
+  <h1>Clinical encounters</h1>
+  {% if nurse %}
+    <p class="lead">Open your assigned Draft encounters and today’s triage encounters to record vitals.</p>
+  {% else %}
+    <p class="lead">Review your assigned visits and document care.</p>
+    <nav class="page-actions" aria-label="Encounter status">
+      <a href="{% url 'consultation:list' %}"{% if not finalized %} aria-current="page"{% endif %}>Draft</a>
+      <a href="{% url 'consultation:list' %}?view=finalized"{% if finalized %} aria-current="page"{% endif %}>Finalized</a>
+    </nav>
+  {% endif %}
+  {% if page_obj.object_list %}
+    <div class="table-scroll results-table" role="region" aria-label="Clinical encounters" tabindex="0">
+      <table>
+        <caption>{% if finalized %}Finalized{% else %}Draft{% endif %} encounters in Manila time</caption>
+        <thead><tr><th scope="col">Patient</th><th scope="col">Visit</th><th scope="col">Attending provider</th><th scope="col">Action</th></tr></thead>
+        <tbody>{% for visit in page_obj %}
+          <tr><th scope="row">{{ visit.patient.patient.get_full_name }} ({{ visit.patient.patient.school_id }})</th>
+              <td>{{ visit.visited_at|date:"M j, Y, g:i A" }} · {{ visit.appointment_id|yesno:"Scheduled,Walk-in" }}</td>
+              <td>{{ visit.provider.provider.get_full_name }}</td>
+              <td><a href="{% url 'consultation:workspace' visit.pk %}">Open encounter</a></td></tr>
+        {% endfor %}</tbody>
+      </table>
+    </div>
+  {% else %}
+    {% include 'includes/empty_state.html' with empty_title="No encounters in this view" empty_message="Newly assigned visits appear after reception opens an encounter." %}
+  {% endif %}
+  {% include 'includes/pagination.html' %}
+{% endblock %}

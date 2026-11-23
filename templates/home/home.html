@@ -37,6 +37,10 @@
       </a>
     {% endif %}
     {% if provider_ready %}
+      <a class="feature-panel" href="{% url 'consultation:list' %}">
+        <h2>Clinical encounters</h2>
+        <p>Open assigned visits or the nursing triage list.</p>
+      </a>
       <a class="feature-panel" href="{% url 'patients:allergy_lookup' %}">
         <h2>Allergy review</h2>
         <p>Review and record allergies for patients under your care.</p>
@@ -82,9 +86,9 @@
   <section class="info-card" aria-labelledby="workspace-heading">
     <h2 id="workspace-heading">Workspace availability</h2>
     {% if request.user.user_type == 'Admin' %}
-      <p>Clinic setup, patient intake and availability are ready. Consultations and reporting are still planned.</p>
+      <p>Clinic setup, patient intake, availability and reception are ready. Practitioners document care in the clinical workspace.</p>
     {% elif request.user.user_type == 'Provider' %}
-      {% if provider.provider_type == 'Nurse' %}<p>Nursing triage and vitals pages are not available yet. Nurses will not finalize consultations or issue prescriptions.</p>{% else %}<p>Consultations and prescribing pages are planned. A qualified, active designation and an assigned encounter will be required.</p>{% endif %}
+      {% if provider.provider_type == 'Nurse' %}<p>Use clinical encounters to record vitals. Nurses will not finalize consultations or issue prescriptions.</p>{% else %}<p>Use clinical encounters to document and finalize assigned visits.</p>{% endif %}
     {% else %}
       <p>Appointment booking is available. Visit summaries and tuition charge pages are planned.</p>
     {% endif %}

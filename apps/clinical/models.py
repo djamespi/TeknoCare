@@ -109,6 +109,9 @@ class Diagnosis(ValidatedModel):
         db_table = "diagnosis"
         constraints = [models.UniqueConstraint(fields=["coding_system", "code"], name="unique_diagnosis_code")]
 
+    def __str__(self):
+        return f"{self.coding_system} {self.code} · {self.description}"
+
 
 class RecordDiagnosis(ValidatedModel):
     # Django 4.2 cannot represent composite PKs; preserve pair uniqueness instead.

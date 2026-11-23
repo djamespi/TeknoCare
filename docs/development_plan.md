@@ -455,6 +455,13 @@ Commit: `feat: add check-in walk-in intake and encounter assignment`
 
 Depends on: 8.
 
+Implemented November 24, 2026. The clinical worklist opens a scoped case
+workspace with allergy alerts, stamped vitals, draft notes and catalog
+diagnoses. The attending Physician or Dentist can finalize after reviewing
+saved documentation. Linked Checked in appointments complete in the same
+transaction. A new migration protects finalized details against direct writes.
+See [Step 9 verification](step_9_verification.md) for local setup and manual checks.
+
 - Nurses/authorized practitioners record timestamped vitals on permitted Draft
   visits; record the actor server-side. Show allergy alerts and relevant history.
 - Attending authorized clinician edits complaint, symptoms, examination, treatment
@@ -733,7 +740,8 @@ do not recommend force push, hard reset, or discarding work.
 | Step 6: provider and room availability | Implemented and committed as `e0f6e3f`. |
 | Step 7: patient appointments and cancellation | Implemented November 23, 2026. User reported completing the activity screenshots and requested Step 8. |
 | Step 8: reception, check-in and walk-in encounters | Implemented November 23, 2026. User visual review pending. |
-| Steps 9–14 | Pending. Step 9 is vitals, consultation, diagnoses and finalization. |
+| Step 9: vitals, consultation, diagnoses and finalization | Implemented November 24, 2026. Manual review and disposable PostgreSQL verification pending. |
+| Steps 10–14 | Pending. Step 10 is medication catalog and prescriptions. |
 | Official ID formats, personnel/contracted provider identity, hours, fees, calendar | Unconfirmed; use documented fictional defaults until supplied |
 | Configured hosted migration status | Not inspected or changed in this review |
 | Existing Supabase upgrade | Planned through staged migration checkpoints; no hosted migration authorized or applied by this planning update |

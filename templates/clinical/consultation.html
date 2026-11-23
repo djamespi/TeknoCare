@@ -1,0 +1,98 @@
+{% extends 'base.html' %}
+{% block title %}{% if can_read_notes %}Consultation{% else %}Triage and vitals{% endif %}{% endblock %}
+{% block main_class %}home-shell{% endblock %}
+{% block content %}
+  <h1>{% if can_read_notes %}Consultation{% else %}Triage and vitals{% endif %}</h1>
+  <p><a href="{% url 'consultation:list' %}{% if visit.status == 'Finalized' %}?view=finalized{% endif %}">Back to clinical encounters</a></p>
+  <section class="info-card" aria-labelledby="visit-heading">
+    <h2 id="visit-heading">Encounter #{{ visit.pk }} <span class="badge">{{ visit.get_status_display }}</span></h2>
+    <dl class="account-details">
+      <dt>Patient</dt><dd>{{ visit.patient.patient.get_full_name }} ({{ visit.patient.patient.school_id }})</dd>
+      <dt>Attending provider</dt><dd>{{ visit.provider.provider.get_full_name }}</dd>
+      <dt>Visit time in Manila</dt><dd>{{ visit.visited_at|date:"M j, Y, g:i A" }}</dd>
+      {% if visit.appointment_id %}<dt>Appointment status</dt><dd>{{ visit.appointment.get_status_display }}</dd>{% endif %}
+      {% if visit.finalized_at %}<dt>Finalized at</dt><dd>{{ visit.finalized_at|date:"M j, Y, g:i A" }}</dd>{% endif %}
+    </dl>
+  </section>
+
+  <section class="info-card" aria-labelledby="allergies-heading">
+    <h2 id="allergies-heading">Allergy alerts</h2>
+    {% include 'patients/allergy_table.html' %}
+  </section>
+
+  <section class="info-card" aria-labelledby="vitals-heading">
+    <h2 id="vitals-heading">Recorded vital signs</h2>
+    {% if vitals %}
+      <div class="table-scroll" role="region" aria-label="Vital signs" tabindex="0">
+        <table>
+          <thead><tr><th scope="col">Time and recorder</th><th scope="col">Temperature °C</th><th scope="col">Blood pressure mmHg</th><th scope="col">Pulse bpm</th><th scope="col">Breaths/min</th><th scope="col">Oxygen %</th><th scope="col">Height cm</th><th scope="col">Weight kg</th></tr></thead>
+          <tbody>{% for item in vitals %}
+            <tr><th scope="row">{{ item.recorded_at|date:"M j, Y, g:i A" }}<br>{{ item.recorded_by_user.get_full_name }}</th>
+              <td>{{ item.temperature_c|default_if_none:"—" }}</td>
+              <td>{% if item.systolic_mmhg %}{{ item.systolic_mmhg }}/{{ item.diastolic_mmhg }}{% else %}—{% endif %}</td>
+              <td>{{ item.pulse_bpm|default_if_none:"—" }}</td>
+              <td>{{ item.respiratory_rate|default_if_none:"—" }}</td>
+              <td>{{ item.oxygen_saturation_pct|default_if_none:"—" }}</td>
+              <td>{{ item.height_cm|default_if_none:"—" }}</td>
+              <td>{{ item.weight_kg|default_if_none:"—" }}</td></tr>
+          {% endfor %}</tbody>
+        </table>
+      </div>
+    {% else %}<p>No vital signs recorded for this encounter.</p>{% endif %}
+    {% if vitals_form %}
+      <h3>Record vital signs</h3>
+      <p>Enter the measurements taken. Leave the rest blank.</p>
+      <form method="post">
+        {% csrf_token %}
+        {% include 'includes/form_fields.html' with form=vitals_form only %}
+        <button class="button" name="action" value="vitals" type="submit">Save vital signs</button>
+      </form>
+    {% endif %}
+  </section>
+
+  {% if can_read_notes %}
+    <section class="info-card" aria-labelledby="notes-heading">
+      <h2 id="notes-heading">Consultation notes and diagnoses</h2>
+      {% if notes_form %}
+        <form method="post">
+          {% csrf_token %}
+          {% include 'includes/form_fields.html' with form=notes_form only %}
+          <button class="button" name="action" value="notes" type="submit">Save draft</button>
+        </form>
+      {% else %}
+        <dl class="account-details">
+          <dt>Chief complaint</dt><dd>{{ visit.chief_complaint|default:"Unrecorded"|linebreaksbr }}</dd>
+          <dt>Symptoms</dt><dd>{{ visit.symptoms|default:"Unrecorded"|linebreaksbr }}</dd>
+          <dt>Examination notes</dt><dd>{{ visit.examination_notes|default:"Unrecorded"|linebreaksbr }}</dd>
+          <dt>Treatment plan</dt><dd>{{ visit.treatment_plan|default:"Unrecorded"|linebreaksbr }}</dd>
+        </dl>
+        <h3>Diagnoses</h3>
+        {% if links %}
+          <ul>{% for link in links %}
+            <li>{{ link.diagnosis }}{% if link.is_primary %} <strong>(Primary)</strong>{% endif %}{% if link.notes %}<br>{{ link.notes|linebreaksbr }}{% endif %}</li>
+          {% endfor %}</ul>
+        {% else %}<p>No diagnoses recorded for this encounter.</p>{% endif %}
+      {% endif %}
+    </section>
+    <section class="info-card" aria-labelledby="history-heading">
+      <h2 id="history-heading">Recent finalized visits</h2>
+      {% if history %}
+        <ul>{% for previous in history %}
+          <li><a href="{% url 'consultation:workspace' previous.pk %}">{{ previous.visited_at|date:"M j, Y" }} · {{ previous.chief_complaint }}</a></li>
+        {% endfor %}</ul>
+      {% else %}<p>No earlier finalized visits in your scope.</p>{% endif %}
+    </section>
+  {% endif %}
+
+  {% if finalize_form %}
+    <section class="form-card" aria-labelledby="finalize-heading">
+      <h2 id="finalize-heading">Finalize encounter</h2>
+      <p>Save your draft first. Finalization requires the chief complaint, symptoms or examination notes, and a treatment plan. The record becomes read-only.</p>
+      <form method="post">
+        {% csrf_token %}
+        {% include 'includes/form_fields.html' with form=finalize_form only %}
+        <button class="button" name="action" value="finalize" type="submit">Finalize encounter</button>
+      </form>
+    </section>
+  {% endif %}
+{% endblock %}

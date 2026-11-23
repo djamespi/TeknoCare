@@ -224,6 +224,29 @@ application guards, not new database constraints or proof of PostgreSQL concurre
   a Draft; the scheduled provider stays on the slot. Active designation and
   ownership checks are repeated in the write transaction.
 
+## Step 9 consultation and vitals
+
+- The clinical worklist requires an eligible active practitioner. Physicians
+  and Dentists see their assigned Draft and Finalized visits. Nurses see their
+  assigned Drafts and the current Manila day's Draft triage encounters. Clinical
+  pages exclude the practitioner's own patient encounter. A nonclinical Admin
+  uses reception without access to the clinical workspace.
+- Nurses see allergy alerts and current encounter vitals. The assigned
+  Physician or Dentist can also review the notes, diagnoses and recent
+  finalized visits within the existing care relationship. The clinical pages
+  contain no patient-facing summary.
+- Only the attending Physician or Dentist edits or finalizes the Draft.
+  Every clinical write rechecks permissions and version after taking the same
+  patient, account, resource and encounter locks used by reception. The server
+  assigns the vital-sign author and timestamps. Audit entries omit note content.
+- Finalization requires saved complaint, symptoms or examination notes, and a
+  treatment plan. Vitals and diagnosis are optional. A linked Checked in
+  appointment becomes Completed atomically. Finalized notes and details are
+  read-only. Patient summaries and controlled amendments remain separate work.
+- Admin adds catalog entries from reviewed sources or clearly fictional
+  examples. Practitioners can select several distinct diagnoses and at most one
+  primary diagnosis. Linked catalog entries cannot be rewritten.
+
 ## Limits before any real deployment
 
 This prototype lacks login/reset throttling, MFA, verified enrollment/personnel
