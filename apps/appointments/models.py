@@ -112,6 +112,14 @@ class Appointment(ValidatedModel):
     def provider(self):
         return self.slot.provider
 
+    @property
+    def can_cancel(self):
+        return (
+            self.status == self.Status.SCHEDULED
+            and self.slot.start_time > timezone.now()
+            and not hasattr(self, "medical_record")
+        )
+
     def clean(self):
         if self.status == self.Status.CANCELED and not self.canceled_at:
             raise ValidationError({"canceled_at": "Record the cancellation time."})

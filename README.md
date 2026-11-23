@@ -222,6 +222,14 @@ Admins can schedule any eligible provider. Active providers manage their own
 slots and select from active clinic rooms. The [Step 6 checklist and Git handoff](docs/step_6_verification.md)
 includes overlap, history, and permission checks.
 
+## Confirm Step 7 works
+
+Sign in with a Patient profile and open **My appointments**. Browse future
+times by date, provider or provider type and book a visit. The detail page
+offers cancellation and rescheduling for eligible upcoming appointments.
+Confirmed replacements and cancellations appear in appointment history. See
+[the Step 7 checklist and Git handoff](docs/step_7_verification.md).
+
 ## Configuration boundaries
 
 | Settings module | Purpose | Database / secrets |

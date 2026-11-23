@@ -11,28 +11,62 @@ from apps.register.models import User
 from .models import Appointment, ClinicRoom, Slot, protected_slot_appointments
 
 
-@transaction.atomic
-def book_appointment(*, patient_id, slot_id, reason_for_visit, actor):
-    patient = Patient.objects.select_for_update().get(pk=patient_id)
-    actor = require_permission(actor, "appointment.book", patient)
-    snapshot = Slot.objects.get(pk=slot_id)
-    provider_user = User.objects.select_for_update().get(pk=snapshot.provider_id)
-    provider = Provider.objects.select_for_update().get(pk=snapshot.provider_id)
-    room = ClinicRoom.objects.select_for_update().filter(pk=snapshot.room_id).first()
-    slot = Slot.objects.select_for_update().get(pk=slot_id)
-    if slot.schedule != snapshot.schedule:
-        raise ValidationError("Availability changed. Select the slot again.")
-    provider.provider = provider_user
-    slot.provider, slot.room = provider, room
-    if not patient.patient.is_active or not slot.provider.provider.is_active or provider_user.user_type not in {"Admin", "Provider"}:
-        raise ValidationError("Booking requires active patient and provider accounts.")
-    if not slot.is_active or not slot.provider.is_active or slot.provider.provider_type not in {"Physician", "Dentist", "Nurse"} or not slot.room or not slot.room.is_active:
-        raise ValidationError("Booking requires an active, verified provider, room and slot.")
+def _lock_slot_resources(provider_ids, room_ids, *, other_account_ids=()):
+    # Match the order used for availability and clinic resource deactivation.
+    account_ids = provider_ids.union(other_account_ids)
+    list(User.objects.select_for_update(no_key=True).filter(pk__in=account_ids).order_by("pk").values_list("pk", flat=True))
+    providers = Provider.objects.select_for_update().filter(pk__in=provider_ids).order_by("pk").in_bulk()
+    rooms = ClinicRoom.objects.select_for_update().filter(pk__in=room_ids).order_by("pk").in_bulk()
+    return providers, rooms
+
+
+def _lock_booking_slots(*slot_ids, account_ids):
+    snapshots = Slot.objects.in_bulk(slot_ids)
+    if len(snapshots) != len(set(slot_ids)):
+        raise ValidationError("Availability changed. Choose another time.")
+    providers, rooms = _lock_slot_resources(
+        {slot.provider_id for slot in snapshots.values()},
+        {slot.room_id for slot in snapshots.values() if slot.room_id is not None},
+        other_account_ids=account_ids,
+    )
+    locked = Slot.objects.select_for_update().filter(pk__in=snapshots).order_by("pk").in_bulk()
+    if len(locked) != len(snapshots):
+        raise ValidationError("Availability changed. Choose another time.")
+    for slot in locked.values():
+        if slot.schedule != snapshots[slot.pk].schedule:
+            raise ValidationError("Availability changed. Choose the time again.")
+        slot.provider = providers[slot.provider_id]
+        slot.room = rooms.get(slot.room_id)
+    return locked
+
+
+def _create_booking(*, actor, patient, slot, reason_for_visit, expected_version):
+    if not User.objects.filter(pk=patient.pk, account_status=User.AccountStatus.ACTIVE).exists():
+        raise ValidationError("Booking requires an active patient account.")
+    if expected_version is not None and slot.version != expected_version:
+        raise ValidationError("This slot changed. Review the current details before booking.")
+    if not slot.is_active or not slot.room or not slot.room.is_active or not provider_is_eligible(slot.provider_id):
+        raise ValidationError("This slot is no longer open for booking. Choose another time.")
     if slot.start_time <= timezone.now():
-        raise ValidationError("Choose a future slot.")
-    appointment = Appointment.objects.create(patient=patient, slot=slot, reason_for_visit=reason_for_visit)
+        raise ValidationError("This slot has already started. Choose another time.")
+    if protected_slot_appointments(slot.appointments).exists():
+        raise ValidationError("This slot has already been booked. Choose another time.")
+    reason = reason_for_visit.strip()
+    if not reason:
+        raise ValidationError({"reason_for_visit": "Enter a reason for the visit."})
+    appointment = Appointment.objects.create(patient=patient, slot=slot, reason_for_visit=reason)
     AuditLog.objects.create(actor_user=actor, action_performed="Appointment booked", target_table="appointment", target_record_id=appointment.pk)
     return appointment
+
+
+@transaction.atomic
+def book_appointment(*, patient_id, slot_id, reason_for_visit, actor, expected_version=None):
+    patient = Patient.objects.select_for_update().get(pk=patient_id)
+    actor = require_permission(actor, "appointment.book", patient)
+    slot = _lock_booking_slots(slot_id, account_ids=(patient.pk, actor.pk))[slot_id]
+    actor = require_permission(actor, "appointment.book", patient)
+    return _create_booking(actor=actor, patient=patient, slot=slot, reason_for_visit=reason_for_visit,
+        expected_version=expected_version)
 
 
 @transaction.atomic
@@ -50,9 +84,7 @@ def save_slot(*, actor, provider_id, room_id, start_time, end_time, is_active, s
 
     # Match booking and resource deactivation: provider accounts, providers,
     # rooms, then the slot. Order multiple rows of each kind by primary key.
-    list(User.objects.select_for_update().filter(pk__in=provider_ids).order_by("pk").values_list("pk", flat=True))
-    providers = {item.pk: item for item in Provider.objects.select_for_update().filter(pk__in=provider_ids).order_by("pk")}
-    rooms = {item.pk: item for item in ClinicRoom.objects.select_for_update().filter(pk__in=room_ids).order_by("pk")}
+    providers, rooms = _lock_slot_resources(provider_ids, room_ids, other_account_ids=(actor.pk,))
     provider = providers.get(provider_id)
     if provider is None:
         raise ValidationError({"provider": "Choose an existing provider."})
@@ -115,10 +147,42 @@ def save_room(*, actor, campus, building, room_number, is_active, room_id=None):
 
 @transaction.atomic
 def cancel_appointment(*, appointment_id, actor):
-    appointment = Appointment.objects.select_for_update().get(pk=appointment_id)
+    snapshot = Appointment.objects.get(pk=appointment_id)
+    actor = require_permission(actor, "appointment.cancel", snapshot)
+    Patient.objects.select_for_update().get(pk=snapshot.patient_id)
+    slot = _lock_booking_slots(snapshot.slot_id, account_ids=(snapshot.patient_id, actor.pk,))[snapshot.slot_id]
+    appointment = _lock_appointment(snapshot, slot)
+    _cancel_locked_appointment(actor, appointment)
+    return appointment
+
+
+def _lock_appointment(snapshot, slot):
+    appointment = Appointment.objects.select_for_update().get(pk=snapshot.pk)
+    if appointment.patient_id != snapshot.patient_id or appointment.slot_id != slot.pk:
+        raise ValidationError("This appointment changed. Open it again.")
+    appointment.slot = slot
+    return appointment
+
+
+def _cancel_locked_appointment(actor, appointment):
     actor = require_permission(actor, "appointment.cancel", appointment)
     appointment.status = Appointment.Status.CANCELED
     appointment.canceled_at = timezone.now()
-    appointment.save()
-    AuditLog.objects.create(actor_user=actor, action_performed="Appointment canceled", target_table="appointment", target_record_id=appointment.pk)
-    return appointment
+    # Only the guarded transition is written, including when a legacy reason is unknown.
+    Appointment.objects.filter(pk=appointment.pk).update(status=appointment.status, canceled_at=appointment.canceled_at)
+    action = "Appointment canceled" if actor.pk == appointment.patient_id else "Appointment canceled by Admin"
+    AuditLog.objects.create(actor_user=actor, action_performed=action, target_table="appointment", target_record_id=appointment.pk)
+
+
+@transaction.atomic
+def reschedule_appointment(*, appointment_id, slot_id, reason_for_visit, actor, expected_version=None):
+    snapshot = Appointment.objects.get(pk=appointment_id)
+    patient = Patient.objects.select_for_update().get(pk=snapshot.patient_id)
+    actor = require_permission(actor, "appointment.book", patient)
+    if snapshot.slot_id == slot_id:
+        raise ValidationError("Choose a different time for this appointment.")
+    slots = _lock_booking_slots(snapshot.slot_id, slot_id, account_ids=(patient.pk, actor.pk))
+    appointment = _lock_appointment(snapshot, slots[snapshot.slot_id])
+    _cancel_locked_appointment(actor, appointment)
+    return _create_booking(actor=actor, patient=patient, slot=slots[slot_id], reason_for_visit=reason_for_visit,
+        expected_version=expected_version)

@@ -400,6 +400,14 @@ Commit: `feat: manage provider and room availability`
 
 Depends on: 5 and 6.
 
+Implemented November 23, 2026. Patient-profile holders browse available slots
+with Manila dates and provider filters, confirm bookings, and see their own
+upcoming appointments and history. The owner can cancel or reschedule a future
+Scheduled booking with no linked visit. Rescheduling is atomic. Admin
+on-behalf cancellation retains the same state limits and has its own audit
+action in the service. The existing schema supports the workflow. See
+[Step 7 verification](step_7_verification.md).
+
 - Browse future available slots, filter by date/provider/type, book with a reason,
   show confirmation and own upcoming/past appointments.
 - Extend services with actor/ownership checks and fresh resource validation. Handle
@@ -713,8 +721,9 @@ do not recommend force push, hard reset, or discarding work.
 | Step 3: shared interface and role dashboards | Implemented and committed (`826a606`); user confirmed manual checks looked good before Step 4 |
 | Step 4: clinic reference and personnel/provider administration | Implemented as `d020095`; user confirmed manual approval on November 23, 2026. PostgreSQL staging pending. |
 | Step 5: patient profile, personnel intake and allergies | Implemented as `9006126`. User reported completing the activity screenshots and requested Step 6. |
-| Step 6: provider and room availability | Implemented November 23, 2026. User visual review pending. |
-| Steps 7–14 | Pending. Step 7 is patient appointments and cancellation. |
+| Step 6: provider and room availability | Implemented and committed as `e0f6e3f`. |
+| Step 7: patient appointments and cancellation | Implemented November 23, 2026. User visual review pending. |
+| Steps 8–14 | Pending. Step 8 is reception, check-in and walk-in encounters. |
 | Official ID formats, personnel/contracted provider identity, hours, fees, calendar | Unconfirmed; use documented fictional defaults until supplied |
 | Configured hosted migration status | Not inspected or changed in this review |
 | Existing Supabase upgrade | Planned through staged migration checkpoints; no hosted migration authorized or applied by this planning update |

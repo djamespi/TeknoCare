@@ -62,11 +62,7 @@ def allowed(user, action, target=None):
     if action == "appointment.book":
         return target.patient.is_active and (is_admin or target.pk == user.pk)
     if action == "appointment.cancel":
-        return (
-            (is_admin or target.patient_id == user.pk)
-            and target.status == "Scheduled" and target.slot.start_time > timezone.now()
-            and not hasattr(target, "medical_record")
-        )
+        return (is_admin or target.patient_id == user.pk) and target.can_cancel
     provider = clinical_provider(user)
     if action == "schedule.manage":
         return is_admin or bool(provider and provider.pk == target.pk)

@@ -89,3 +89,25 @@ class SlotForm(forms.Form):
         if start and end and end <= start:
             self.add_error("end_time", "Slot must end after it starts.")
         return values
+
+
+class BookingFilterForm(forms.Form):
+    date = forms.DateField(label="Date", required=False, widget=forms.DateInput(attrs={"type": "date"}))
+    provider = ProviderChoiceField(queryset=Provider.objects.none(), required=False, empty_label="All providers")
+    provider_type = forms.ChoiceField(
+        label="Provider type", required=False,
+        choices=[("", "All types"), *[(value, label) for value, label in Provider.Type.choices
+                                    if value != Provider.Type.UNVERIFIED]],
+    )
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields["provider"].queryset = eligible_providers().select_related("provider").order_by("provider__school_id")
+
+
+class BookingForm(forms.Form):
+    reason_for_visit = forms.CharField(
+        label="Reason for visit",
+        widget=forms.Textarea(attrs={"rows": 4}),
+    )
+    expected_version = forms.CharField(max_length=40, widget=forms.HiddenInput)

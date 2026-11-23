@@ -188,6 +188,24 @@ application guards, not new database constraints or proof of PostgreSQL concurre
   audit event in the same transaction. Stale form submissions are rejected.
   PostgreSQL range exclusions guard active overlaps at the database boundary.
 
+## Step 7 booking and cancellation
+
+- The appointment pages resolve the Patient from the signed-in account. An
+  Admin or Provider can use the same pages for their own Patient profile.
+  The appointment reason and history are visible only to the owner on these pages.
+- Browse results include only future, open slots with an eligible provider,
+  active room and no protected appointment. Booking rechecks slot version,
+  eligibility and conflicts inside the transaction. The pages show Manila time.
+- The owner can cancel or reschedule a future Scheduled appointment before its
+  start when it has no linked visit. The existing Admin service can cancel on
+  behalf of another patient under the same state rules. It records a distinct
+  audit event. The appointment pages use own-account scope for every role.
+- Rescheduling saves the original cancellation and replacement together. A failed
+  replacement preserves the original appointment and its audit history.
+  Booking and cancellation lock the Patient, then the involved accounts,
+  providers, rooms and slots in primary-key order. An existing Appointment is
+  locked after its slot.
+
 ## Limits before any real deployment
 
 This prototype lacks login/reset throttling, MFA, verified enrollment/personnel

@@ -1,0 +1,38 @@
+{% extends 'base.html' %}
+{% block title %}My appointments{% endblock %}
+{% block main_class %}home-shell{% endblock %}
+{% block content %}
+  <h1>My appointments</h1>
+  <div class="page-actions">
+    <a class="button" href="{% url 'booking:browse' %}">Book an appointment</a>
+    <a href="{% url 'home:home' %}">Back to dashboard</a>
+  </div>
+  <nav class="page-actions" aria-label="Appointment view">
+    <a href="{% url 'booking:list' %}"{% if not history %} aria-current="page"{% endif %}>Upcoming</a>
+    <a href="{% url 'booking:list' %}?view=history"{% if history %} aria-current="page"{% endif %}>History</a>
+  </nav>
+  {% if page_obj.object_list %}
+    <div class="table-scroll results-table" role="region" aria-label="Appointments" tabindex="0">
+      <table>
+        <caption>{% if history %}Appointment history{% else %}Upcoming appointments{% endif %} in Manila time</caption>
+        <thead><tr><th scope="col">Starts</th><th scope="col">Provider</th><th scope="col">Room</th><th scope="col">Status</th><th scope="col">Action</th></tr></thead>
+        <tbody>
+          {% for appointment in page_obj %}
+            <tr>
+              <th scope="row">{{ appointment.slot.start_time|date:"M j, Y, g:i:s A" }}</th>
+              <td>{{ appointment.provider.provider.get_full_name }}</td>
+              <td>{{ appointment.slot.room|default:"Room unverified" }}</td>
+              <td><span class="badge">{{ appointment.get_status_display }}</span></td>
+              <td><a href="{% url 'booking:detail' appointment.pk %}" aria-label="View appointment {{ appointment.pk }}">View appointment</a></td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  {% elif history %}
+    {% include 'includes/empty_state.html' with empty_title='No appointment history' empty_message='Past and canceled appointments appear here.' %}
+  {% else %}
+    {% include 'includes/empty_state.html' with empty_title='No upcoming appointments' empty_message='Choose an available time to book a visit.' %}
+  {% endif %}
+  {% include 'includes/pagination.html' %}
+{% endblock %}

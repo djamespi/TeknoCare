@@ -31,6 +31,10 @@
         <h2>Patient details</h2>
         <p>Manage your birth date and emergency contacts, and view recorded allergies.</p>
       </a>
+      <a class="feature-panel" href="{% url 'booking:list' %}">
+        <h2>My appointments</h2>
+        <p>Book a clinic visit or view and manage your appointments.</p>
+      </a>
     {% endif %}
     {% if provider_ready %}
       <a class="feature-panel" href="{% url 'patients:allergy_lookup' %}">
@@ -78,7 +82,7 @@
     {% elif request.user.user_type == 'Provider' %}
       {% if provider.provider_type == 'Nurse' %}<p>Nursing triage and vitals pages are not available yet. Nurses will not finalize consultations or issue prescriptions.</p>{% else %}<p>Consultations and prescribing pages are planned. A qualified, active designation and an assigned encounter will be required.</p>{% endif %}
     {% else %}
-      <p>Appointment booking, visit summaries and tuition-charge pages are not available yet. No online payment or university finance connection is provided.</p>
+      <p>Appointment booking is available. Visit summaries and tuition charge pages are planned.</p>
     {% endif %}
     <p class="lead">This school-project prototype is not an emergency service or an official university medical record system.</p>
   </section>

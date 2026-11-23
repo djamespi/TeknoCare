@@ -1,0 +1,24 @@
+{% extends 'base.html' %}
+{% block title %}{% if original %}Confirm new appointment time{% else %}Confirm appointment{% endif %}{% endblock %}
+{% block content %}
+  <h1>{% if original %}Confirm new appointment time{% else %}Confirm appointment{% endif %}</h1>
+  <p>
+    {% if original %}<a href="{% url 'booking:reschedule' original.pk %}">Back to available times</a>
+    {% else %}<a href="{% url 'booking:browse' %}">Back to available times</a>{% endif %}
+  </p>
+  <section class="info-card" aria-label="Selected time">
+    <h2>Selected time in Manila</h2>
+    {% include 'appointments/booking_slot_details.html' %}
+  </section>
+  {% if original %}<p>Your original appointment stays scheduled until this replacement is confirmed.</p>{% endif %}
+  <section class="form-card" aria-label="Appointment confirmation">
+    <form method="post">
+      {% csrf_token %}
+      {% include 'includes/form_fields.html' %}
+      <div class="page-actions">
+        <button class="button" type="submit">{% if original %}Confirm new time{% else %}Book appointment{% endif %}</button>
+        {% if form.non_field_errors %}<a href="{{ request.path }}">Reload this time</a>{% endif %}
+      </div>
+    </form>
+  </section>
+{% endblock %}

@@ -1,0 +1,6 @@
+<dl class="account-details">
+  <dt>Provider</dt><dd>{{ slot.provider.provider.get_full_name }} ({{ slot.provider.get_provider_type_display }})</dd>
+  <dt>Room</dt><dd>{{ slot.room|default:"Room unverified" }}</dd>
+  <dt>Starts</dt><dd>{{ slot.start_time|date:"M j, Y, g:i:s A" }}</dd>
+  <dt>Ends</dt><dd>{{ slot.end_time|date:"M j, Y, g:i:s A" }}</dd>
+</dl>
