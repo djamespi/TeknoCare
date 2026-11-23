@@ -1,0 +1,36 @@
+{% extends 'includes/management_list.html' %}
+{% block title %}Availability{% endblock %}
+{% block workspace_label %}{% endblock %}
+{% block heading %}{% if request.user.is_staff %}Clinic availability{% else %}Your availability{% endif %}{% endblock %}
+{% block introduction %}Manage individual provider and room slots in Manila time (UTC+8).{% endblock %}
+{% block back_link %}
+  {% if request.user.is_staff %}{{ block.super }}{% else %}<p><a href="{% url 'home:home' %}">Back to dashboard</a></p>{% endif %}
+{% endblock %}
+{% block actions %}<a class="button" href="{% url 'availability:create' %}">Add slot</a>{% endblock %}
+{% block empty_state %}
+  {% include 'includes/empty_state.html' with empty_title='No matching slots' empty_message='Add a slot or adjust the dates.' %}
+{% endblock %}
+{% block table %}
+  <table>
+    <caption>Availability slots</caption>
+    <thead>
+      <tr>
+        {% if request.user.is_staff %}<th scope="col">Provider</th>{% endif %}
+        <th scope="col">Room</th><th scope="col">Starts</th><th scope="col">Ends</th>
+        <th scope="col">Status</th><th scope="col">Action</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for slot in page_obj %}
+        <tr>
+          {% if request.user.is_staff %}<th scope="row">{{ slot.provider.provider.get_full_name }} ({{ slot.provider.provider.school_id }})</th>{% endif %}
+          <td>{{ slot.room|default:"Room unverified" }}</td>
+          <td>{{ slot.start_time|date:"M j, Y, g:i:s A" }}</td>
+          <td>{{ slot.end_time|date:"M j, Y, g:i:s A" }}</td>
+          <td>{% include 'appointments/slot_status.html' %}</td>
+          <td><a href="{% url 'availability:edit' slot.pk %}" aria-label="View slot for {{ slot.start_time|date:'M j, Y, g:i:s A' }}">View slot</a></td>
+        </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+{% endblock %}

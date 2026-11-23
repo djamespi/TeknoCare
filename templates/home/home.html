@@ -38,6 +38,12 @@
         <p>Review and record allergies for patients under your care.</p>
       </a>
     {% endif %}
+    {% if provider_ready or request.user.is_staff %}
+      <a class="feature-panel" href="{% url 'availability:list' %}">
+        <h2>{% if request.user.is_staff %}Clinic availability{% else %}Your availability{% endif %}</h2>
+        <p>Schedule provider and room slots in Manila time.</p>
+      </a>
+    {% endif %}
     <a class="feature-panel" href="{% url 'user_settings:settings' %}">
       <span class="panel-kicker">YOUR PREFERENCES</span><h2>Settings</h2>
       <p>Choose light or dark mode. Email preferences can be saved, but email delivery is not available.</p>
@@ -68,9 +74,9 @@
   <section class="info-card" aria-labelledby="workspace-heading">
     <h2 id="workspace-heading">Workspace availability</h2>
     {% if request.user.user_type == 'Admin' %}
-      <p>Clinic setup and patient intake are available. Scheduling, consultations and reporting are still planned.</p>
+      <p>Clinic setup, patient intake and availability are ready. Consultations and reporting are still planned.</p>
     {% elif request.user.user_type == 'Provider' %}
-      {% if provider.provider_type == 'Nurse' %}<p>Nursing triage and vitals pages are not available yet. Nurses will not finalize consultations or issue prescriptions.</p>{% else %}<p>Provider scheduling, consultations and prescribing pages are not available yet. A qualified, active designation and an assigned encounter will be required.</p>{% endif %}
+      {% if provider.provider_type == 'Nurse' %}<p>Nursing triage and vitals pages are not available yet. Nurses will not finalize consultations or issue prescriptions.</p>{% else %}<p>Consultations and prescribing pages are planned. A qualified, active designation and an assigned encounter will be required.</p>{% endif %}
     {% else %}
       <p>Appointment booking, visit summaries and tuition-charge pages are not available yet. No online payment or university finance connection is provided.</p>
     {% endif %}

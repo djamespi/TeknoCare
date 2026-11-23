@@ -5,21 +5,22 @@ from django.utils import timezone
 from apps.patients.models import Patient
 from apps.common.permissions import require_permission
 from apps.audit.models import AuditLog
-from .models import Appointment, ClinicRoom, Slot
+from apps.providers.eligibility import provider_is_eligible
+from apps.providers.models import Provider
+from apps.register.models import User
+from .models import Appointment, ClinicRoom, Slot, protected_slot_appointments
 
 
 @transaction.atomic
 def book_appointment(*, patient_id, slot_id, reason_for_visit, actor):
     patient = Patient.objects.select_for_update().get(pk=patient_id)
     actor = require_permission(actor, "appointment.book", patient)
-    from apps.providers.models import Provider
-    from apps.register.models import User
     snapshot = Slot.objects.get(pk=slot_id)
     provider_user = User.objects.select_for_update().get(pk=snapshot.provider_id)
     provider = Provider.objects.select_for_update().get(pk=snapshot.provider_id)
     room = ClinicRoom.objects.select_for_update().filter(pk=snapshot.room_id).first()
     slot = Slot.objects.select_for_update().get(pk=slot_id)
-    if slot.provider_id != snapshot.provider_id or slot.room_id != snapshot.room_id:
+    if slot.schedule != snapshot.schedule:
         raise ValidationError("Availability changed. Select the slot again.")
     provider.provider = provider_user
     slot.provider, slot.room = provider, room
@@ -32,6 +33,62 @@ def book_appointment(*, patient_id, slot_id, reason_for_visit, actor):
     appointment = Appointment.objects.create(patient=patient, slot=slot, reason_for_visit=reason_for_visit)
     AuditLog.objects.create(actor_user=actor, action_performed="Appointment booked", target_table="appointment", target_record_id=appointment.pk)
     return appointment
+
+
+@transaction.atomic
+def save_slot(*, actor, provider_id, room_id, start_time, end_time, is_active, slot_id=None, expected_version=None):
+    actor = require_permission(actor, "schedule.access")
+    if timezone.is_naive(start_time) or timezone.is_naive(end_time):
+        raise ValidationError("Use timezone-aware start and end times.")
+    snapshot = Slot.objects.get(pk=slot_id) if slot_id is not None else None
+    provider_ids = {provider_id}
+    room_ids = {room_id} if room_id is not None else set()
+    if snapshot:
+        provider_ids.add(snapshot.provider_id)
+        if snapshot.room_id is not None:
+            room_ids.add(snapshot.room_id)
+
+    # Match booking and resource deactivation: provider accounts, providers,
+    # rooms, then the slot. Order multiple rows of each kind by primary key.
+    list(User.objects.select_for_update().filter(pk__in=provider_ids).order_by("pk").values_list("pk", flat=True))
+    providers = {item.pk: item for item in Provider.objects.select_for_update().filter(pk__in=provider_ids).order_by("pk")}
+    rooms = {item.pk: item for item in ClinicRoom.objects.select_for_update().filter(pk__in=room_ids).order_by("pk")}
+    provider = providers.get(provider_id)
+    if provider is None:
+        raise ValidationError({"provider": "Choose an existing provider."})
+    require_permission(actor, "schedule.manage", provider)
+
+    slot = Slot()
+    if snapshot:
+        slot = Slot.objects.select_for_update().get(pk=snapshot.pk)
+        if slot.schedule != snapshot.schedule or (expected_version is not None and slot.version != expected_version):
+            raise ValidationError("This slot changed. Open it again before saving.")
+        require_permission(actor, "schedule.manage", providers[slot.provider_id])
+        if slot.start_time <= timezone.now():
+            raise ValidationError("Availability that already started is read-only.")
+        if protected_slot_appointments(slot.appointments).exists():
+            raise ValidationError("A booking or linked visit protects this slot from availability changes.")
+
+    if start_time <= timezone.now():
+        raise ValidationError({"start_time": "Start time must be in the future."})
+    schedule_changed = (provider_id, room_id, start_time, end_time) != slot.schedule
+    room = rooms.get(room_id)
+    if is_active or schedule_changed:
+        if not provider_is_eligible(provider.pk):
+            raise ValidationError({"provider": "Choose an active provider with a reviewed designation and an Active account."})
+        if not room or not room.is_active:
+            raise ValidationError({"room": "Choose an active clinic room."})
+
+    if not schedule_changed and is_active == slot.is_active:
+        return slot
+    slot.provider = provider
+    slot.room = room
+    slot.start_time, slot.end_time = start_time, end_time
+    slot.is_active = is_active
+    slot.save()
+    AuditLog.objects.create(actor_user=actor, action_performed="Availability updated" if snapshot else "Availability created",
+        target_table="slot", target_record_id=slot.pk)
+    return slot
 
 
 @transaction.atomic

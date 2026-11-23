@@ -1,7 +1,10 @@
+from datetime import timezone as datetime_timezone
+
 from django.contrib.postgres.fields import RangeOperators
 from django.core.exceptions import ValidationError
 from django.db import models
 from django.utils import timezone
+from django.utils.crypto import salted_hmac
 from apps.common.constraints import PostgresExclusionConstraint, TimestampRange
 from apps.common.models import ValidatedModel
 from apps.providers.eligibility import provider_is_eligible
@@ -17,6 +20,9 @@ class ClinicRoom(ValidatedModel):
     class Meta:
         db_table = "clinic_room"
         constraints = [models.UniqueConstraint(fields=["campus", "building", "room_number"], name="unique_clinic_room")]
+
+    def __str__(self):
+        return f"{self.campus} / {self.building} / {self.room_number}"
 
 
 class Slot(ValidatedModel):
@@ -43,6 +49,19 @@ class Slot(ValidatedModel):
     def is_booked(self):
         return self.appointments.exclude(status=Appointment.Status.CANCELED).exists() if self.pk else False
 
+    @property
+    def schedule(self):
+        return self.provider_id, self.room_id, self.start_time, self.end_time
+
+    @property
+    def version(self):
+        state = (
+            self.pk, self.provider_id, self.room_id, self.is_active,
+            self.start_time.astimezone(datetime_timezone.utc),
+            self.end_time.astimezone(datetime_timezone.utc),
+        )
+        return salted_hmac("teknocare.slot.version", repr(state)).hexdigest()
+
     def clean(self):
         if self.start_time and self.end_time and self.end_time <= self.start_time:
             raise ValidationError({"end_time": "Slot must end after it starts."})
@@ -56,9 +75,10 @@ class Slot(ValidatedModel):
                 raise ValidationError("The provider or room already has overlapping availability.")
         if self.pk and not self._state.adding:
             old = type(self).objects.get(pk=self.pk)
-            changed = any(getattr(old, f) != getattr(self, f) for f in ("provider_id", "start_time", "end_time", "room_id"))
-            if changed and self.appointments.exclude(status=Appointment.Status.CANCELED).exists():
-                raise ValidationError("Cancel existing bookings before changing a slot.")
+            if self.schedule != old.schedule and self.appointments.exists():
+                raise ValidationError("Appointment history protects the provider, room and times. Create a new slot.")
+            if self.is_active != old.is_active and protected_slot_appointments(self.appointments).exists():
+                raise ValidationError("A booking or linked visit protects this slot from availability changes.")
 
 
 class Appointment(ValidatedModel):
@@ -105,3 +125,7 @@ class Appointment(ValidatedModel):
             old = type(self).objects.get(pk=self.pk)
             if old.patient_id != self.patient_id or old.slot_id != self.slot_id or self.status in (self.Status.CANCELED, self.Status.NO_SHOW):
                 raise ValidationError("Preserve bookings linked to clinical records.")
+
+
+def protected_slot_appointments(appointments):
+    return appointments.exclude(status=Appointment.Status.CANCELED, medical_record__isnull=True)

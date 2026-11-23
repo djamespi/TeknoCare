@@ -374,6 +374,15 @@ Commit: `feat: add patient intake contacts and allergy management`
 
 Depends on: 4 and 5.
 
+Implemented November 23, 2026. Admins manage clinic availability and active
+qualified providers manage their own slots. A slot can use any active clinic
+room under the prototype rules. Date filters use the Manila calendar. Started
+slots, non-canceled bookings and visit-linked slots are read-only. For future
+slots with canceled-only history, retain the original schedule and permit
+opening or closing subject to current resource eligibility. Resource locks,
+range exclusions and audit writes use the existing schema. See
+[Step 6 verification](step_6_verification.md).
+
 - Admin manages slots; active Providers manage their own future availability under
   agreed room rules. Start with explicit individual slots and date filters.
 - Enforce active accounts/provider/room, future times, duration and provider/room
@@ -703,8 +712,9 @@ do not recommend force push, hard reset, or discarding work.
 | Step 2: authentication/provisioning/access | Implemented November 18, 2026; isolated tests/HTTP checks and ERD/legacy checks pass; user visual confirmation and PostgreSQL/hosted checks pending |
 | Step 3: shared interface and role dashboards | Implemented and committed (`826a606`); user confirmed manual checks looked good before Step 4 |
 | Step 4: clinic reference and personnel/provider administration | Implemented as `d020095`; user confirmed manual approval on November 23, 2026. PostgreSQL staging pending. |
-| Step 5: patient profile, personnel intake and allergies | Implemented November 23, 2026. Step 5 manual visual approval pending. |
-| Steps 6–14 | Pending. Step 6 is provider and room availability. |
+| Step 5: patient profile, personnel intake and allergies | Implemented as `9006126`. User reported completing the activity screenshots and requested Step 6. |
+| Step 6: provider and room availability | Implemented November 23, 2026. User visual review pending. |
+| Steps 7–14 | Pending. Step 7 is patient appointments and cancellation. |
 | Official ID formats, personnel/contracted provider identity, hours, fees, calendar | Unconfirmed; use documented fictional defaults until supplied |
 | Configured hosted migration status | Not inspected or changed in this review |
 | Existing Supabase upgrade | Planned through staged migration checkpoints; no hosted migration authorized or applied by this planning update |

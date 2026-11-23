@@ -214,6 +214,14 @@ for patients within their care scope.
 Use the [Step 5 manual checklist and Git handoff](docs/step_5_verification.md) to
 review the new pages with fictional accounts. Step 5 requires no new migrations.
 
+## Confirm Step 6 works
+
+Open **Clinic availability** as Admin or **Your availability** as an active
+provider. Add individual future slots in Manila time and filter by start date.
+Admins can schedule any eligible provider. Active providers manage their own
+slots and select from active clinic rooms. The [Step 6 checklist and Git handoff](docs/step_6_verification.md)
+includes overlap, history, and permission checks.
+
 ## Configuration boundaries
 
 | Settings module | Purpose | Database / secrets |

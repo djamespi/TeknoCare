@@ -1,0 +1,7 @@
+<span class="badge">
+  {% if slot.start_time <= now %}Past
+  {% elif slot.has_protected_appointment %}Booking protected
+  {% elif not slot.is_active %}Inactive
+  {% elif not slot.provider_eligible or not slot.room.is_active %}Unavailable
+  {% else %}Available{% endif %}
+</span>

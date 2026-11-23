@@ -21,10 +21,11 @@ def required_profile_exists(user):
 
 
 def clinical_provider(user):
-    from apps.providers.models import Provider
+    from apps.providers.eligibility import eligible_providers
+
     if user.user_type not in {"Admin", "Provider"}:
         return None
-    return Provider.objects.filter(pk=user.pk, is_active=True, provider_type__in=["Physician", "Dentist", "Nurse"]).first()
+    return eligible_providers().filter(pk=user.pk).first()
 
 
 def patient_under_care(provider, patient):
@@ -54,6 +55,8 @@ def allowed(user, action, target=None):
         return True
     if action == "patient.allergy_lookup":
         return bool(clinical_provider(user))
+    if action == "schedule.access":
+        return is_admin or bool(clinical_provider(user))
     if target is None:
         return False
     if action == "appointment.book":

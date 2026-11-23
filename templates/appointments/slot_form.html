@@ -1,0 +1,35 @@
+{% extends 'base.html' %}
+{% block title %}{% if form and slot %}Edit slot{% elif slot %}Slot details{% else %}Add slot{% endif %}{% endblock %}
+{% block content %}
+  <h1>{% if form and slot %}Edit slot{% elif slot %}Slot details{% else %}Add slot{% endif %}</h1>
+  <p><a href="{% url 'availability:list' %}">Back to availability</a></p>
+  {% if slot and not form %}
+    <section class="info-card" aria-label="Current slot">
+      <dl class="account-details">
+        <dt>Provider</dt><dd>{{ slot.provider.provider.get_full_name }} ({{ slot.provider.provider.school_id }})</dd>
+        <dt>Room</dt><dd>{{ slot.room|default:"Room unverified" }}</dd>
+        <dt>Starts</dt><dd>{{ slot.start_time|date:"M j, Y, g:i:s A" }}</dd>
+        <dt>Ends</dt><dd>{{ slot.end_time|date:"M j, Y, g:i:s A" }}</dd>
+        <dt>Status</dt><dd>{% include 'appointments/slot_status.html' %}</dd>
+      </dl>
+    </section>
+  {% endif %}
+  {% if form %}
+    <p class="lead">Enter start and end times in Manila time (UTC+8).</p>
+    {% if slot %}<p>Current status {% include 'appointments/slot_status.html' %}</p>{% endif %}
+    {% if slot.has_appointment %}
+      <p class="notice">Appointment history protects the provider, room, and times. You can change whether this future slot is open.</p>
+    {% endif %}
+    <section class="form-card" aria-label="Availability slot">
+      <form method="post">
+        {% csrf_token %}
+        {% include 'includes/form_fields.html' %}
+        <button class="button" type="submit">Save slot</button>
+      </form>
+    </section>
+  {% elif slot.start_time <= now %}
+    <p class="notice">This slot has already started. Its schedule is preserved.</p>
+  {% else %}
+    <p class="notice">A booking or linked visit protects this slot from changes.</p>
+  {% endif %}
+{% endblock %}

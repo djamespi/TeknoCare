@@ -1,10 +1,10 @@
 {% extends 'base.html' %}
 {% block main_class %}home-shell{% endblock %}
 {% block content %}
-  <p class="eyebrow">CLINIC ADMINISTRATION</p>
+  {% block workspace_label %}<p class="eyebrow">CLINIC ADMINISTRATION</p>{% endblock %}
   <h1>{% block heading %}{% endblock %}</h1>
   <p class="lead">{% block introduction %}{% endblock %}</p>
-  <p><a href="{% url 'university:management' %}">Back to clinic setup</a></p>
+  {% block back_link %}<p><a href="{% url 'university:management' %}">Back to clinic setup</a></p>{% endblock %}
   <div class="page-actions">{% block actions %}{% endblock %}</div>
   <section class="form-card" aria-label="Filter results">
     <form method="get" class="filter-form">
@@ -15,7 +15,7 @@
   {% if page_obj.object_list %}
     <div class="table-scroll results-table" role="region" aria-label="Results" tabindex="0">{% block table %}{% endblock %}</div>
   {% else %}
-    {% include 'includes/empty_state.html' with empty_title='No matching entries' empty_message='Add a fictional entry or adjust the filters. No records were deleted.' %}
+    {% block empty_state %}{% include 'includes/empty_state.html' with empty_title='No matching entries' empty_message='Add a fictional entry or adjust the filters. No records were deleted.' %}{% endblock %}
   {% endif %}
   {% include 'includes/pagination.html' %}
 {% endblock %}

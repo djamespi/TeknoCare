@@ -170,6 +170,24 @@ application guards, not new database constraints or proof of PostgreSQL concurre
   the audit log and preserve the original recording timestamp. Empty lists
   indicate that allergies are undocumented. No allergy deletion is exposed.
 
+## Step 6 availability
+
+- Active Admins can see every slot and schedule any eligible provider. An Active
+  Provider with a reviewed clinical designation can see and manage only their
+  own slots. These pages expose slot and resource details without patient identity
+  or appointment notes.
+- Future slots can use any active clinic room. Open slots cannot overlap another
+  active slot for the same provider or room. Manila dates drive filtering and
+  display. A resource must be active to open, reopen or change a schedule.
+- A slot that has started, has a non-canceled appointment, or has a visit linked
+  through an appointment is read-only. Canceled-only history fixes the provider,
+  room, and times. Eligible future slots with only canceled appointments may
+  still open or close. An Admin can close an unbooked future slot after its
+  provider becomes ineligible.
+- Slot writes lock old and requested resources in booking order and record an
+  audit event in the same transaction. Stale form submissions are rejected.
+  PostgreSQL range exclusions guard active overlaps at the database boundary.
+
 ## Limits before any real deployment
 
 This prototype lacks login/reset throttling, MFA, verified enrollment/personnel
