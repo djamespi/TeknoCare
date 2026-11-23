@@ -19,7 +19,7 @@ class MedicalRecord(ValidatedModel):
         related_name="medical_record", on_delete=models.PROTECT)
     patient = models.ForeignKey("patients.Patient", related_name="medical_records", on_delete=models.PROTECT)
     provider = models.ForeignKey("providers.Provider", related_name="medical_records", on_delete=models.PROTECT)
-    chief_complaint = models.TextField(default="")
+    chief_complaint = models.TextField(default="", blank=True)
     affiliation_at_visit = models.CharField(max_length=10, choices=Affiliation.choices, null=True, blank=True, editable=False)
     symptoms = models.TextField(null=True, blank=True)
     examination_notes = models.TextField(null=True, blank=True)
@@ -56,6 +56,8 @@ class MedicalRecord(ValidatedModel):
                 raise ValidationError("A canceled/no-show appointment cannot have a clinical encounter.")
         if self.status == self.Status.FINALIZED and not self.affiliation_at_visit:
             raise ValidationError("Review legacy visit affiliation before finalizing.")
+        if self.status == self.Status.FINALIZED and not self.chief_complaint.strip():
+            raise ValidationError({"chief_complaint": "Record the chief complaint before finalizing."})
         if self.pk and not self._state.adding:
             old = type(self).objects.get(pk=self.pk)
             if old.status == self.Status.FINALIZED:

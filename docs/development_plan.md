@@ -426,6 +426,15 @@ Commit: `feat: add patient booking cancellation and appointment history`
 
 Depends on: 7.
 
+Implemented November 23, 2026. The reception queue lists Manila-day appointments,
+unresolved earlier bookings and today's Draft encounters within the actor's
+scope. Check-in, no-show, cancellation and completion are guarded transitions.
+Admin starts walk-ins by exact patient ID. A checked-in appointment can open
+one Draft encounter, and authorized staff can assign an attending provider
+without changing the booked slot. The intake workflow snapshots affiliation
+and allows a blank complaint on Drafts through a validation-state migration.
+See [Step 8 verification](step_8_verification.md).
+
 - Add today's operational queue for Admin and authorized practitioners. It is a
   filtered view of appointments/visits, not a new queue-management entity.
 - Implement Scheduled -> Checked-In, Scheduled -> No Show after the slot ends,
@@ -722,8 +731,9 @@ do not recommend force push, hard reset, or discarding work.
 | Step 4: clinic reference and personnel/provider administration | Implemented as `d020095`; user confirmed manual approval on November 23, 2026. PostgreSQL staging pending. |
 | Step 5: patient profile, personnel intake and allergies | Implemented as `9006126`. User reported completing the activity screenshots and requested Step 6. |
 | Step 6: provider and room availability | Implemented and committed as `e0f6e3f`. |
-| Step 7: patient appointments and cancellation | Implemented November 23, 2026. User visual review pending. |
-| Steps 8–14 | Pending. Step 8 is reception, check-in and walk-in encounters. |
+| Step 7: patient appointments and cancellation | Implemented November 23, 2026. User reported completing the activity screenshots and requested Step 8. |
+| Step 8: reception, check-in and walk-in encounters | Implemented November 23, 2026. User visual review pending. |
+| Steps 9–14 | Pending. Step 9 is vitals, consultation, diagnoses and finalization. |
 | Official ID formats, personnel/contracted provider identity, hours, fees, calendar | Unconfirmed; use documented fictional defaults until supplied |
 | Configured hosted migration status | Not inspected or changed in this review |
 | Existing Supabase upgrade | Planned through staged migration checkpoints; no hosted migration authorized or applied by this planning update |

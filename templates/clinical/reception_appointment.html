@@ -1,0 +1,36 @@
+{% extends 'base.html' %}
+{% block title %}Reception appointment{% endblock %}
+{% block content %}
+  <h1>Reception appointment</h1>
+  <p><a href="{% url 'reception:queue' %}">Back to reception queue</a></p>
+  <section class="info-card" aria-label="Appointment summary">
+    <p>Appointment #{{ appointment.pk }} <span class="badge">{{ appointment.get_status_display }}</span></p>
+    <p>{{ appointment.patient.patient.get_full_name }} ({{ appointment.patient.patient.school_id }})</p>
+    <h2>Scheduled time in Manila</h2>
+    {% include 'appointments/booking_slot_details.html' with slot=appointment.slot %}
+  </section>
+  {% if can_check_in or can_no_show or can_cancel or can_complete %}
+    <section class="form-card" aria-label="Reception actions">
+      <form method="post">
+        {% csrf_token %}
+        <div class="page-actions">
+          {% if can_check_in %}<button class="button" name="action" value="check_in" type="submit">Check in patient</button>{% endif %}
+          {% if can_no_show %}<button class="button" name="action" value="no_show" type="submit">Mark no show</button>{% endif %}
+          {% if can_cancel %}<button class="button button-secondary" name="action" value="cancel" type="submit">Cancel on behalf of patient</button>{% endif %}
+          {% if can_complete %}<button class="button" name="action" value="complete" type="submit">Complete appointment</button>{% endif %}
+        </div>
+      </form>
+    </section>
+  {% endif %}
+  {% if can_open %}
+    <section class="form-card" aria-labelledby="open-encounter-heading">
+      <h2 id="open-encounter-heading">Open encounter</h2>
+      <form method="post">
+        {% csrf_token %}
+        {% include 'includes/form_fields.html' %}
+        <button class="button" name="action" value="open" type="submit">Open Draft encounter</button>
+      </form>
+    </section>
+  {% endif %}
+  {% if existing %}<p><a href="{% url 'reception:encounter' existing.pk %}">View linked encounter</a></p>{% endif %}
+{% endblock %}

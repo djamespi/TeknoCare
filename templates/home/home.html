@@ -47,6 +47,10 @@
         <h2>{% if request.user.is_staff %}Clinic availability{% else %}Your availability{% endif %}</h2>
         <p>Schedule provider and room slots in Manila time.</p>
       </a>
+      <a class="feature-panel" href="{% url 'reception:queue' %}">
+        <h2>Reception queue</h2>
+        <p>Review check-ins and encounter assignments.</p>
+      </a>
     {% endif %}
     <a class="feature-panel" href="{% url 'user_settings:settings' %}">
       <span class="panel-kicker">YOUR PREFERENCES</span><h2>Settings</h2>

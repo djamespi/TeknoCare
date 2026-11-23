@@ -20,12 +20,12 @@ def _lock_slot_resources(provider_ids, room_ids, *, other_account_ids=()):
     return providers, rooms
 
 
-def _lock_booking_slots(*slot_ids, account_ids):
+def _lock_booking_slots(*slot_ids, account_ids, additional_provider_ids=()):
     snapshots = Slot.objects.in_bulk(slot_ids)
     if len(snapshots) != len(set(slot_ids)):
         raise ValidationError("Availability changed. Choose another time.")
     providers, rooms = _lock_slot_resources(
-        {slot.provider_id for slot in snapshots.values()},
+        {slot.provider_id for slot in snapshots.values()}.union(additional_provider_ids),
         {slot.room_id for slot in snapshots.values() if slot.room_id is not None},
         other_account_ids=account_ids,
     )
@@ -149,9 +149,7 @@ def save_room(*, actor, campus, building, room_number, is_active, room_id=None):
 def cancel_appointment(*, appointment_id, actor):
     snapshot = Appointment.objects.get(pk=appointment_id)
     actor = require_permission(actor, "appointment.cancel", snapshot)
-    Patient.objects.select_for_update().get(pk=snapshot.patient_id)
-    slot = _lock_booking_slots(snapshot.slot_id, account_ids=(snapshot.patient_id, actor.pk,))[snapshot.slot_id]
-    appointment = _lock_appointment(snapshot, slot)
+    appointment = lock_appointment_for_update(snapshot, actor_id=actor.pk)
     _cancel_locked_appointment(actor, appointment)
     return appointment
 
@@ -161,6 +159,15 @@ def _lock_appointment(snapshot, slot):
     if appointment.patient_id != snapshot.patient_id or appointment.slot_id != slot.pk:
         raise ValidationError("This appointment changed. Open it again.")
     appointment.slot = slot
+    return appointment
+
+
+def lock_appointment_for_update(snapshot, *, actor_id, attending_provider_ids=()):
+    patient = Patient.objects.select_for_update().get(pk=snapshot.patient_id)
+    slot = _lock_booking_slots(snapshot.slot_id, account_ids=(patient.pk, actor_id),
+        additional_provider_ids=attending_provider_ids)[snapshot.slot_id]
+    appointment = _lock_appointment(snapshot, slot)
+    appointment.patient = patient
     return appointment
 
 

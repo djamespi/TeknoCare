@@ -230,6 +230,13 @@ offers cancellation and rescheduling for eligible upcoming appointments.
 Confirmed replacements and cancellations appear in appointment history. See
 [the Step 7 checklist and Git handoff](docs/step_7_verification.md).
 
+## Confirm Step 8 works
+
+Open **Reception queue** as Admin or as an active, qualified provider. The
+queue supports check-in, no-shows and Draft encounters. Admin starts walk-ins
+by exact patient University ID, and authorized staff assign an attending
+provider. See [the Step 8 checklist and Git handoff](docs/step_8_verification.md).
+
 ## Configuration boundaries
 
 | Settings module | Purpose | Database / secrets |

@@ -206,6 +206,24 @@ application guards, not new database constraints or proof of PostgreSQL concurre
   providers, rooms and slots in primary-key order. An existing Appointment is
   locked after its slot.
 
+## Step 8 reception and encounter intake
+
+- Admin can manage the operational queue and start a walk-in by exact active
+  patient ID. A qualified Physician or Dentist accesses their own scheduled
+  appointments and assigned encounters. Nurses also see today's appointments
+  and Draft triage encounters. The queue displays scheduling, identity and
+  assignment details without clinical notes or appointment reasons.
+- A Scheduled appointment can be checked in during its Manila clinic day
+  before the slot ends, or marked No show after its end if no encounter is
+  linked. Admin may cancel under the existing future Scheduled rules. A
+  Checked in appointment requires a finalized linked encounter to move to
+  Completed. Terminal statuses stay closed.
+- One Draft can open for a Checked in appointment. A walk-in has no appointment.
+  Intake uses the patient's known affiliation and the server timestamp. Admin
+  and the Nurse within their triage scope can change the attending provider of
+  a Draft; the scheduled provider stays on the slot. Active designation and
+  ownership checks are repeated in the write transaction.
+
 ## Limits before any real deployment
 
 This prototype lacks login/reset throttling, MFA, verified enrollment/personnel

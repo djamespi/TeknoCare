@@ -1,0 +1,44 @@
+{% extends 'base.html' %}
+{% block title %}Reception queue{% endblock %}
+{% block main_class %}home-shell{% endblock %}
+{% block content %}
+  <h1>Reception queue</h1>
+  <p class="lead">{{ today|date:"F j, Y" }} · Manila time</p>
+  <div class="page-actions">
+    {% if can_walkin %}<a class="button" href="{% url 'reception:walkin_lookup' %}">Start walk-in</a>{% endif %}
+    <a href="{% url 'home:home' %}">Back to dashboard</a>
+  </div>
+  <nav class="page-actions" aria-label="Reception view">
+    <a href="{% url 'reception:queue' %}"{% if not drafts %} aria-current="page"{% endif %}>Appointments</a>
+    <a href="{% url 'reception:queue' %}?view=drafts"{% if drafts %} aria-current="page"{% endif %}>Draft encounters</a>
+  </nav>
+  {% if page_obj.object_list %}
+    <div class="table-scroll results-table" role="region" aria-label="Reception queue entries" tabindex="0">
+      <table>
+        <caption>{% if drafts %}Today's draft encounters{% else %}Today's appointments and unresolved earlier bookings{% endif %}</caption>
+        <thead><tr><th scope="col">Patient</th><th scope="col">Time</th><th scope="col">{% if drafts %}Attending provider{% else %}Scheduled provider{% endif %}</th><th scope="col">Status</th><th scope="col">Action</th></tr></thead>
+        <tbody>
+          {% for item in page_obj %}
+            <tr>
+              <th scope="row">{{ item.patient.patient.get_full_name }} ({{ item.patient.patient.school_id }})</th>
+              {% if drafts %}
+                <td>{{ item.visited_at|date:"M j, g:i A" }} · {% if item.appointment_id %}Scheduled visit{% else %}Walk-in{% endif %}</td>
+                <td>{{ item.provider.provider.get_full_name }}</td>
+              {% else %}
+                <td>{{ item.slot.start_time|date:"M j, g:i A" }} – {{ item.slot.end_time|date:"M j, g:i A" }}</td>
+                <td>{{ item.slot.provider.provider.get_full_name }}</td>
+              {% endif %}
+              <td><span class="badge">{{ item.get_status_display }}</span></td>
+              <td>{% if drafts %}<a href="{% url 'reception:encounter' item.pk %}">View encounter</a>{% else %}<a href="{% url 'reception:appointment' item.pk %}">View appointment</a>{% endif %}</td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  {% elif drafts %}
+    {% include 'includes/empty_state.html' with empty_title='No draft encounters' empty_message='Today’s open encounters appear here.' %}
+  {% else %}
+    {% include 'includes/empty_state.html' with empty_title='No appointments in the queue' empty_message='Today’s bookings and unresolved earlier bookings appear here.' %}
+  {% endif %}
+  {% include 'includes/pagination.html' %}
+{% endblock %}

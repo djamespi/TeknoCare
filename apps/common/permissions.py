@@ -55,8 +55,13 @@ def allowed(user, action, target=None):
         return True
     if action == "patient.allergy_lookup":
         return bool(clinical_provider(user))
-    if action == "schedule.access":
+    if action in {"schedule.access", "reception.access"}:
         return is_admin or bool(clinical_provider(user))
+    if action == "reception.walkin":
+        return is_admin
+    if action == "reception.assign":
+        provider = clinical_provider(user)
+        return is_admin or bool(provider and provider.provider_type == "Nurse")
     if target is None:
         return False
     if action == "appointment.book":
@@ -64,6 +69,19 @@ def allowed(user, action, target=None):
     if action == "appointment.cancel":
         return (is_admin or target.patient_id == user.pk) and target.can_cancel
     provider = clinical_provider(user)
+    if action == "reception.appointment":
+        today = timezone.localdate()
+        return is_admin or bool(provider and target.patient_id != user.pk and (
+            target.slot.provider_id == provider.pk
+            or (provider.provider_type == "Nurse"
+                and timezone.localtime(target.slot.start_time).date() <= today <= timezone.localtime(target.slot.end_time).date())
+        ))
+    if action == "reception.record":
+        return is_admin or bool(provider and target.patient_id != user.pk and (
+            target.provider_id == provider.pk
+            or (provider.provider_type == "Nurse" and target.status == "Draft"
+                and timezone.localtime(target.visited_at).date() == timezone.localdate())
+        ))
     if action == "schedule.manage":
         return is_admin or bool(provider and provider.pk == target.pk)
     if action == "patient.view":

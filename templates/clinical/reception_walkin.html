@@ -1,0 +1,35 @@
+{% extends 'base.html' %}
+{% block title %}Walk-in intake{% endblock %}
+{% block content %}
+  <h1>Walk-in intake</h1>
+  <p><a href="{% url 'reception:queue' %}">Back to reception queue</a></p>
+  {% if lookup %}
+    <section class="form-card" aria-label="Find an active patient">
+      <form method="get">
+        {% include 'includes/form_fields.html' %}
+        <button class="button" type="submit">Find patient</button>
+      </form>
+    </section>
+  {% endif %}
+  {% if patient %}
+    <section class="info-card" aria-labelledby="walkin-patient">
+      <h2 id="walkin-patient">{{ patient.patient.get_full_name }}</h2>
+      <dl class="account-details">
+        <dt>University ID</dt><dd>{{ patient.patient.school_id }}</dd>
+        <dt>Affiliation</dt><dd>{{ patient.get_affiliation_display|default:"Awaiting review" }}</dd>
+      </dl>
+      {% if lookup %}
+        <p><a class="button" href="{% url 'reception:walkin_create' patient.pk %}">Continue walk-in intake</a></p>
+      {% endif %}
+    </section>
+  {% endif %}
+  {% if not lookup %}
+    <section class="form-card" aria-label="Walk-in assignment">
+      <form method="post">
+        {% csrf_token %}
+        {% include 'includes/form_fields.html' %}
+        <button class="button" type="submit">Open walk-in encounter</button>
+      </form>
+    </section>
+  {% endif %}
+{% endblock %}
