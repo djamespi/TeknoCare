@@ -44,7 +44,7 @@ active Provider profile designated Physician, Dentist or Nurse.
 | Action | Patient/owner | Physician/Dentist | Nurse | Admin without clinical designation |
 | --- | --- | --- | --- | --- |
 | Account/profile/preferences/password | Own account | Own account | Own account | Own account |
-| Manage accounts, reference data, tuition charges, audit viewer | No | No | No | Yes |
+| Manage accounts, reference data, tuition charges, audit viewer, operational reports | No | No | No | Yes |
 | Book appointment | Own Patient profile | Own Patient profile if present | Own Patient profile if present | Active Patient profile target |
 | Cancel appointment | Own future Scheduled booking, no encounter | Same ownership rule | Same ownership rule | Same state rules, any patient |
 | Manage provider availability | No | Own provider | Own provider | Any provider; scheduling validation still required |
@@ -305,6 +305,25 @@ application guards, not new database constraints or proof of PostgreSQL concurre
   and billing references stay in the Admin detail page.
 - The prototype generates `DEMO-POST-` and `DEMO-REV-` references. These track
   the simulation inside TeknoCare. No university finance service receives them.
+
+## Step 13 audit history and operational reports
+
+- Active Clinic Admins can browse the append-only audit history. Filters
+  include actor University ID, action text, target table, target ID and a
+  Manila date range. The viewer displays audit metadata without opening the
+  target record.
+- Authorized opens of the clinical workspace record the actor, timestamp,
+  action and encounter ID. Note views and vitals-only views have distinct
+  actions. Audit entries never copy notes, vital readings or credentials.
+- Reports display appointment, visit, provider workload, affiliation,
+  referral and tuition charge aggregates. Dates use scheduled slot start,
+  visit time, referral time and charge creation time respectively. Statuses
+  come from current source rows. Historical affiliation comes from the visit
+  snapshot. Tuition totals group by term and currency with a separate amount
+  for each status.
+- Reports exclude records linked to the four exact retired JOIN-demo
+  identities. Existing assessment rows remain in the database. The Step 12
+  Pending-charge CSV stays available through the Admin billing workflow.
 
 ## Limits before any real deployment
 

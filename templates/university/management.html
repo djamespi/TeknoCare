@@ -17,6 +17,8 @@
     <a class="feature-panel" href="{% url 'accounts:personnel_list' %}"><h2>Personnel accounts</h2><p>Create Faculty/Staff Patient accounts with verified fictional affiliation.</p></a>
     <a class="feature-panel" href="{% url 'patient_intake:list' %}"><h2>Patient intake</h2><p>Find patients, add profiles, and correct membership or identity details.</p></a>
     <a class="feature-panel" href="{% url 'availability:list' %}"><h2>Clinic availability</h2><p>Schedule and review provider and room slots.</p></a>
+    <a class="feature-panel" href="{% url 'audit:history' %}"><h2>Audit history</h2><p>Review recorded actions by account, target and date.</p></a>
+    <a class="feature-panel" href="{% url 'audit:reports' %}"><h2>Operational reports</h2><p>Review appointment, visit, referral and tuition charge totals.</p></a>
   </div>
   <p class="notice workspace-note">Use fictional IDs, licenses, departments, room locations and calendar dates for prototype setup.</p>
 {% endblock %}

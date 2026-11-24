@@ -563,6 +563,10 @@ Commit: `feat: add simulated tuition charge posting and reconciliation`
 
 Depends on: 12.
 
+Implemented with Admin-only audit and aggregate report pages. Authorized
+consultation reads record access metadata in the existing audit table.
+See [Step 13 verification](step_13_verification.md).
+
 - Add restricted append-only audit browsing by actor/action/target/time; audit
   feature writes already exist from earlier steps. Include high-value record reads
   where useful without logging full clinical content or secrets.
@@ -761,8 +765,9 @@ do not recommend force push, hard reset, or discarding work.
 | Step 9: vitals, consultation, diagnoses and finalization | Implemented November 24, 2026. Manual review and disposable PostgreSQL verification pending. |
 | Step 10: medication catalog and prescriptions | Implemented November 24, 2026. User completed manual review and pushed commit `61b232f`. Disposable PostgreSQL verification pending. |
 | Step 11: referrals and patient visit summaries | User confirmed manual review and pushed commit `5f9c0b8`. |
-| Step 12: student tuition charges | Implemented November 24, 2026. Manual review and disposable PostgreSQL verification pending. |
-| Steps 13–14 | Pending. Step 13 is audit viewer and operational reports. |
+| Step 12: student tuition charges | User confirmed manual review and committed `d5690f5`. |
+| Step 13: audit viewer and operational reports | Implemented November 24, 2026. Manual review and disposable PostgreSQL verification pending. |
+| Step 14: integrated testing, PostgreSQL rehearsal and demonstration handoff | Pending. |
 | Official ID formats, personnel/contracted provider identity, hours, fees, calendar | Unconfirmed; use documented fictional defaults until supplied |
 | Configured hosted migration status | Not inspected or changed in this review |
 | Existing Supabase upgrade | Planned through staged migration checkpoints; no hosted migration authorized or applied by this planning update |

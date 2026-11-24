@@ -298,6 +298,18 @@ python manage.py runserver --settings=config.settings_local
 
 See [the three account-specific checks](docs/step_12_verification.md).
 
+## Confirm Step 13 works
+
+In **Clinic setup**, a Clinic Admin can open **Audit history** to filter
+recorded activity or **Operational reports** to review aggregate counts and
+tuition totals. This step uses the existing schema.
+
+```powershell
+python manage.py runserver --settings=config.settings_local
+```
+
+See [the three account-specific checks](docs/step_13_verification.md).
+
 ## Configuration boundaries
 
 | Settings module | Purpose | Database / secrets |

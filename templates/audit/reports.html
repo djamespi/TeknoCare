@@ -1,0 +1,80 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block title %}Operational reports{% endblock %}
+{% block styles %}<link rel="stylesheet" href="{% static 'css/home/home.css' %}">{% endblock %}
+{% block main_class %}home-shell{% endblock %}
+{% block content %}
+  <h1>Operational reports</h1>
+  <p><a href="{% url 'university:management' %}">Back to clinic setup</a></p>
+  <p class="lead">The date range uses Manila time. Appointments use their scheduled slot dates,
+    visits and referrals use their encounter and referral dates, and charges use their creation dates.
+    All counts and totals reflect current statuses.</p>
+  <section class="form-card" aria-label="Filter reports">
+    <form method="get" class="filter-form">
+      {% include 'includes/form_fields.html' with form=filter_form only %}
+      <button class="button" type="submit">Filter</button><a href="{{ request.path }}">Reset filters</a>
+    </form>
+  </section>
+  {% if not filter_form.errors %}
+    <div class="home-grid">
+      <section class="info-card" aria-labelledby="appointment-count-heading">
+        <h2 id="appointment-count-heading">Appointments by status</h2>
+        <dl class="account-details">{% for label, count in appointment_counts %}<dt>{{ label }}</dt><dd>{{ count }}</dd>{% endfor %}</dl>
+      </section>
+      <section class="info-card" aria-labelledby="visit-count-heading">
+        <h2 id="visit-count-heading">Visits by status</h2>
+        <dl class="account-details">{% for label, count in visit_counts %}<dt>{{ label }}</dt><dd>{{ count }}</dd>{% endfor %}</dl>
+      </section>
+      <section class="info-card" aria-labelledby="affiliation-count-heading">
+        <h2 id="affiliation-count-heading">Affiliation at visit</h2>
+        <dl class="account-details">{% for label, count in affiliation_counts %}<dt>{{ label }}</dt><dd>{{ count }}</dd>{% endfor %}</dl>
+      </section>
+      <section class="info-card" aria-labelledby="referral-count-heading">
+        <h2 id="referral-count-heading">Referrals by status</h2>
+        <dl class="account-details">{% for label, count in referral_counts %}<dt>{{ label }}</dt><dd>{{ count }}</dd>{% endfor %}</dl>
+      </section>
+    </div>
+    <section class="info-card" aria-labelledby="workload-heading">
+      <h2 id="workload-heading">Provider workload</h2>
+      {% if workload_page.object_list %}
+        <div class="table-scroll results-table" role="region" aria-labelledby="workload-heading" tabindex="0">
+          <table>
+            <caption>Visits by attending provider</caption>
+            <thead><tr><th scope="col">Provider</th><th scope="col">Draft</th><th scope="col">Finalized</th><th scope="col">Total visits</th></tr></thead>
+            <tbody>
+              {% for row in workload_page %}
+                <tr><th scope="row">{{ row.first_name }} {{ row.last_name }} ({{ row.university_id }})</th>
+                  <td>{{ row.draft }}</td><td>{{ row.finalized }}</td><td>{{ row.total }}</td></tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+        {% include 'includes/pagination.html' with page_obj=workload_page page_param='workload_page' pagination_label='Provider workload pages' %}
+      {% else %}
+        <p>No provider visits match this date range.</p>
+      {% endif %}
+    </section>
+    <section class="info-card" aria-labelledby="charges-heading">
+      <h2 id="charges-heading">Tuition charge totals</h2>
+      <p>Posted totals include prototype tuition acknowledgments. The clinic does not collect payments here.</p>
+      {% if charges_page.object_list %}
+        <div class="table-scroll results-table" role="region" aria-labelledby="charges-heading" tabindex="0">
+          <table>
+            <caption>Charge amounts by academic term and currency</caption>
+            <thead><tr><th scope="col">Term</th><th scope="col">Currency</th><th scope="col">Lines</th>
+              <th scope="col">Pending</th><th scope="col">Posted</th><th scope="col">Voided</th></tr></thead>
+            <tbody>
+              {% for row in charges_page %}
+                <tr><th scope="row">{{ row.academic_year }} · {{ row.semester }}</th><td>{{ row.currency_code }}</td><td>{{ row.lines }}</td>
+                  <td>{{ row.pending|floatformat:2 }}</td><td>{{ row.posted|floatformat:2 }}</td><td>{{ row.voided|floatformat:2 }}</td></tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+        {% include 'includes/pagination.html' with page_obj=charges_page page_param='charges_page' pagination_label='Tuition charge totals pages' %}
+      {% else %}
+        <p>No tuition charges match this date range and term.</p>
+      {% endif %}
+    </section>
+  {% endif %}
+{% endblock %}

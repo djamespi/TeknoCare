@@ -1,0 +1,25 @@
+{% extends 'includes/management_list.html' %}
+{% block title %}Audit history{% endblock %}
+{% block heading %}Audit history{% endblock %}
+{% block introduction %}Filter recorded actions by actor, action, target or date. Times are shown in Manila time.{% endblock %}
+{% block table %}
+  <table>
+    <caption>Recorded audit events</caption>
+    <thead><tr>
+      <th scope="col">Logged at</th><th scope="col">Actor university ID</th><th scope="col">Action</th>
+      <th scope="col">Target table</th><th scope="col">Target ID</th>
+    </tr></thead>
+    <tbody>
+      {% for event in page_obj %}
+        <tr>
+          <td>{{ event.logged_at|date:'Y-m-d H:i:s' }}</td><td>{{ event.actor_id_text|default:'Unavailable' }}</td>
+          <th scope="row">{{ event.action_performed }}</th>
+          <td>{{ event.target_table }}</td><td>{{ event.target_record_id }}</td>
+        </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+{% endblock %}
+{% block empty_state %}
+  {% include 'includes/empty_state.html' with empty_title='No matching audit events' empty_message='Try a different actor, action, target or date range.' %}
+{% endblock %}

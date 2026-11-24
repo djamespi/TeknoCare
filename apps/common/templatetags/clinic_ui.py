@@ -5,8 +5,8 @@ register = template.Library()
 
 
 @register.simple_tag(takes_context=True)
-def pagination_url(context, page_number):
+def pagination_url(context, page_number, page_param="page"):
     request = context.get("request")
     query = request.GET.copy() if request else QueryDict(mutable=True)
-    query["page"] = str(page_number)
+    query[page_param] = str(page_number)
     return f"?{query.urlencode()}"

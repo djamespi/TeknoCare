@@ -49,7 +49,7 @@ def allowed(user, action, target=None):
     if not user or not required_profile_exists(user):
         return False
     is_admin = user.user_type == "Admin"
-    if action in {"accounts.manage", "reference.manage", "billing.manage", "audit.view"}:
+    if action in {"accounts.manage", "reference.manage", "billing.manage", "audit.view", "reports.view"}:
         return is_admin
     if action == "account.use":
         return True

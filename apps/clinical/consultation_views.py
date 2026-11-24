@@ -7,6 +7,7 @@ from django.db.models import Q
 from django.http import Http404
 from django.shortcuts import get_object_or_404, redirect, render
 from django.utils import timezone
+from django.views.decorators.cache import never_cache
 from django.views.decorators.http import require_http_methods
 
 from apps.common.permissions import allowed, clinical_provider, patient_under_care, require_permission
@@ -16,6 +17,7 @@ from apps.providers.models import Provider
 from .consultation import NOTE_FIELDS, consultation_version, create_diagnosis, finalize_consultation, record_vitals, save_consultation
 from .forms import ConsultationForm, DiagnosisForm, FinalizeConsultationForm, VitalSignForm
 from .models import Diagnosis, MedicalRecord
+from .reception import _audit
 
 
 def _clinical_access(actor, visit):
@@ -68,6 +70,7 @@ def _submit(action, form, actor, visit):
 
 @login_required
 @require_http_methods(["GET", "POST"])
+@never_cache
 def workspace(request, pk):
     actor = require_permission(request.user, "consultation.access")
     visit = get_object_or_404(MedicalRecord.objects.select_related("patient__patient", "provider__provider"), pk=pk)
@@ -105,12 +108,15 @@ def workspace(request, pk):
             else:
                 messages.success(request, message)
                 return redirect("consultation:workspace", pk=pk)
-    return render(request, "clinical/consultation.html", {
+    response = render(request, "clinical/consultation.html", {
         "visit": visit, "vitals": vitals, "links": links, "can_read_notes": can_read_notes,
         "allergies": visit.patient.allergies.order_by("allergen", "pk"),
         "history": _history(actor, visit) if can_read_notes else (),
         "vitals_form": forms.get("vitals"), "notes_form": forms.get("notes"), "finalize_form": forms.get("finalize"),
     })
+    if request.method == "GET":
+        _audit(actor, "Clinical encounter viewed" if can_read_notes else "Clinical vitals viewed", visit)
+    return response
 
 
 @clinic_admin_required

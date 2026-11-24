@@ -1,14 +1,16 @@
 {% load clinic_ui %}
 {% if page_obj.has_other_pages %}
-  <nav class="pagination" aria-label="Result pages">
+  {% with parameter=page_param|default:'page' %}
+  <nav class="pagination" aria-label="{{ pagination_label|default:'Result pages' }}">
     {% if page_obj.has_previous %}
-      <a href="{% pagination_url 1 %}" aria-label="First page">First</a>
-      <a href="{% pagination_url page_obj.previous_page_number %}" rel="prev">Previous</a>
+      <a href="{% pagination_url 1 parameter %}" aria-label="First page">First</a>
+      <a href="{% pagination_url page_obj.previous_page_number parameter %}" rel="prev">Previous</a>
     {% endif %}
     <span aria-current="page">Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}</span>
     {% if page_obj.has_next %}
-      <a href="{% pagination_url page_obj.next_page_number %}" rel="next">Next</a>
-      <a href="{% pagination_url page_obj.paginator.num_pages %}" aria-label="Last page">Last</a>
+      <a href="{% pagination_url page_obj.next_page_number parameter %}" rel="next">Next</a>
+      <a href="{% pagination_url page_obj.paginator.num_pages parameter %}" aria-label="Last page">Last</a>
     {% endif %}
   </nav>
+  {% endwith %}
 {% endif %}
