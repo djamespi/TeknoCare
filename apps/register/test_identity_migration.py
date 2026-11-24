@@ -1,9 +1,13 @@
+from django.conf import settings
 from django.db import connection
 from django.db.migrations.executor import MigrationExecutor
 from django.test import TransactionTestCase
 
 
 class IdentityMigrationTests(TransactionTestCase):
+    # PostgreSQL test cleanup must include archived tables that still reference User.
+    available_apps = settings.INSTALLED_APPS
+
     def test_ambiguous_legacy_identities_stop_upgrade_without_rewriting_data(self):
         previous = [("register", "0003_user_created_at_user_user_role_valid_and_more")]
         executor = MigrationExecutor(connection)

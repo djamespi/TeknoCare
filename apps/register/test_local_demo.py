@@ -9,6 +9,12 @@ from django.core.management.base import CommandError
 from django.db import connection
 from django.test import SimpleTestCase, TestCase, override_settings
 
+from apps.appointments.models import ClinicRoom
+from apps.billing.models import AcademicTerm
+from apps.clinical.models import MedicalRecord
+from apps.patients.models import Patient
+from apps.providers.models import Provider
+
 from .models import User
 
 
@@ -22,10 +28,10 @@ class DemoDatabaseBoundaryTests(SimpleTestCase):
 @skipUnless(connection.vendor == "sqlite", "Demo creation is intentionally restricted to SQLite")
 @override_settings(TEKNOCARE_LOCAL_DEMO=True)
 class LocalDemoSetupTests(TestCase):
-    def bootstrap(self, password="Local-demo-test-password-4792!"):
+    def bootstrap(self, password="Local-demo-test-password-4792!", **options):
         output = StringIO()
         with patch.dict(os.environ, {"TEKNOCARE_DEMO_PASSWORD": password}):
-            call_command("bootstrap_local_demo", noinput=True, stdout=output)
+            call_command("bootstrap_local_demo", noinput=True, stdout=output, **options)
         return output.getvalue()
 
     def test_creates_authenticatable_admin_with_hashed_password(self):
@@ -71,3 +77,24 @@ class LocalDemoSetupTests(TestCase):
         user = User.objects.get(school_id="DEMO-ADMIN")
         self.assertTrue(user.check_password("Changed-demo-password-5821!"))
         self.assertFalse(user.check_password("Local-demo-test-password-4792!"))
+
+    def test_workflow_provisions_fictional_roles_and_can_be_reused(self):
+        self.bootstrap(workflow=True)
+        initial_users = dict(User.objects.values_list("school_id", "password_hash"))
+        self.bootstrap("", workflow=True)
+
+        self.assertEqual(dict(User.objects.values_list("school_id", "password_hash")), initial_users)
+        self.assertEqual(len(initial_users), 7)
+        self.assertCountEqual(Patient.objects.values_list("affiliation", flat=True), ["Student", "Faculty", "Staff", "Staff"])
+        self.assertCountEqual(Provider.objects.filter(is_active=True).values_list("provider_type", flat=True),
+            ["Nurse", "Physician", "Dentist"])
+        self.assertTrue(ClinicRoom.objects.get().is_active)
+        self.assertTrue(AcademicTerm.objects.get().is_open_for_charges)
+        self.assertFalse(MedicalRecord.objects.exists())
+
+    def test_workflow_conflict_rolls_back_the_new_accounts(self):
+        User.objects.create_user("DEMO-STAFF", "unrelated@example.invalid")
+        with self.assertRaisesMessage(CommandError, "DEMO-STAFF already has different data"):
+            self.bootstrap(workflow=True)
+        self.assertEqual(list(User.objects.values_list("school_id", flat=True)), ["DEMO-STAFF"])
+        self.assertFalse(Patient.objects.exists())

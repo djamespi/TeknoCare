@@ -301,8 +301,9 @@ application guards, not new database constraints or proof of PostgreSQL concurre
   explicit confirmation. Pending voids and simulated reversals require an
   administrative reason and confirmation. A closed term still allows reversal.
   Retries of the same submission preserve the charge and its audit history.
-- Patients can read their own charge lines and status. Internal reversal reasons
-  and billing references stay in the Admin detail page.
+- Accounts with a Patient profile can read their own charge lines and status,
+  including Admin and Provider accounts with a secondary profile. Internal
+  reversal reasons and billing references stay in the Admin billing detail page.
 - The prototype generates `DEMO-POST-` and `DEMO-REV-` references. These track
   the simulation inside TeknoCare. No university finance service receives them.
 

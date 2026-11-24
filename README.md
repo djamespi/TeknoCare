@@ -1,9 +1,10 @@
 # TeknoCare
 
 CIT-University clinic school-project prototype built with Django 5.2 LTS,
-server-rendered templates, CSS and JavaScript. The checked-in ERD has 22 entities
-and 28 foreign keys. Most clinic screens are still planned; see the
-[development roadmap](docs/development_plan.md).
+server-rendered templates, CSS and JavaScript. The prototype covers booking,
+reception, clinical documentation, patient summaries, simulated tuition charges
+and operational reporting. The checked-in ERD has 22 entities and 28 foreign keys.
+See the [development roadmap](docs/development_plan.md).
 
 ## Start locally in PowerShell
 
@@ -309,6 +310,14 @@ python manage.py runserver --settings=config.settings_local
 ```
 
 See [the three account-specific checks](docs/step_13_verification.md).
+
+## Final prototype handoff
+
+Use the [Step 14 setup and review guide](docs/step_14_verification.md) to prepare
+a clean local demo with fictional accounts, a room, a term and catalog entries.
+The [demo script](docs/prototype_demo.md) walks through the clinic workflow and
+the decisions behind it. See the [final ERD](docs/erd/README.md) and
+[data dictionary](docs/erd/data_dictionary.md) for the model design.
 
 ## Configuration boundaries
 

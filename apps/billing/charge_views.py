@@ -159,7 +159,7 @@ def charge_export(request):
 
 def _patient_charges(request):
     actor = require_permission(request.user, "account.use")
-    patient = get_object_or_404(Patient, pk=actor.pk, patient__user_type=User.UserType.PATIENT)
+    patient = get_object_or_404(Patient, pk=actor.pk)
     return patient, _ordered_charges().filter(record__patient=patient)
 
 

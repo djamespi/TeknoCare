@@ -91,7 +91,7 @@ rehearsed recovery plan instead of guessing a reverse migration.
 | Local fresh SQLite migration | Covered by local rehearsal and isolated tests |
 | Populated legacy SQLite upgrade | Automated script, including replacement/already-applied recognition |
 | ERD/model agreement | Automated metadata comparison for 22 entities / 28 relationships |
-| Disposable PostgreSQL baseline | GitHub Actions workflow prepared; remote result pending push |
+| Disposable PostgreSQL legacy rehearsal | PostgreSQL 16.16 physical backup and restore passed with fictional original-schema data. See [Step 14 evidence](step_14_verification.md#postgresql-rehearsal-evidence). |
 | Current Supabase schema/version | Not inspected in Step 1 |
 | Verified hosted backup/restore and staging rehearsal | Pending |
 | Hosted upgrade authorization/application | Not requested/performed in Step 1 |

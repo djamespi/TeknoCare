@@ -587,6 +587,13 @@ Commit: `feat: add clinic audit review and operational reports`
 
 Depends on: 13.
 
+The [setup and verification guide](step_14_verification.md) and
+[demonstration script](prototype_demo.md) cover the selected local presentation.
+The demo bootstrap prepares fictional roles and setup data in local SQLite.
+The integrated tests cover the Student workflow, personnel walk-ins and admin
+care through a secondary Patient profile. A disposable PostgreSQL 16.16 backup
+and restore preserved populated original-schema data through the upgrade.
+
 - Run full role/ownership/state transition tests and end-to-end Student, Faculty,
   Staff, Nurse, Physician/Dentist and Admin-as-patient scenarios.
 - Verify simultaneous booking, provider/room exclusions, patient overlap, duplicate
@@ -766,11 +773,11 @@ do not recommend force push, hard reset, or discarding work.
 | Step 10: medication catalog and prescriptions | Implemented November 24, 2026. User completed manual review and pushed commit `61b232f`. Disposable PostgreSQL verification pending. |
 | Step 11: referrals and patient visit summaries | User confirmed manual review and pushed commit `5f9c0b8`. |
 | Step 12: student tuition charges | User confirmed manual review and committed `d5690f5`. |
-| Step 13: audit viewer and operational reports | Implemented November 24, 2026. Manual review and disposable PostgreSQL verification pending. |
-| Step 14: integrated testing, PostgreSQL rehearsal and demonstration handoff | Pending. |
+| Step 13: audit viewer and operational reports | User confirmed manual review and committed `9011d31`. |
+| Step 14: integrated testing, PostgreSQL rehearsal and demonstration handoff | Passed 224 SQLite and 225 PostgreSQL tests, plus the fictional legacy backup/restore rehearsal. Local demo handoff prepared. Manual review pending. |
 | Official ID formats, personnel/contracted provider identity, hours, fees, calendar | Unconfirmed; use documented fictional defaults until supplied |
 | Configured hosted migration status | Not inspected or changed in this review |
 | Existing Supabase upgrade | Planned through staged migration checkpoints; no hosted migration authorized or applied by this planning update |
-| PostgreSQL staging/concurrency/restore | Not run in this review; required before claiming those guarantees |
+| PostgreSQL staging/concurrency/restore | Passed on disposable PostgreSQL 16.16 with fictional records. Separate rehearsal with representative hosted data remains pending. |
 | Verification handoff requirement | Provide exact commands/manual browser checks, expected outcomes and limits; no Computer Use or screenshots; wait for user visual confirmation before recording visual approval |
 
