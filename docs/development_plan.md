@@ -777,7 +777,7 @@ do not recommend force push, hard reset, or discarding work.
 | Step 14: integrated testing, PostgreSQL rehearsal and demonstration handoff | Passed 224 SQLite and 225 PostgreSQL tests, plus the fictional legacy backup/restore rehearsal. Local demo handoff prepared. Manual review pending. |
 | Official ID formats, personnel/contracted provider identity, hours, fees, calendar | Unconfirmed; use documented fictional defaults until supplied |
 | Configured hosted migration status | Read-only check on November 25, 2026 verified a TLS connection through the Supabase session pooler. The target has 26 pending migrations. See [the migration checkpoint](supabase_migration_checklist.md). |
-| Existing Supabase upgrade | Pending verified backup and restore, staging rehearsal and Data API grants and RLS review. |
+| Existing Supabase upgrade | The 26 migrations and website writes passed on disposable PostgreSQL 17.6 with fictional data. The hosted upgrade awaits a verified source backup and restore, rehearsal on the restored copy, and Data API access review. |
 | PostgreSQL staging/concurrency/restore | Passed on disposable PostgreSQL 16.16 with fictional records. Separate rehearsal with representative hosted data remains pending. |
 | Verification handoff requirement | Provide exact commands/manual browser checks, expected outcomes and limits; no Computer Use or screenshots; wait for user visual confirmation before recording visual approval |
 

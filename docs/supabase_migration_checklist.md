@@ -45,6 +45,23 @@ normal prototype work until the hosted schema is ready.
   sessions need to sign in again after the authentication-backend change. Check
   required subtype presence and [Admin/access policy](access_policy.md) as well.
 
+## Public table cleanup inventory
+
+The configured database contains seven current ERD tables, seven Django
+framework tables, and four tables from the original application schema.
+
+| Original table | Role in the upgrade |
+| --- | --- |
+| `profile_profile` | Contains profile records. The migrations preserve them and move the live profile to `user_profile`. |
+| `user_settings_usersettings` | Contains preferences. The migrations preserve them and move the live preferences to `user_settings`. |
+| `admin` | Empty at inspection. The original `audit_log` still references it, so migrate the audit relationship before archiving it. |
+| `support_ticket` | Empty at inspection. The migration archives it as `legacy_support_ticket` and retires the ticket model. |
+
+The public schema contained no unrelated application tables. Keep Django's
+migration, session, permissions, content type and admin log tables for
+framework operations. The migrations retain protected legacy archives for
+history and recovery.
+
 ## Backup and staging gate
 
 1. Create a backup of the current application schema/data and required database
@@ -91,6 +108,13 @@ screens. Avoid editing real records to prove a screen works. Record the actual
 outcome in `development_plan.md`; if an upgrade fails, stop writes and follow the
 rehearsed recovery plan instead of guessing a reverse migration.
 
+For the website persistence check, point Django's `config.settings` at the
+reviewed staging PostgreSQL database. Register a fictional Student in the
+website, sign in, and book an available slot. From a separate database
+connection, verify that the new `user` links to a Student `patient` and the
+matching `appointment` is Scheduled. Compare the appointment ID with the
+website detail page.
+
 ## Current checkpoint record
 
 | Check | Current evidence |
@@ -100,7 +124,8 @@ rehearsed recovery plan instead of guessing a reverse migration.
 | ERD/model agreement | Automated metadata comparison for 22 entities / 28 relationships |
 | Disposable PostgreSQL legacy rehearsal | PostgreSQL 16.16 physical backup and restore passed with fictional original-schema data. See [Step 14 evidence](step_14_verification.md#postgresql-rehearsal-evidence). |
 | Current Supabase schema/version | PostgreSQL 17.6. Django migration history is consistent, with 22 recorded migrations, 26 pending migrations, and 7 of 22 current clinic tables present. |
-| Legacy identity preflight | Zero duplicate normalized University ID groups and zero duplicate normalized email groups at the read-only checkpoint. |
+| Legacy data preflight | Zero normalized University ID or email collisions, provider/slot mismatches, nonpositive slot durations, and incompatible appointment statuses at the read-only checkpoint. |
+| Supabase-version schema and persistence rehearsal | All 26 migrations passed on disposable PostgreSQL 17.6 with fictional legacy data. Physical tables matched all 22 ERD entities and 28 foreign keys. HTTP signup, sign-in and booking passed, and a separate database connection confirmed persistence. |
 | Hosted API access | Review of API grants, exposed schemas and RLS is required before serving clinic data. See [Supabase Data API security](https://supabase.com/docs/guides/api/securing-your-api). |
 | Verified hosted backup/restore and staging rehearsal | Pending |
 | Hosted upgrade authorization/application | Pending, following backup, staging and access review. |
