@@ -29,6 +29,7 @@ urlpatterns = [
     path('appointments/', include('apps.appointments.booking_urls')),
     path('reception/', include('apps.clinical.reception_urls')),
     path('clinical/', include('apps.clinical.consultation_urls')),
+    path('prescriptions/', include('apps.prescriptions.urls')),
     path('settings/', include('apps.user_settings.urls')),
     path('clinic/', include('apps.university.urls')),
     path('clinic/rooms/', include('apps.appointments.urls')),

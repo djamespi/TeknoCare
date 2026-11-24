@@ -51,6 +51,9 @@
   </section>
 
   {% if can_read_notes %}
+    <div class="page-actions">
+      <a class="button" href="{% url 'prescriptions:encounter' visit.pk %}">Prescriptions for this encounter</a>
+    </div>
     <section class="info-card" aria-labelledby="notes-heading">
       <h2 id="notes-heading">Consultation notes and diagnoses</h2>
       {% if notes_form %}
@@ -87,7 +90,7 @@
   {% if finalize_form %}
     <section class="form-card" aria-labelledby="finalize-heading">
       <h2 id="finalize-heading">Finalize encounter</h2>
-      <p>Save your draft first. Finalization requires the chief complaint, symptoms or examination notes, and a treatment plan. The record becomes read-only.</p>
+      <p>Save your notes and resolve any prescription drafts. Finalization requires the chief complaint, symptoms or examination notes, and a treatment plan. The record becomes read-only.</p>
       <form method="post">
         {% csrf_token %}
         {% include 'includes/form_fields.html' with form=finalize_form only %}

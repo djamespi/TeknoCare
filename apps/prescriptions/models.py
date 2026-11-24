@@ -18,10 +18,13 @@ class Medication(ValidatedModel):
         db_table = "medication"
 
     def clean(self):
-        if self.pk and not self._state.adding and self.items.filter(prescription__status="Issued").exists():
+        if self.pk and not self._state.adding and self.items.exists():
             old = type(self).objects.get(pk=self.pk)
-            if any(getattr(old, f) != getattr(self, f) for f in ("generic_name", "strength", "dosage_form")):
-                raise ValidationError("Create a new catalog entry to preserve issued prescription history.")
+            if any(getattr(old, field) != getattr(self, field) for field in ("medication_code", "generic_name", "strength", "dosage_form")):
+                raise ValidationError("Create a new catalog entry to preserve referenced formulations.")
+
+    def __str__(self):
+        return f"{self.generic_name} · {self.strength} · {self.dosage_form} ({self.medication_code})"
 
 
 class Prescription(ValidatedModel):
@@ -42,10 +45,15 @@ class Prescription(ValidatedModel):
             models.CheckConstraint(check=(models.Q(status="Draft", issued_at__isnull=True) | models.Q(status="Issued", issued_at__isnull=False) | models.Q(status="Canceled")), name="prescription_issue_time")]
 
     def clean(self):
+        if self.status in {self.Status.DRAFT, self.Status.ISSUED} and self.record_id and self.record.status != "Draft":
+            if self._state.adding or self.status == self.Status.DRAFT:
+                raise ValidationError("Prescription drafts require a Draft encounter.")
         if self.status == self.Status.ISSUED and (not self.pk or not self.items.exists()):
             raise ValidationError("Add at least one medicine before issuing the prescription.")
         if self.pk and not self._state.adding:
             old = type(self).objects.get(pk=self.pk)
+            if old.status == self.Status.DRAFT and self.status == self.Status.ISSUED and self.record.status != "Draft":
+                raise ValidationError("Issue the prescription before finalizing the encounter.")
             if old.status == self.Status.CANCELED and self.status != old.status:
                 raise ValidationError("Canceled prescriptions cannot be reissued.")
             if old.status == self.Status.ISSUED and (self.record_id != old.record_id or self.prescriber_id != old.prescriber_id or self.issued_at != old.issued_at or self.status == self.Status.DRAFT):

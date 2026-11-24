@@ -8,6 +8,7 @@
   <p class="lead">Prepare reference data and fictional personnel accounts. No official university directory, calendar, credential verification or finance connection is loaded.</p>
   <div class="home-grid">
     <a class="feature-panel" href="{% url 'consultation:diagnosis_list' %}"><h2>Diagnosis catalog</h2><p>Maintain the codes available for consultation documentation.</p></a>
+    <a class="feature-panel" href="{% url 'prescriptions:catalog' %}"><h2>Medication catalog</h2><p>Manage medication formulations available for prescriptions.</p></a>
     <a class="feature-panel" href="{% url 'university:department_list' %}"><h2>Departments</h2><p>Maintain codes and names; deactivate without changing patient affiliation.</p></a>
     <a class="feature-panel" href="{% url 'appointments:room_list' %}"><h2>Clinic rooms</h2><p>Prepare locations without rewriting historical visits or canceling bookings.</p></a>
     <a class="feature-panel" href="{% url 'billing:term_list' %}"><h2>Academic terms</h2><p>Open or close terms for later charges. This is not a payment flow.</p></a>

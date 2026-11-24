@@ -1,0 +1,18 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block title %}Prototype prescription #{{ prescription.pk }}{% endblock %}
+{% block styles %}<link rel="stylesheet" href="{% static 'css/prescriptions/print.css' %}">{% endblock %}
+{% block content %}
+  <h1>Prototype prescription #{{ prescription.pk }}</h1>
+  <p class="notice">TeknoCare school-project copy. For demonstration only. Invalid for dispensing.</p>
+  {% if prescription.status == 'Canceled' %}
+    <p class="notice notice-error"><strong>CANCELED</strong> · Historical copy.</p>
+  {% else %}<p class="badge">Issued</p>{% endif %}
+  <dl class="account-details">
+    <dt>Patient</dt><dd>{{ prescription.record.patient.patient.get_full_name }}</dd>
+    <dt>Prescriber</dt><dd>{{ prescription.prescriber.provider.get_full_name }}</dd>
+    <dt>Issued in Manila time</dt><dd>{{ prescription.issued_at|date:"M j, Y, g:i A" }}</dd>
+  </dl>
+  <p class="prescription-print-instruction">Use <kbd>Ctrl</kbd>+<kbd>P</kbd> to print or save a copy.</p>
+  {% include 'prescriptions/items.html' %}
+{% endblock %}

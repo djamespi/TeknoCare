@@ -35,6 +35,10 @@
         <h2>My appointments</h2>
         <p>Book a clinic visit or view and manage your appointments.</p>
       </a>
+      <a class="feature-panel" href="{% url 'prescriptions:history' %}">
+        <h2>My prescriptions</h2>
+        <p>Review prescriptions issued for you and open their prototype print copies.</p>
+      </a>
     {% endif %}
     {% if provider_ready %}
       <a class="feature-panel" href="{% url 'consultation:list' %}">

@@ -1,0 +1,20 @@
+@media print {
+  .topbar, .skip-link, .site-footer, .prescription-print-instruction {
+    display: none;
+  }
+
+  body, main, .prescription-item, .notice, .badge {
+    background: white;
+    color: black;
+    box-shadow: none;
+  }
+
+  main {
+    max-width: none;
+    padding: 0;
+  }
+
+  .prescription-item {
+    break-inside: avoid;
+  }
+}

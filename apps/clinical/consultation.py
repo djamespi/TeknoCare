@@ -90,6 +90,8 @@ def save_consultation(*, actor, record_id, expected_version, notes, diagnosis_id
 def finalize_consultation(*, actor, record_id, expected_version):
     user, visit = _locked_draft(actor, record_id, "record.finalize")
     _check_version(visit, expected_version, visit.diagnoses.all())
+    if visit.prescriptions.filter(status="Draft").exists():
+        raise ValidationError("Issue or discard every prescription draft before finalizing the encounter.")
     if not visit.chief_complaint.strip():
         raise ValidationError("Record the chief complaint before finalizing.")
     if not any((getattr(visit, field) or "").strip() for field in ("symptoms", "examination_notes")):

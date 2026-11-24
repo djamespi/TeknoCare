@@ -1,0 +1,14 @@
+{% extends 'base.html' %}
+{% block title %}My prescriptions{% endblock %}
+{% block content %}
+  <h1>My prescriptions</h1>
+  <p><a href="{% url 'home:home' %}">Back to dashboard</a></p>
+  {% if page_obj.object_list %}
+    <ul class="info-card">{% for entry in page_obj %}
+      <li><a href="{% url 'prescriptions:print' entry.pk %}">View prescription #{{ entry.pk }}</a>
+        <span class="badge">{{ entry.get_status_display }}</span> · {{ entry.issued_at|date:"M j, Y" }}
+        · {{ entry.prescriber.provider.get_full_name }}</li>
+    {% endfor %}</ul>
+  {% else %}<p>No issued or canceled prescriptions to show.</p>{% endif %}
+  {% include 'includes/pagination.html' %}
+{% endblock %}

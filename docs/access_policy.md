@@ -247,6 +247,26 @@ application guards, not new database constraints or proof of PostgreSQL concurre
   examples. Practitioners can select several distinct diagnoses and at most one
   primary diagnosis. Linked catalog entries cannot be rewritten.
 
+## Step 10 prescriptions
+
+- Clinic Admin manages catalog entries. Linked medication codes, names,
+  strengths and dosage forms remain stable. Deactivation removes a formulation
+  from new selection and prevents issue if it remains on a draft.
+- An eligible attending Physician or Dentist can start one open prescription
+  draft per Draft encounter. A prescription author edits their own draft and
+  confirms issue after saving at least one valid item. Server time and the
+  prescriber account determine issuance. Finalization requires all drafts on
+  the encounter to be issued or discarded first.
+- The current eligible attending can discard a draft after reassignment or
+  cancel an issued prescription, leaving the original prescriber, items and
+  issue timestamp intact. Replacement starts a separate audited draft for the
+  same patient on an assigned Draft encounter. A finalized encounter requires
+  a new intake before that replacement can be issued.
+- The signed-in patient sees only their own issued and subsequently canceled
+  prescriptions. Discarded drafts remain private. Print copies visibly mark
+  canceled status and prototype use. The workflow does not track stock or
+  dispensing.
+
 ## Limits before any real deployment
 
 This prototype lacks login/reset throttling, MFA, verified enrollment/personnel

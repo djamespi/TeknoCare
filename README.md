@@ -255,6 +255,22 @@ python manage.py runserver --settings=config.settings_local
 Use [the Step 9 verification checklist](docs/step_9_verification.md) for the
 fictional account setup, role checks, expected results and Git handoff.
 
+## Confirm Step 10 works
+
+Clinic Admins maintain the medication catalog. An assigned Physician or Dentist
+can issue a prescription during a Draft encounter. The patient can open their
+own issued and canceled prescriptions and view a prototype print copy.
+
+Apply the new history guards on local SQLite before reviewing.
+
+```powershell
+python manage.py migrate --settings=config.settings_local
+python manage.py runserver --settings=config.settings_local
+```
+
+The [three account-specific checks](docs/step_10_verification.md) cover the
+catalog, issuing and patient history.
+
 ## Configuration boundaries
 
 | Settings module | Purpose | Database / secrets |

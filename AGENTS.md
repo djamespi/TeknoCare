@@ -125,7 +125,9 @@ limits, manual visual-review instructions, exact Git staging/commit/push command
 the actual changed files and branch, and a suggested commit message. The user
 reviews, commits, and pushes; do not perform those Git writes unless explicitly
 asked. Update roadmap progress and decisions as features are completed.
-For every future change, include exact verification commands and browser actions
+For every future development step, give two or three main browser checks and
+start each with the exact account type to sign in with. Include exact local
+verification commands and browser actions
 with expected results so the user can confirm it works before committing. State
 what is still unverified and await the user's visual confirmation. Do not use
 Computer Use, browser UI automation, or request/capture screenshots. The user

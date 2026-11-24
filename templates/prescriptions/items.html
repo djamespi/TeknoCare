@@ -1,0 +1,23 @@
+{% for item in items %}
+  <section class="info-card prescription-item" aria-labelledby="medication-{{ item.pk }}">
+    <h2 id="medication-{{ item.pk }}">{{ item.medication }}</h2>
+    <dl class="account-details">
+      <dt>Dose</dt><dd>{{ item.dose }}</dd>
+      <dt>Route</dt><dd>{{ item.route }}</dd>
+      <dt>Frequency</dt><dd>{{ item.frequency }}</dd>
+      <dt>Duration</dt><dd>{{ item.duration_days }} day{{ item.duration_days|pluralize }}</dd>
+      <dt>Quantity</dt><dd>{{ item.quantity }} {{ item.quantity_unit }}</dd>
+      {% if item.instructions %}<dt>Instructions</dt><dd>{{ item.instructions|linebreaksbr }}</dd>{% endif %}
+    </dl>
+    {% if can_edit %}
+      <div class="page-actions">
+        <a href="{% url 'prescriptions:item_edit' prescription.record_id prescription.pk item.pk %}">Edit item</a>
+        <form method="post" action="{% url 'prescriptions:item_remove' prescription.record_id prescription.pk item.pk %}">
+          {% csrf_token %}<input type="hidden" name="expected_version" value="{{ version }}">
+          <button class="button button-secondary" type="submit">Remove item</button>
+        </form>
+      </div>
+      {% if not item.medication.is_active %}<p>This catalog entry is inactive. Replace or remove the item before issuing.</p>{% endif %}
+    {% endif %}
+  </section>
+{% empty %}<p>No medication items saved.</p>{% endfor %}

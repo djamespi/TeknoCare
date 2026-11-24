@@ -1,0 +1,14 @@
+{% extends 'includes/management_list.html' %}
+{% block title %}Medication catalog{% endblock %}
+{% block heading %}Medication catalog{% endblock %}
+{% block introduction %}Manage reviewed formulations for prescription entry. Use fictional data for the prototype.{% endblock %}
+{% block actions %}<a class="button" href="{% url 'prescriptions:medication_create' %}">Add medication</a>{% endblock %}
+{% block table %}
+  <table>
+    <thead><tr><th scope="col">Code</th><th scope="col">Generic name</th><th scope="col">Strength</th><th scope="col">Dosage form</th><th scope="col">Status</th><th scope="col">Action</th></tr></thead>
+    <tbody>{% for entry in page_obj %}
+      <tr><th scope="row">{{ entry.medication_code }}</th><td>{{ entry.generic_name }}</td><td>{{ entry.strength }}</td><td>{{ entry.dosage_form }}</td>
+        <td>{{ entry.is_active|yesno:"Active,Inactive" }}</td><td><a href="{% url 'prescriptions:medication_edit' entry.pk %}">Edit</a></td></tr>
+    {% endfor %}</tbody>
+  </table>
+{% endblock %}

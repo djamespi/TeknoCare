@@ -84,6 +84,12 @@ No ERD columns or relationships change, and this is not a hosted migration resul
 
 ## Existing interface integration and evidence
 
+Step 10 adds the `prescriptions.0002_protect_prescription_history` trigger
+migration. It enforces draft creation and safe issuance, blocks finalization
+with unresolved prescription drafts, and preserves issued and canceled items
+and linked medication formulations. It adds no ERD fields and rewrites no
+existing records.
+
 Step 9 adds clinical documentation pages and the
 `clinical.0005_protect_finalized_clinical_details` trigger migration. The
 existing ERD columns and relationships remain in place. The guards protect

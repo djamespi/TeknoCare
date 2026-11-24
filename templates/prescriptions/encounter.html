@@ -1,0 +1,21 @@
+{% extends 'base.html' %}
+{% block title %}Encounter prescriptions{% endblock %}
+{% block content %}
+  <h1>Encounter prescriptions</h1>
+  <p>{{ visit.patient.patient.get_full_name }} · Encounter #{{ visit.pk }} · {{ visit.get_status_display }}</p>
+  <p><a href="{% url 'consultation:workspace' visit.pk %}">Back to consultation</a></p>
+  {% if can_start %}
+    <form method="post">
+      {% csrf_token %}
+      <button class="button" type="submit">Start prescription draft</button>
+    </form>
+  {% endif %}
+  {% if page_obj.object_list %}
+    <ul class="info-card">{% for entry in page_obj %}
+      <li><a href="{% url 'prescriptions:detail' visit.pk entry.pk %}">Prescription #{{ entry.pk }}</a>
+        <span class="badge">{% if entry.status == 'Canceled' and not entry.issued_at %}Discarded{% else %}{{ entry.get_status_display }}{% endif %}</span>
+        · {{ entry.prescriber.provider.get_full_name }}</li>
+    {% endfor %}</ul>
+  {% else %}<p>No prescriptions for this encounter.</p>{% endif %}
+  {% include 'includes/pagination.html' %}
+{% endblock %}

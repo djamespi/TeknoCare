@@ -485,6 +485,13 @@ Commit: `feat: document consultations and protect finalized clinical history`
 
 Depends on: 9.
 
+Implemented November 24, 2026. An Admin maintains catalog formulations. The
+attending Physician or Dentist drafts, issues, and corrects prescriptions
+through the consultation. Patients can see their issued or canceled copies.
+Finalization checks for unresolved drafts, and database guards protect
+published items and referenced formulations. The three account-specific
+checks are in [Step 10 verification](step_10_verification.md).
+
 - Add protected medication catalog administration and prescription draft/items
   editing for authorized prescribers on their encounters.
 - Issue only with at least one valid item and authorized active prescriber; use
@@ -741,7 +748,8 @@ do not recommend force push, hard reset, or discarding work.
 | Step 7: patient appointments and cancellation | Implemented November 23, 2026. User reported completing the activity screenshots and requested Step 8. |
 | Step 8: reception, check-in and walk-in encounters | Implemented November 23, 2026. User visual review pending. |
 | Step 9: vitals, consultation, diagnoses and finalization | Implemented November 24, 2026. Manual review and disposable PostgreSQL verification pending. |
-| Steps 10–14 | Pending. Step 10 is medication catalog and prescriptions. |
+| Step 10: medication catalog and prescriptions | Implemented November 24, 2026. Manual review and disposable PostgreSQL verification pending. |
+| Steps 11–14 | Pending. Step 11 is referrals and patient visit summaries. |
 | Official ID formats, personnel/contracted provider identity, hours, fees, calendar | Unconfirmed; use documented fictional defaults until supplied |
 | Configured hosted migration status | Not inspected or changed in this review |
 | Existing Supabase upgrade | Planned through staged migration checkpoints; no hosted migration authorized or applied by this planning update |

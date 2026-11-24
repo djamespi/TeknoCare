@@ -1,0 +1,12 @@
+{% extends 'base.html' %}
+{% block title %}{% if item %}Edit medication item{% else %}Add medication item{% endif %}{% endblock %}
+{% block content %}
+  <h1>{% if item %}Edit medication item{% else %}Add medication item{% endif %}</h1>
+  <p><a href="{% url 'prescriptions:detail' prescription.record_id prescription.pk %}">Back to prescription draft</a></p>
+  <section class="form-card" aria-label="Medication item">
+    <form method="post">
+      {% csrf_token %}{% include 'includes/form_fields.html' %}
+      <button class="button" type="submit">Save item</button>
+    </form>
+  </section>
+{% endblock %}
