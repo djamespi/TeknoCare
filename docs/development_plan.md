@@ -513,6 +513,13 @@ Commit: `feat: add authorized prescription drafting issuing and printing`
 
 Depends on: 10.
 
+Implemented November 24, 2026. Assigned clinicians add a referral to a Draft
+encounter and may record one terminal follow-up status. Patients can read and
+print summaries of their own Finalized visits. Summaries include selected
+visit details, catalog diagnosis labels, current issued prescriptions and
+referral instructions. The database preserves original referral content
+and terminal status. See [Step 11 verification](step_11_verification.md).
+
 - Add clinician-created referrals with destination/reason on the Draft encounter;
   preserve their clinical content after finalization.
 - Permit audited follow-up Pending -> Completed/Canceled without rewriting the
@@ -748,8 +755,9 @@ do not recommend force push, hard reset, or discarding work.
 | Step 7: patient appointments and cancellation | Implemented November 23, 2026. User reported completing the activity screenshots and requested Step 8. |
 | Step 8: reception, check-in and walk-in encounters | Implemented November 23, 2026. User visual review pending. |
 | Step 9: vitals, consultation, diagnoses and finalization | Implemented November 24, 2026. Manual review and disposable PostgreSQL verification pending. |
-| Step 10: medication catalog and prescriptions | Implemented November 24, 2026. Manual review and disposable PostgreSQL verification pending. |
-| Steps 11–14 | Pending. Step 11 is referrals and patient visit summaries. |
+| Step 10: medication catalog and prescriptions | Implemented November 24, 2026. User completed manual review and pushed commit `61b232f`. Disposable PostgreSQL verification pending. |
+| Step 11: referrals and patient visit summaries | Implemented November 24, 2026. Manual review and disposable PostgreSQL verification pending. |
+| Steps 12–14 | Pending. Step 12 is student tuition charges. |
 | Official ID formats, personnel/contracted provider identity, hours, fees, calendar | Unconfirmed; use documented fictional defaults until supplied |
 | Configured hosted migration status | Not inspected or changed in this review |
 | Existing Supabase upgrade | Planned through staged migration checkpoints; no hosted migration authorized or applied by this planning update |

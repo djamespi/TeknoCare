@@ -1,0 +1,18 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block title %}Referral copy #{{ referral.pk }}{% endblock %}
+{% block styles %}<link rel="stylesheet" href="{% static 'css/patients/visit_print.css' %}">{% endblock %}
+{% block content %}
+  <h1>Referral copy #{{ referral.pk }}</h1>
+  <p class="notice">TeknoCare prototype referral copy for school demonstration.</p>
+  <div class="page-actions screen-only">
+    <a href="{% url 'patients:visit_summary' visit.pk %}">Back to visit summary</a>
+    <span>Use <kbd>Ctrl</kbd>+<kbd>P</kbd> to print or save a copy.</span>
+  </div>
+  <section class="info-card" aria-labelledby="referral-destination">
+    <h2 id="referral-destination">{{ referral.destination }}</h2>
+    <p>Patient {{ request.user.get_full_name }} · Visit #{{ visit.pk }} on {{ visit.visited_at|date:"M j, Y" }}</p>
+    {% include 'patients/referral_content.html' %}
+    <p>Referral status records clinic follow-up. Confirm any appointment with the destination directly.</p>
+  </section>
+{% endblock %}

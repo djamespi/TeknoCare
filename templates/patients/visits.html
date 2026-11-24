@@ -1,0 +1,14 @@
+{% extends 'base.html' %}
+{% block title %}My visit summaries{% endblock %}
+{% block content %}
+  <h1>My visit summaries</h1>
+  <p><a href="{% url 'home:home' %}">Back to dashboard</a></p>
+  {% if page_obj.object_list %}
+    <ul class="info-card">{% for visit in page_obj %}
+      <li><a href="{% url 'patients:visit_summary' visit.pk %}">Visit #{{ visit.pk }} on {{ visit.visited_at|date:"M j, Y" }}</a>
+        · {% if visit.appointment_id %}Scheduled{% else %}Walk-in{% endif %}
+        {% if visit.chief_complaint %} · {{ visit.chief_complaint|truncatechars:100 }}{% endif %}</li>
+    {% endfor %}</ul>
+  {% else %}<p>No finalized visits to show yet.</p>{% endif %}
+  {% include 'includes/pagination.html' %}
+{% endblock %}

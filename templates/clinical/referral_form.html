@@ -1,0 +1,24 @@
+{% extends 'base.html' %}
+{% block title %}{% if referral %}Referral follow-up{% else %}Add referral{% endif %}{% endblock %}
+{% block content %}
+  <h1>{% if referral %}Referral follow-up{% else %}Add referral{% endif %}</h1>
+  <div class="page-actions"><a href="{% url 'consultation:referrals' visit.pk %}">Back to encounter referrals</a></div>
+  {% if referral %}
+    <section class="info-card" aria-label="Original referral">
+      <h2>{{ referral.destination }}</h2>
+      <p class="badge">{{ referral.get_status_display }}</p>
+      <p>{{ referral.reason|linebreaksbr }}</p>
+    </section>
+    <p>Record the clinic's follow-up status. The original instructions stay on file.</p>
+  {% else %}
+    <p>The destination and instructions will appear in the patient's finalized visit summary. To correct an entry while the visit is Draft, cancel it and add a new referral.</p>
+  {% endif %}
+  {% if form %}
+    <section class="form-card" aria-label="{% if referral %}Update referral follow-up{% else %}Record referral{% endif %}">
+      <form method="post">
+        {% csrf_token %}{% include 'includes/form_fields.html' %}
+        <button class="button" type="submit">{% if referral %}Save follow-up{% else %}Save referral{% endif %}</button>
+      </form>
+    </section>
+  {% endif %}
+{% endblock %}

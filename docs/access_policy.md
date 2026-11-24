@@ -267,6 +267,26 @@ application guards, not new database constraints or proof of PostgreSQL concurre
   canceled status and prototype use. The workflow does not track stock or
   dispensing.
 
+## Step 11 referrals and patient visit summaries
+
+- The assigned active Physician or Dentist can create a Pending referral on
+  a Draft encounter. Destination and reason are patient-facing. The server
+  sets the original author and timestamp and records the action in audit.
+- The current assigned eligible clinician can mark a Pending referral
+  Completed or Canceled on a Draft or Finalized encounter. The recorded
+  status describes clinic follow-up. Original content, author and time
+  are immutable from creation, and terminal statuses cannot be reopened.
+  Correct a referral on a Draft by canceling it and recording a new one.
+- A signed-in patient sees only their own Finalized visits. The projection
+  includes the date, type, attending provider, chief complaint, catalog
+  diagnosis labels, current issued prescriptions and referral information.
+  It excludes symptoms, examination and treatment notes, diagnosis link
+  notes, vitals and appointment reasons. Canceled prescriptions stay in
+  separate prescription history.
+- Patient summary and referral print pages use the same ownership check
+  and are read-only. They are prototype copies and any external appointment
+  remains a separate arrangement.
+
 ## Limits before any real deployment
 
 This prototype lacks login/reset throttling, MFA, verified enrollment/personnel

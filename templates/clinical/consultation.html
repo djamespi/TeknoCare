@@ -53,10 +53,12 @@
   {% if can_read_notes %}
     <div class="page-actions">
       <a class="button" href="{% url 'prescriptions:encounter' visit.pk %}">Prescriptions for this encounter</a>
+      <a class="button" href="{% url 'consultation:referrals' visit.pk %}">Referrals for this encounter</a>
     </div>
     <section class="info-card" aria-labelledby="notes-heading">
       <h2 id="notes-heading">Consultation notes and diagnoses</h2>
       {% if notes_form %}
+        <p>The finalized patient summary includes the chief complaint and catalog diagnosis names. Keep internal notes in the other consultation fields.</p>
         <form method="post">
           {% csrf_token %}
           {% include 'includes/form_fields.html' with form=notes_form only %}

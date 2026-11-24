@@ -39,6 +39,10 @@
         <h2>My prescriptions</h2>
         <p>Review prescriptions issued for you and open their prototype print copies.</p>
       </a>
+      <a class="feature-panel" href="{% url 'patients:visits' %}">
+        <h2>My visit summaries</h2>
+        <p>Review finalized clinic visits, issued prescriptions and referral instructions.</p>
+      </a>
     {% endif %}
     {% if provider_ready %}
       <a class="feature-panel" href="{% url 'consultation:list' %}">
@@ -94,7 +98,7 @@
     {% elif request.user.user_type == 'Provider' %}
       {% if provider.provider_type == 'Nurse' %}<p>Use clinical encounters to record vitals. Nurses will not finalize consultations or issue prescriptions.</p>{% else %}<p>Use clinical encounters to document and finalize assigned visits.</p>{% endif %}
     {% else %}
-      <p>Appointment booking is available. Visit summaries and tuition charge pages are planned.</p>
+      <p>Appointments, visit summaries and prescriptions are available from your dashboard.</p>
     {% endif %}
     <p class="lead">This school-project prototype is not an emergency service or an official university medical record system.</p>
   </section>

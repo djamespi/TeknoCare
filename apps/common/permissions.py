@@ -97,10 +97,10 @@ def allowed(user, action, target=None):
             target.provider_id == provider.pk
             or (provider.provider_type in {"Physician", "Dentist"} and target.status == "Finalized" and patient_under_care(provider, target.patient))
         ))
-    if action == "prescription.correct":
+    if action in {"prescription.correct", "referral.follow_up"}:
         return bool(provider and target.patient_id != user.pk and target.provider_id == provider.pk
             and provider.provider_type in {"Physician", "Dentist"})
-    if action in {"vitals.record", "record.edit", "record.finalize", "prescription.issue"}:
+    if action in {"vitals.record", "record.edit", "record.finalize", "prescription.issue", "referral.create"}:
         if not provider or target.patient_id == user.pk or target.status != "Draft":
             return False
         if action == "vitals.record":

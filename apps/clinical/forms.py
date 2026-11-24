@@ -3,7 +3,7 @@ from django import forms
 from apps.appointments.forms import ProviderChoiceField
 from apps.providers.eligibility import eligible_providers
 from apps.providers.models import Provider
-from .models import Diagnosis, VitalSign
+from .models import Diagnosis, Referral, VitalSign
 
 
 class AttendingProviderForm(forms.Form):
@@ -82,3 +82,19 @@ class DiagnosisForm(forms.ModelForm):
         model = Diagnosis
         fields = ("coding_system", "code", "description")
         help_texts = {"coding_system": "Use supplied catalog entries or a clearly fictional coding system for the demonstration."}
+
+
+class ReferralForm(forms.ModelForm):
+    class Meta:
+        model = Referral
+        fields = ("destination", "reason")
+        labels = {"reason": "Patient-facing reason and instructions"}
+        widgets = {"reason": forms.Textarea(attrs={"rows": 4})}
+        help_texts = {"reason": "Write what the patient should see on their finalized visit summary. Keep private clinical notes in the consultation."}
+
+
+class ReferralFollowUpForm(forms.Form):
+    status = forms.ChoiceField(label="Follow-up status", choices=[
+        (Referral.Status.COMPLETED, "Completed"), (Referral.Status.CANCELED, "Canceled"),
+    ])
+    confirm = forms.BooleanField(label="I confirm this follow-up status")

@@ -144,3 +144,17 @@ class Referral(ValidatedModel):
     class Meta:
         db_table = "referral"
         constraints = [models.CheckConstraint(check=models.Q(status__in=["Pending", "Completed", "Canceled"]), name="referral_status_valid")]
+
+    def clean(self):
+        if self._state.adding:
+            if not (self.destination or "").strip() or not (self.reason or "").strip():
+                raise ValidationError("Enter a referral destination and patient-facing reason or instructions.")
+            if self.status != self.Status.PENDING or (self.record_id and self.record.status != MedicalRecord.Status.DRAFT):
+                raise ValidationError("Create a Pending referral on a Draft encounter.")
+            return
+        previous = type(self).objects.get(pk=self.pk)
+        content = ("record_id", "referred_by_provider_id", "destination", "reason", "referred_at")
+        if any(getattr(previous, field) != getattr(self, field) for field in content):
+            raise ValidationError("Referral content is immutable. Record a status change separately.")
+        if self.status != previous.status and previous.status != self.Status.PENDING:
+            raise ValidationError("Completed and canceled referrals cannot be reopened.")

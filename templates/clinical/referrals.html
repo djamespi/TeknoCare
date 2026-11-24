@@ -1,0 +1,21 @@
+{% extends 'base.html' %}
+{% block title %}Encounter referrals{% endblock %}
+{% block content %}
+  <h1>Encounter referrals</h1>
+  <p>{{ visit.patient.patient.get_full_name }} · Encounter #{{ visit.pk }} · {{ visit.get_status_display }}</p>
+  <div class="page-actions">
+    <a href="{% url 'consultation:workspace' visit.pk %}">Back to consultation</a>
+    {% if can_create %}<a class="button" href="{% url 'consultation:referral_create' visit.pk %}">Add referral</a>{% endif %}
+  </div>
+  {% for referral in page_obj %}
+    <section class="info-card" aria-labelledby="referral-{{ referral.pk }}">
+      <h2 id="referral-{{ referral.pk }}">{{ referral.destination }}</h2>
+      <p><span class="badge">{{ referral.get_status_display }}</span> · {{ referral.referred_at|date:"M j, Y, g:i A" }} · {{ referral.referred_by_provider.provider.get_full_name }}</p>
+      <p>{{ referral.reason|linebreaksbr }}</p>
+      {% if can_follow_up and referral.status == "Pending" %}
+        <a href="{% url 'consultation:referral_follow_up' visit.pk referral.pk %}">Record follow-up</a>
+      {% endif %}
+    </section>
+  {% empty %}<p>No referrals for this encounter.</p>{% endfor %}
+  {% include 'includes/pagination.html' %}
+{% endblock %}

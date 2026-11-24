@@ -84,6 +84,11 @@ No ERD columns or relationships change, and this is not a hosted migration resul
 
 ## Existing interface integration and evidence
 
+Step 11 adds `clinical.0006_protect_referral_lifecycle`. The trigger migration
+preserves original referral content and terminal follow-up status, protects
+rows from deletion, and allows new Pending referrals only on eligible Draft
+encounters. It rewrites no records and adds no ERD fields.
+
 Step 10 adds the `prescriptions.0002_protect_prescription_history` trigger
 migration. It enforces draft creation and safe issuance, blocks finalization
 with unresolved prescription drafts, and preserves issued and canceled items

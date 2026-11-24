@@ -1,0 +1,4 @@
+<p><span class="badge{% if referral.status == 'Canceled' %} notice-error{% endif %}">{{ referral.status }}</span>
+  · {{ referral.referred_at|date:"M j, Y" }} · {{ referral.author_first }} {{ referral.author_last }}</p>
+{% if referral.status == 'Canceled' %}<p><strong>Canceled referral. The original instructions are shown for your records.</strong></p>{% endif %}
+<p>{{ referral.reason|default:"No instructions recorded."|linebreaksbr }}</p>

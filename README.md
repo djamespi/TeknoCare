@@ -271,6 +271,20 @@ python manage.py runserver --settings=config.settings_local
 The [three account-specific checks](docs/step_10_verification.md) cover the
 catalog, issuing and patient history.
 
+## Confirm Step 11 works
+
+Assigned Physicians and Dentists can create a referral on a Draft encounter
+and record follow-up on an existing referral. Patients can open their own
+finalized visit summaries, including current issued prescriptions and
+referral instructions, or print a prototype copy.
+
+```powershell
+python manage.py migrate --settings=config.settings_local
+python manage.py runserver --settings=config.settings_local
+```
+
+See [the three account-specific checks](docs/step_11_verification.md).
+
 ## Configuration boundaries
 
 | Settings module | Purpose | Database / secrets |

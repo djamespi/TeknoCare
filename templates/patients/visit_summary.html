@@ -1,0 +1,49 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block title %}Visit summary #{{ visit.pk }}{% endblock %}
+{% block styles %}<link rel="stylesheet" href="{% static 'css/patients/visit_print.css' %}">{% endblock %}
+{% block content %}
+  <h1>Visit summary #{{ visit.pk }}</h1>
+  <p class="notice">TeknoCare prototype visit summary for school demonstration.</p>
+  <div class="page-actions screen-only">
+    {% if printing %}
+      <a href="{% url 'patients:visit_summary' visit.pk %}">Back to visit summary</a>
+      <span>Use <kbd>Ctrl</kbd>+<kbd>P</kbd> to print or save a copy.</span>
+    {% else %}
+      <a href="{% url 'patients:visits' %}">Back to my visit summaries</a>
+      <a class="button" href="{% url 'patients:visit_print' visit.pk %}">Print visit summary</a>
+    {% endif %}
+  </div>
+  <section class="info-card" aria-labelledby="visit-details">
+    <h2 id="visit-details">Visit details</h2>
+    <dl class="account-details">
+      <dt>Patient</dt><dd>{{ request.user.get_full_name }}</dd>
+      <dt>Visit in Manila time</dt><dd>{{ visit.visited_at|date:"M j, Y, g:i A" }}</dd>
+      <dt>Visit type</dt><dd>{% if visit.appointment_id %}Scheduled{% else %}Walk-in{% endif %}</dd>
+      <dt>Attending provider</dt><dd>{{ visit.attending_first }} {{ visit.attending_last }}</dd>
+      <dt>Reason for visit</dt><dd>{{ visit.chief_complaint|default:"Unrecorded"|linebreaksbr }}</dd>
+      <dt>Finalized</dt><dd>{{ visit.finalized_at|date:"M j, Y, g:i A"|default:"Unrecorded" }}</dd>
+    </dl>
+    <h3>Recorded diagnoses</h3>
+    <ul>{% for diagnosis in diagnoses %}<li>{{ diagnosis.description }}{% if diagnosis.is_primary %} (Primary){% endif %}</li>
+    {% empty %}<li>No diagnoses recorded for this visit.</li>{% endfor %}</ul>
+  </section>
+  <section class="info-card" aria-labelledby="visit-prescriptions">
+    <h2 id="visit-prescriptions">Issued prescriptions</h2>
+    {% for prescription in prescriptions %}
+      <h3>Prescription #{{ prescription.pk }} · {{ prescription.issued_at|date:"M j, Y" }}</h3>
+      <p>Prescriber {{ prescription.prescriber.provider.get_full_name }}</p>
+      {% include 'prescriptions/items.html' with items=prescription.summary_items only %}
+      <p class="screen-only"><a href="{% url 'prescriptions:print' prescription.pk %}">Open prescription print copy</a></p>
+    {% empty %}<p>No current issued prescriptions for this visit.</p>{% endfor %}
+  </section>
+  <section class="info-card" aria-labelledby="visit-referrals">
+    <h2 id="visit-referrals">Referral instructions</h2>
+    {% for referral in referrals %}
+      <h3>{{ referral.destination }}</h3>
+      {% include 'patients/referral_content.html' %}
+      <p class="screen-only"><a href="{% url 'patients:referral_print' visit.pk referral.pk %}">Print referral</a></p>
+    {% empty %}<p>No referrals recorded for this visit.</p>{% endfor %}
+    {% if referrals %}<p>Referral status records clinic follow-up. Confirm any appointment with the destination directly.</p>{% endif %}
+  </section>
+{% endblock %}

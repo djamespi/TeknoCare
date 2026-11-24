@@ -1,0 +1,24 @@
+@media print {
+  .topbar, .skip-link, .site-footer, .screen-only {
+    display: none;
+  }
+
+  body, main, .info-card, .notice, .badge {
+    background: white;
+    color: black;
+    box-shadow: none;
+  }
+
+  main {
+    max-width: none;
+    padding: 0;
+  }
+
+  h1, h2, h3 {
+    break-after: avoid;
+  }
+
+  .prescription-item, .account-details {
+    break-inside: avoid;
+  }
+}
