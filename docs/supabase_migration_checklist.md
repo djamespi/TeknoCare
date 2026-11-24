@@ -1,8 +1,9 @@
 # Supabase migration checkpoint
 
-Prepared in Step 1. This is a runbook, not a record of a hosted upgrade. Supabase
-has not been inspected or changed during this step. Work locally using the
-[startup guide](../README.md) until this checkpoint is explicitly requested.
+The read-only connection checkpoint passed on November 25, 2026. Django
+connected through the Supabase session pooler with TLS. The hosted schema
+upgrade is still pending. Use the [local startup guide](../README.md) for
+normal prototype work until the hosted schema is ready.
 
 ## Inventory before changing data
 
@@ -18,9 +19,15 @@ has not been inspected or changed during this step. Work locally using the
   and preview pending work without applying migrations:
 
   ```powershell
+  $env:DEBUG = 'false'
+  $env:DATABASE_SSL_REQUIRE = 'true'
   .\venv\Scripts\python.exe manage.py showmigrations --settings=config.settings
   .\venv\Scripts\python.exe manage.py migrate --plan --settings=config.settings
   ```
+
+  An inherited non-boolean `DEBUG` value blocked settings startup during the
+  inspection. The current-shell override resolves it without changing the
+  saved credentials or other environment settings.
 
 - Compare the actual schema to recorded Django migrations and the checked-in
   22-entity ERD. Earlier manually created tables are not proof migrations ran.
@@ -92,6 +99,8 @@ rehearsed recovery plan instead of guessing a reverse migration.
 | Populated legacy SQLite upgrade | Automated script, including replacement/already-applied recognition |
 | ERD/model agreement | Automated metadata comparison for 22 entities / 28 relationships |
 | Disposable PostgreSQL legacy rehearsal | PostgreSQL 16.16 physical backup and restore passed with fictional original-schema data. See [Step 14 evidence](step_14_verification.md#postgresql-rehearsal-evidence). |
-| Current Supabase schema/version | Not inspected in Step 1 |
+| Current Supabase schema/version | PostgreSQL 17.6. Django migration history is consistent, with 22 recorded migrations, 26 pending migrations, and 7 of 22 current clinic tables present. |
+| Legacy identity preflight | Zero duplicate normalized University ID groups and zero duplicate normalized email groups at the read-only checkpoint. |
+| Hosted API access | Review of API grants, exposed schemas and RLS is required before serving clinic data. See [Supabase Data API security](https://supabase.com/docs/guides/api/securing-your-api). |
 | Verified hosted backup/restore and staging rehearsal | Pending |
-| Hosted upgrade authorization/application | Not requested/performed in Step 1 |
+| Hosted upgrade authorization/application | Pending, following backup, staging and access review. |
