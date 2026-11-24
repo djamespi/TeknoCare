@@ -285,6 +285,19 @@ python manage.py runserver --settings=config.settings_local
 
 See [the three account-specific checks](docs/step_11_verification.md).
 
+## Confirm Step 12 works
+
+Clinic Admins can create and export pending Student charges, then explicitly
+simulate tuition posting or reversal. Patients can view their own charge
+history. Faculty and Staff care is free.
+
+```powershell
+python manage.py migrate --settings=config.settings_local
+python manage.py runserver --settings=config.settings_local
+```
+
+See [the three account-specific checks](docs/step_12_verification.md).
+
 ## Configuration boundaries
 
 | Settings module | Purpose | Database / secrets |

@@ -43,6 +43,10 @@
         <h2>My visit summaries</h2>
         <p>Review finalized clinic visits, issued prescriptions and referral instructions.</p>
       </a>
+      <a class="feature-panel" href="{% url 'billing:patient_charges' %}">
+        <h2>My tuition charges</h2>
+        <p>View your prototype charge amounts and posting status.</p>
+      </a>
     {% endif %}
     {% if provider_ready %}
       <a class="feature-panel" href="{% url 'consultation:list' %}">

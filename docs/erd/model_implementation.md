@@ -15,7 +15,7 @@ The ERD's 22 entities now have Django models and migration source, organized by 
 | `apps/appointments` | ClinicRoom, Slot, Appointment | Scheduling/booking; transactional booking and cancellation services. |
 | `apps/clinical` | MedicalRecord, VitalSign, Diagnosis, RecordDiagnosis, Referral | Encounters and observations. |
 | `apps/prescriptions` | Medication, Prescription, PrescriptionItem | Medication catalog and prescription history. |
-| `apps/billing` | AcademicTerm, StudentCharge | Tuition charge lines and verified posting/reversal acknowledgment services. |
+| `apps/billing` | AcademicTerm, StudentCharge | Tuition charge lines, pending export and simulated posting and reversal. |
 | `apps/audit` | AuditLog | Append-only account/clinic action history. |
 
 Each feature owns its models, migrations, tests, and services; future views/forms/URLs belong beside them. There is no shared repository/service abstraction or centralized clinic model file. Cross-feature FKs use lazy model labels; auth FKs use `settings.AUTH_USER_MODEL`. `apps/common` contains only a small validated-save primitive, PostgreSQL constraint adapters, and fictional test fixtures.
@@ -83,6 +83,11 @@ replacement's schema operations. The populated-upgrade script covers both paths.
 No ERD columns or relationships change, and this is not a hosted migration result.
 
 ## Existing interface integration and evidence
+
+Step 12 adds `billing.0003_protect_original_charge_lines`. It guards the
+original charge data from creation and allows a Pending void only without
+posting or reversal metadata. The trigger preserves existing ERD columns
+and relationships.
 
 Step 11 adds `clinical.0006_protect_referral_lifecycle`. The trigger migration
 preserves original referral content and terminal follow-up status, protects

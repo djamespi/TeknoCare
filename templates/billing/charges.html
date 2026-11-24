@@ -1,0 +1,45 @@
+{% extends 'includes/management_list.html' %}
+{% block title %}{% if admin_view %}Tuition charges{% else %}My tuition charges{% endif %}{% endblock %}
+{% block workspace_label %}{% endblock %}
+{% block heading %}{% if admin_view %}Tuition charges{% else %}My tuition charges{% endif %}{% endblock %}
+{% block introduction %}
+  {% if patient.affiliation == 'Faculty' or patient.affiliation == 'Staff' %}
+    Clinic visits as Faculty or Staff are free. Charges below come from visits recorded while you were a Student.
+  {% else %}
+    Posted charges show a tuition acknowledgment in the prototype. This workflow does not collect payments.
+  {% endif %}
+{% endblock %}
+{% block back_link %}
+  {% if admin_view %}{{ block.super }}{% else %}<p><a href="{% url 'home:home' %}">Back to dashboard</a></p>{% endif %}
+{% endblock %}
+{% block actions %}
+  {% if admin_view %}
+    <a class="button" href="{% url 'billing:charge_lookup' %}">Find an encounter</a>
+    <a class="button" href="{% url 'billing:charge_export' %}{% if export_term %}?term={{ export_term }}{% endif %}">Export pending CSV{% if export_term %} for this term{% endif %}</a>
+  {% endif %}
+{% endblock %}
+{% block table %}
+  <table>
+    <thead><tr>
+      <th scope="col">Charge code</th>
+      {% if admin_view %}<th scope="col">University ID</th>{% endif %}
+      <th scope="col">Term</th><th scope="col">Description</th><th scope="col">Amount</th><th scope="col">Status</th>
+    </tr></thead>
+    <tbody>
+      {% for charge in page_obj %}
+        <tr>
+          <th scope="row">
+            {% if admin_view %}<a href="{% url 'billing:charge_detail' charge.pk %}">{{ charge.charge_code }}</a>
+            {% else %}<a href="{% url 'billing:patient_charge_detail' charge.pk %}">{{ charge.charge_code }}</a>{% endif %}
+          </th>
+          {% if admin_view %}<td>{{ charge.record.patient.patient.school_id }}</td>{% endif %}
+          <td>{{ charge.term }}</td><td>{{ charge.description }}</td>
+          <td>{{ charge.currency_code }} {{ charge.amount }}</td><td>{{ charge.status }}</td>
+        </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+{% endblock %}
+{% block empty_state %}
+  {% include 'includes/empty_state.html' with empty_title='No matching charges' empty_message='Adjust the filters to see charges for another term or status.' %}
+{% endblock %}

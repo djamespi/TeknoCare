@@ -25,6 +25,9 @@ class AcademicTerm(ValidatedModel):
         constraints = [models.UniqueConstraint(fields=["academic_year", "semester"], name="unique_academic_term"),
             models.CheckConstraint(check=models.Q(end_date__gte=models.F("start_date")), name="term_date_order")]
 
+    def __str__(self):
+        return f"{self.academic_year} · {self.semester}"
+
     def clean(self):
         if self.academic_year and len(self.academic_year) == 9:
             try:
@@ -93,8 +96,13 @@ class StudentCharge(ValidatedModel):
                 raise ValidationError("Charge identity and original creator are immutable.")
             if old.status == self.Status.VOIDED:
                 raise ValidationError("Voided charges are immutable; create a corrected line.")
+            line_fields = ("record_id", "term_id", "description", "amount", "currency_code")
+            if any(getattr(old, field) != getattr(self, field) for field in line_fields):
+                raise ValidationError("Preserve the original charge line. Void it and create a corrected line.")
+            if old.status == self.Status.PENDING and self.status == self.Status.VOIDED and self.posted_at is not None:
+                raise ValidationError("A Pending charge void cannot include posting or reversal metadata.")
             if old.status == self.Status.POSTED:
-                immutable = ("record_id", "term_id", "description", "amount", "currency_code", "billing_reference", "posted_at")
+                immutable = ("billing_reference", "posted_at")
                 if self.status == self.Status.PENDING or any(getattr(old, f) != getattr(self, f) for f in immutable):
                     raise ValidationError("Preserve posted charge details; reverse and replace the charge.")
 

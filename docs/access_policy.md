@@ -287,6 +287,25 @@ application guards, not new database constraints or proof of PostgreSQL concurre
   and are read-only. They are prototype copies and any external appointment
   remains a separate arrangement.
 
+## Step 12 student tuition charges
+
+- Clinic Admins can find encounters by exact University ID and create positive
+  PHP charge lines for visits with a Student affiliation snapshot. Faculty and
+  Staff visits have no charge form or zero-value line. New lines use generic
+  prototype descriptions. Billing pages show the encounter number and status
+  without opening the clinical record.
+- Admins can export Pending lines as CSV with an optional term filter. The file
+  includes the charge code, University ID, term, description, amount and currency.
+  The export reads charge data without posting anything.
+- New charges require an open term. Posting also requires a Finalized visit and
+  explicit confirmation. Pending voids and simulated reversals require an
+  administrative reason and confirmation. A closed term still allows reversal.
+  Retries of the same submission preserve the charge and its audit history.
+- Patients can read their own charge lines and status. Internal reversal reasons
+  and billing references stay in the Admin detail page.
+- The prototype generates `DEMO-POST-` and `DEMO-REV-` references. These track
+  the simulation inside TeknoCare. No university finance service receives them.
+
 ## Limits before any real deployment
 
 This prototype lacks login/reset throttling, MFA, verified enrollment/personnel

@@ -1,0 +1,69 @@
+{% extends 'base.html' %}
+{% block title %}Tuition charge detail{% endblock %}
+{% block main_class %}home-shell{% endblock %}
+{% block content %}
+  <h1>Tuition charge detail</h1>
+  {% if admin_view %}
+    <p><a href="{% url 'billing:charges' %}">Back to tuition charges</a></p>
+  {% else %}
+    <p><a href="{% url 'billing:patient_charges' %}">Back to my tuition charges</a></p>
+  {% endif %}
+  <section class="info-card" aria-labelledby="charge-heading">
+    <h2 id="charge-heading">{{ charge.description }}</h2>
+    <dl class="account-details">
+      <dt>Charge code</dt><dd>{{ charge.charge_code }}</dd>
+      <dt>Term</dt><dd>{{ charge.term }}</dd>
+      <dt>Amount</dt><dd>{{ charge.currency_code }} {{ charge.amount }}</dd>
+      <dt>Status</dt><dd><span class="badge">{{ charge.status }}</span></dd>
+      {% if admin_view %}
+        <dt>University ID</dt><dd>{{ charge.record.patient.patient.school_id }}</dd>
+        <dt>Encounter</dt><dd>{{ charge.record_id }} · {{ charge.record.get_status_display }}</dd>
+        {% if charge.billing_reference %}
+          <dt>{% if simulated_posting %}Simulated posting reference{% else %}Posting reference{% endif %}</dt><dd>{{ charge.billing_reference }}</dd>
+          <dt>Posted at</dt><dd>{{ charge.posted_at|date:'Y-m-d H:i' }}</dd>
+        {% endif %}
+        {% if charge.reversal_reference %}
+          <dt>{% if simulated_posting %}Simulated reversal reference{% else %}Reversal reference{% endif %}</dt><dd>{{ charge.reversal_reference }}</dd>
+        {% endif %}
+        {% if charge.voided_at %}
+          <dt>Voided at</dt><dd>{{ charge.voided_at|date:'Y-m-d H:i' }}</dd>
+          <dt>Administrative reason</dt><dd>{{ charge.void_reason }}</dd>
+        {% endif %}
+      {% endif %}
+    </dl>
+    {% if simulated_posting %}<p class="notice">This tuition acknowledgment was simulated. The prototype does not collect payments.</p>{% endif %}
+  </section>
+  {% if admin_view %}
+    {% if charge.status == 'Pending' and not can_post %}
+      <p class="notice">Posting requires a finalized encounter and an academic term open for charges.</p>
+    {% endif %}
+    {% if can_post or posting.errors %}
+      <section class="form-card" aria-labelledby="post-heading">
+        <h2 id="post-heading">Simulate tuition posting</h2>
+        <p>This records a demo acknowledgment in TeknoCare only.</p>
+        <form method="post">
+          {% csrf_token %}
+          {% include 'includes/form_fields.html' with form=posting only %}
+          <button class="button" name="action" value="post" type="submit">Record simulated posting</button>
+        </form>
+      </section>
+    {% endif %}
+    {% if can_void or voiding.errors %}
+      <section class="form-card" aria-labelledby="void-heading">
+        {% if charge.status == 'Posted' %}
+          <h2 id="void-heading">Simulate tuition reversal</h2>
+          <p>The original posting reference is kept in the charge history.</p>
+        {% else %}
+          <h2 id="void-heading">Void pending charge</h2>
+        {% endif %}
+        <form method="post">
+          {% csrf_token %}
+          {% include 'includes/form_fields.html' with form=voiding only %}
+          <button class="button" name="action" value="void" type="submit">{% if charge.status == 'Posted' %}Record simulated reversal{% else %}Void charge{% endif %}</button>
+        </form>
+      </section>
+    {% elif charge.status == 'Posted' %}
+      <p class="notice">The simulator can reverse only a charge posted through the prototype.</p>
+    {% endif %}
+  {% endif %}
+{% endblock %}

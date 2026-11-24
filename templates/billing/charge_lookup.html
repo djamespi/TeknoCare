@@ -1,0 +1,32 @@
+{% extends 'base.html' %}
+{% block title %}Find an encounter for billing{% endblock %}
+{% block main_class %}home-shell{% endblock %}
+{% block content %}
+  <h1>Find an encounter for billing</h1>
+  <p><a href="{% url 'billing:charges' %}">Back to tuition charges</a></p>
+  <section class="form-card" aria-label="Find by University ID">
+    <form method="get" class="filter-form">
+      {% include 'includes/form_fields.html' %}
+      <button class="button" type="submit">Find encounters</button>
+    </form>
+  </section>
+  {% if page_obj.object_list %}
+    <div class="table-scroll results-table" role="region" aria-label="Encounters" tabindex="0">
+      <table>
+        <thead><tr><th scope="col">Encounter</th><th scope="col">Visit date</th><th scope="col">Status</th><th scope="col">Affiliation at visit</th></tr></thead>
+        <tbody>
+          {% for visit in page_obj %}
+            <tr>
+              <th scope="row"><a href="{% url 'billing:charge_create' visit.pk %}">Encounter {{ visit.pk }}</a></th>
+              <td>{{ visit.visited_at|date:'Y-m-d H:i' }}</td><td>{{ visit.get_status_display }}</td>
+              <td>{{ visit.affiliation_at_visit|default:'Unverified' }}</td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+    {% include 'includes/pagination.html' %}
+  {% elif form.is_bound and not form.errors %}
+    {% include 'includes/empty_state.html' with empty_title='No matching encounters' empty_message='Check the University ID used for that visit.' %}
+  {% endif %}
+{% endblock %}

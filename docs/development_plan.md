@@ -537,6 +537,10 @@ Commit: `feat: add referrals and patient visit summaries`
 
 Depends on: 4, 9 and 11.
 
+Implemented with Admin and Patient pages, Pending CSV export, simulated
+posting and reversal, and a database trigger protecting original charge lines.
+See [Step 12 verification](step_12_verification.md).
+
 - Add Admin charge creation/list/detail filtered by term/status; use existing
   create/post/void services and strengthen actor/transition validation as needed.
 - Offer positive PHP lines for historically Student encounters; show personnel care
@@ -756,8 +760,9 @@ do not recommend force push, hard reset, or discarding work.
 | Step 8: reception, check-in and walk-in encounters | Implemented November 23, 2026. User visual review pending. |
 | Step 9: vitals, consultation, diagnoses and finalization | Implemented November 24, 2026. Manual review and disposable PostgreSQL verification pending. |
 | Step 10: medication catalog and prescriptions | Implemented November 24, 2026. User completed manual review and pushed commit `61b232f`. Disposable PostgreSQL verification pending. |
-| Step 11: referrals and patient visit summaries | Implemented November 24, 2026. Manual review and disposable PostgreSQL verification pending. |
-| Steps 12–14 | Pending. Step 12 is student tuition charges. |
+| Step 11: referrals and patient visit summaries | User confirmed manual review and pushed commit `5f9c0b8`. |
+| Step 12: student tuition charges | Implemented November 24, 2026. Manual review and disposable PostgreSQL verification pending. |
+| Steps 13–14 | Pending. Step 13 is audit viewer and operational reports. |
 | Official ID formats, personnel/contracted provider identity, hours, fees, calendar | Unconfirmed; use documented fictional defaults until supplied |
 | Configured hosted migration status | Not inspected or changed in this review |
 | Existing Supabase upgrade | Planned through staged migration checkpoints; no hosted migration authorized or applied by this planning update |

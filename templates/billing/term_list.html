@@ -1,7 +1,7 @@
 {% extends 'includes/management_list.html' %}
 {% block title %}Academic terms{% endblock %}
 {% block heading %}Academic terms{% endblock %}
-{% block introduction %}Open/closed refers to later charge posting, not payment status. Use supplied or fictional dates; no official CIT-University calendar is assumed.{% endblock %}
+{% block introduction %}Open terms allow new charges and simulated postings. Use fictional dates for the prototype.{% endblock %}
 {% block actions %}<a class="button" href="{% url 'billing:term_create' %}">Add academic term</a>{% endblock %}
 {% block table %}
 <table><caption>Academic terms for tuition charges</caption><thead><tr><th scope="col">Year</th><th scope="col">Semester</th><th scope="col">Dates</th><th scope="col">Charges</th><th scope="col">Action</th></tr></thead>
