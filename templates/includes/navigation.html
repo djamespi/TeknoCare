@@ -1,16 +1,12 @@
-<header class="topbar">
-  <a class="brand" href="{% url 'home:home' %}">TeknoCare</a>
-  <nav aria-label="Main navigation">
-    <a href="{% url 'home:home' %}"{% if request.resolver_match.namespace == 'home' %} aria-current="page"{% endif %}>Dashboard</a>
-    {% with route=request.resolver_match.view_name %}
-      <a href="{% url 'profile:profile' %}"{% if route == 'profile:profile' or route == 'patients:details' or route == 'patients:birth_date' or route == 'patients:contact_create' or route == 'patients:contact_edit' or route == 'patients:contact_remove' %} aria-current="page"{% endif %}>Profile</a>
-    {% endwith %}
-    <a href="{% url 'user_settings:settings' %}"{% if request.resolver_match.namespace == 'user_settings' %} aria-current="page"{% endif %}>Settings</a>
-    <a href="{% url 'login:password_change' %}"{% if request.resolver_match.url_name == 'password_change' %} aria-current="page"{% endif %}>Change password</a>
-    {% if request.user.is_staff %}<a href="{% url 'university:management' %}"{% if request.resolver_match.namespace == 'university' or request.resolver_match.namespace == 'appointments' or request.resolver_match.namespace == 'billing' or request.resolver_match.namespace == 'providers' or request.resolver_match.namespace == 'accounts' or request.resolver_match.namespace == 'patient_intake' or request.resolver_match.namespace == 'audit' %} aria-current="page"{% endif %}>Clinic setup</a>{% endif %}
-    {% if request.user.is_staff %}<a href="{% url 'login:admin_password_reset' %}"{% if request.resolver_match.url_name == 'admin_password_reset' %} aria-current="page"{% endif %}>Reset account password</a>{% endif %}
-    <form method="post" action="{% url 'logout' %}" class="logout-form">
-      {% csrf_token %}<button type="submit" class="logout-button">Sign out</button>
-    </form>
-  </nav>
-</header>
+<nav class="sidebar" id="clinic-nav" aria-label="Main navigation">
+  {% for group, links in groups %}
+    <div class="nav-group"><p>{{ group }}</p>
+      {% for route, label, icon in links %}
+        {% url route as target %}
+        <a href="{{ target }}"{% if current == target %} aria-current="page"{% elif section == route %} aria-current="location"{% endif %}>
+          {% include 'includes/icon.html' with name=icon %}{{ label }}
+        </a>
+      {% endfor %}
+    </div>
+  {% endfor %}
+</nav>

@@ -1,0 +1,3 @@
+{% if field.is_hidden %}{{ field }}{% else %}
+  <div class="form-field{% if field.field.widget.input_type == 'checkbox' %} checkbox-field{% endif %}">{{ field.as_field_group }}</div>
+{% endif %}

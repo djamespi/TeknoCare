@@ -4,7 +4,7 @@
   <h1>Appointment details</h1>
   <p><a href="{% url 'booking:list' %}">Back to my appointments</a></p>
   <section class="info-card" aria-label="Appointment summary">
-    <p>Appointment #{{ appointment.pk }} <span class="badge">{{ appointment.get_status_display }}</span></p>
+    <p>Appointment #{{ appointment.pk }} <span class="badge" data-status="{{ appointment.status }}">{{ appointment.get_status_display }}</span></p>
     <h2>Schedule in Manila time</h2>
     {% include 'appointments/booking_slot_details.html' with slot=appointment.slot %}
     {% if appointment.canceled_at %}<p>Canceled {{ appointment.canceled_at|date:"M j, Y, g:i A" }}</p>{% endif %}

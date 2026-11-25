@@ -1,25 +1,33 @@
 {% extends 'base.html' %}
 {% load static %}
-{% block title %}Create account{% endblock %}
+{% block title %}Student registration{% endblock %}
 {% block styles %}<link rel="stylesheet" href="{% static 'css/login/login.css' %}">{% endblock %}
 {% block main_class %}auth-shell{% endblock %}
 {% block content %}
-  <div class="auth-layout">
-    <section class="auth-brand" aria-labelledby="register-intro">
-      <p class="eyebrow">TEKNOCARE</p>
-      <h2 id="register-intro">Your health workspace starts here.</h2>
-      <p>Student self-registration is for this school-project prototype only. University membership is not verified. Personnel accounts are provisioned by the clinic Admin.</p>
-      <p>Use fictional identity and health details only.</p>
-    </section>
-    <section class="auth-card" aria-labelledby="register-heading">
-      <p class="eyebrow">GET STARTED</p>
-      <h1 id="register-heading">Create Student account</h1>
-      <form method="post">
-        {% csrf_token %}
-        {% include 'includes/form_fields.html' %}
-        <button class="button" type="submit">Create account</button>
-      </form>
-      <p class="auth-link">Already registered? <a href="{% url 'login:login' %}">Sign in</a></p>
-    </section>
+  <div class="registration-layout">
+    <header class="registration-intro"><h1>Student registration</h1>
+      <p>Enter fictional details for this school prototype. Have your university ID and an emergency contact handy.</p>
+      <p>Personnel accounts are set up by the clinic admin.</p>
+      <p>Already registered? <a href="{% url 'login:login' %}">Sign in</a></p>
+    </header>
+    <form class="registration-form" method="post">{% csrf_token %}
+      {% include 'includes/form_errors.html' %}
+      <fieldset><legend>Student details</legend>
+        {% include 'includes/form_field.html' with field=form.university_id %}
+        <div class="field-pair">{% include 'includes/form_field.html' with field=form.first_name %}{% include 'includes/form_field.html' with field=form.last_name %}</div>
+        {% include 'includes/form_field.html' with field=form.email %}
+      </fieldset>
+      <fieldset><legend>Emergency contact</legend>
+        {% include 'includes/form_field.html' with field=form.emergency_contact_name %}
+        <div class="field-pair">{% include 'includes/form_field.html' with field=form.emergency_contact_relationship %}{% include 'includes/form_field.html' with field=form.emergency_contact %}</div>
+      </fieldset>
+      <fieldset><legend>Health history</legend>
+        {% include 'includes/form_field.html' with field=form.medical_history_summary %}
+      </fieldset>
+      <fieldset><legend>Account password</legend>
+        {% include 'includes/form_field.html' with field=form.password1 %}{% include 'includes/form_field.html' with field=form.password2 %}
+      </fieldset>
+      <button class="button" type="submit">Create student account</button>
+    </form>
   </div>
 {% endblock %}

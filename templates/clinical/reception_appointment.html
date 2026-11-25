@@ -4,7 +4,7 @@
   <h1>Reception appointment</h1>
   <p><a href="{% url 'reception:queue' %}">Back to reception queue</a></p>
   <section class="info-card" aria-label="Appointment summary">
-    <p>Appointment #{{ appointment.pk }} <span class="badge">{{ appointment.get_status_display }}</span></p>
+    <p>Appointment #{{ appointment.pk }} <span class="badge" data-status="{{ appointment.status }}">{{ appointment.get_status_display }}</span></p>
     <p>{{ appointment.patient.patient.get_full_name }} ({{ appointment.patient.patient.school_id }})</p>
     <h2>Scheduled time in Manila</h2>
     {% include 'appointments/booking_slot_details.html' with slot=appointment.slot %}

@@ -1,5 +1,5 @@
 @media print {
-  .topbar, .skip-link, .site-footer, .screen-only {
+  .screen-only {
     display: none;
   }
 

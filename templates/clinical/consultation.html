@@ -5,7 +5,7 @@
   <h1>{% if can_read_notes %}Consultation{% else %}Triage and vitals{% endif %}</h1>
   <p><a href="{% url 'consultation:list' %}{% if visit.status == 'Finalized' %}?view=finalized{% endif %}">Back to clinical encounters</a></p>
   <section class="info-card" aria-labelledby="visit-heading">
-    <h2 id="visit-heading">Encounter #{{ visit.pk }} <span class="badge">{{ visit.get_status_display }}</span></h2>
+    <h2 id="visit-heading">Encounter #{{ visit.pk }} <span class="badge" data-status="{{ visit.status }}">{{ visit.get_status_display }}</span></h2>
     <dl class="account-details">
       <dt>Patient</dt><dd>{{ visit.patient.patient.get_full_name }} ({{ visit.patient.patient.school_id }})</dd>
       <dt>Attending provider</dt><dd>{{ visit.provider.provider.get_full_name }}</dd>
@@ -15,6 +15,11 @@
     </dl>
   </section>
 
+  <nav class="encounter-index" aria-label="Encounter sections">
+    <a href="#allergies-heading">Allergies</a><a href="#vitals-heading">Vitals</a>
+    {% if can_read_notes %}<a href="#notes-heading">Notes and diagnoses</a><a href="#history-heading">Visit history</a>{% endif %}
+    {% if finalize_form %}<a href="#finalize-heading">Finalization</a>{% endif %}
+  </nav>
   <section class="info-card" aria-labelledby="allergies-heading">
     <h2 id="allergies-heading">Allergy alerts</h2>
     {% include 'patients/allergy_table.html' %}
@@ -42,7 +47,7 @@
     {% if vitals_form %}
       <h3>Record vital signs</h3>
       <p>Enter the measurements taken. Leave the rest blank.</p>
-      <form method="post">
+      <form class="vitals-form" method="post">
         {% csrf_token %}
         {% include 'includes/form_fields.html' with form=vitals_form only %}
         <button class="button" name="action" value="vitals" type="submit">Save vital signs</button>

@@ -1,6 +1,5 @@
 {% extends 'includes/management_list.html' %}
 {% block title %}{% if original %}Choose a new appointment time{% else %}Book an appointment{% endif %}{% endblock %}
-{% block workspace_label %}{% endblock %}
 {% block heading %}{% if original %}Choose a new appointment time{% else %}Book an appointment{% endif %}{% endblock %}
 {% block introduction %}
   {% if original %}Your original appointment stays scheduled until the replacement is confirmed.{% else %}Choose a future time for your clinic appointment. Times are shown in Manila time (UTC+8).{% endif %}
@@ -14,24 +13,19 @@
 {% block empty_state %}
   {% include 'includes/empty_state.html' with empty_title='No available times' empty_message='Change the filters or check again later.' %}
 {% endblock %}
-{% block table %}
-  <table>
-    <caption>Available appointment times</caption>
-    <thead><tr><th scope="col">Starts</th><th scope="col">Ends</th><th scope="col">Provider</th><th scope="col">Room</th><th scope="col">Action</th></tr></thead>
-    <tbody>
-      {% for slot in page_obj %}
-        <tr>
-          <th scope="row">{{ slot.start_time|date:"M j, Y, g:i:s A" }}</th>
-          <td>{{ slot.end_time|date:"M j, Y, g:i:s A" }}</td>
-          <td>{{ slot.provider.provider.get_full_name }} ({{ slot.provider.get_provider_type_display }})</td>
-          <td>{{ slot.room }}</td>
-          <td>
-            {% if original %}{% url 'booking:confirm_reschedule' original.pk slot.pk as choice_url %}
-            {% else %}{% url 'booking:book' slot.pk as choice_url %}{% endif %}
-            <a href="{{ choice_url }}" aria-label="Select {{ slot.start_time|date:'M j, Y, g:i:s A' }} with {{ slot.provider.provider.get_full_name }}">Select time</a>
-          </td>
-        </tr>
-      {% endfor %}
-    </tbody>
-  </table>
+{% block results %}
+  <ul class="agenda" aria-label="Available appointment times">
+    {% for slot in page_obj %}
+      <li>{% include 'appointments/date_tile.html' with date=slot.start_time %}
+        <div class="agenda-summary">
+          <strong>{{ slot.start_time|date:"M j, Y · g:i A" }} to {% if slot.start_time|date:"Y-m-d" != slot.end_time|date:"Y-m-d" %}{{ slot.end_time|date:"M j, Y · " }}{% endif %}{{ slot.end_time|date:"g:i A" }}</strong>
+          <span>{{ slot.provider.provider.get_full_name }} · {{ slot.provider.get_provider_type_display }}</span>
+          <span>{{ slot.room }}</span>
+        </div>
+        {% if original %}{% url 'booking:confirm_reschedule' original.pk slot.pk as choice_url %}
+        {% else %}{% url 'booking:book' slot.pk as choice_url %}{% endif %}
+        <a class="button button-secondary" href="{{ choice_url }}" aria-label="Select {{ slot.start_time|date:'M j, Y, g:i:s A' }} with {{ slot.provider.provider.get_full_name }}">Select time</a>
+      </li>
+    {% endfor %}
+  </ul>
 {% endblock %}

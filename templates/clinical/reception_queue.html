@@ -2,16 +2,22 @@
 {% block title %}Reception queue{% endblock %}
 {% block main_class %}home-shell{% endblock %}
 {% block content %}
-  <h1>Reception queue</h1>
+  <h1>Today's reception queue</h1>
   <p class="lead">{{ today|date:"F j, Y" }} · Manila time</p>
   <div class="page-actions">
     {% if can_walkin %}<a class="button" href="{% url 'reception:walkin_lookup' %}">Start walk-in</a>{% endif %}
-    <a href="{% url 'home:home' %}">Back to dashboard</a>
   </div>
   <nav class="page-actions" aria-label="Reception view">
-    <a href="{% url 'reception:queue' %}"{% if not drafts %} aria-current="page"{% endif %}>Appointments</a>
-    <a href="{% url 'reception:queue' %}?view=drafts"{% if drafts %} aria-current="page"{% endif %}>Draft encounters</a>
+    <a href="{% url 'reception:queue' %}{% querystring view=None page=None %}"{% if not drafts %} aria-current="page"{% endif %}>Appointments</a>
+    <a href="{% url 'reception:queue' %}{% querystring view='drafts' page=None %}"{% if drafts %} aria-current="page"{% endif %}>Draft encounters</a>
   </nav>
+  <form class="filter-form queue-filter" role="search" method="get">
+    {% if drafts %}<input type="hidden" name="view" value="drafts">{% endif %}
+    <div class="form-field"><label for="patient-search">Patient name or university ID</label>
+      <input type="search" id="patient-search" name="q" value="{{ query }}" maxlength="150"></div>
+    <button class="button" type="submit">Find patient</button>
+    {% if query %}<a href="{% url 'reception:queue' %}{% if drafts %}?view=drafts{% endif %}">Clear search</a>{% endif %}
+  </form>
   {% if page_obj.object_list %}
     <div class="table-scroll results-table" role="region" aria-label="Reception queue entries" tabindex="0">
       <table>
@@ -28,13 +34,15 @@
                 <td>{{ item.slot.start_time|date:"M j, g:i A" }} – {{ item.slot.end_time|date:"M j, g:i A" }}</td>
                 <td>{{ item.slot.provider.provider.get_full_name }}</td>
               {% endif %}
-              <td><span class="badge">{{ item.get_status_display }}</span></td>
+              <td><span class="badge" data-status="{{ item.status }}">{{ item.get_status_display }}</span></td>
               <td>{% if drafts %}<a href="{% url 'reception:encounter' item.pk %}">View encounter</a>{% else %}<a href="{% url 'reception:appointment' item.pk %}">View appointment</a>{% endif %}</td>
             </tr>
           {% endfor %}
         </tbody>
       </table>
     </div>
+  {% elif query %}
+    {% include 'includes/empty_state.html' with empty_title="No matching patients" empty_message="Try another name or university ID in this queue." %}
   {% elif drafts %}
     {% include 'includes/empty_state.html' with empty_title='No draft encounters' empty_message='Today’s open encounters appear here.' %}
   {% else %}

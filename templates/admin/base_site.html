@@ -1,0 +1,9 @@
+{% extends "admin/base.html" %}
+{% load static %}
+{% block title %}{{ title }} | TeknoCare account directory{% endblock %}
+{% block extrastyle %}{{ block.super }}<link rel="stylesheet" href="{% static 'css/includes/directory.css' %}">{% endblock %}
+{% block branding %}
+  <div id="site-name"><a href="{% url 'admin:index' %}">TeknoCare account directory</a></div>
+  {% if user.is_anonymous %}{% include "admin/color_theme_toggle.html" %}{% endif %}
+{% endblock %}
+{% block nav-global %}<a class="clinic-return" href="{% url 'home:home' %}">Clinic overview</a>{% endblock %}

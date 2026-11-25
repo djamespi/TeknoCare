@@ -4,7 +4,7 @@
   <h1>Encounter intake</h1>
   <p><a href="{% url 'reception:queue' %}?view=drafts">Back to draft queue</a></p>
   <section class="info-card" aria-label="Encounter assignment">
-    <p>Encounter #{{ visit.pk }} <span class="badge">{{ visit.get_status_display }}</span></p>
+    <p>Encounter #{{ visit.pk }} <span class="badge" data-status="{{ visit.status }}">{{ visit.get_status_display }}</span></p>
     <dl class="account-details">
       <dt>Patient</dt><dd>{{ visit.patient.patient.get_full_name }} ({{ visit.patient.patient.school_id }})</dd>
       <dt>Affiliation at visit</dt><dd>{{ visit.get_affiliation_at_visit_display|default:"Awaiting review" }}</dd>

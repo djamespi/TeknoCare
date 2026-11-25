@@ -1,109 +1,60 @@
 {% extends 'base.html' %}
 {% load static %}
-{% block title %}Dashboard{% endblock %}
+{% block title %}Clinic overview{% endblock %}
 {% block styles %}<link rel="stylesheet" href="{% static 'css/home/home.css' %}">{% endblock %}
 {% block main_class %}home-shell{% endblock %}
 {% block content %}
-  <p class="eyebrow">{% if request.user.user_type == 'Admin' %}ADMIN WORKSPACE{% elif request.user.user_type == 'Provider' %}PROVIDER WORKSPACE{% else %}PATIENT WORKSPACE{% endif %}</p>
-  <h1>Good to see you, {{ request.user.fname|default:request.user.school_id }}.</h1>
-  <p class="lead">{% if request.user.user_type == 'Admin' %}Support fictional clinic accounts and review account details. Your Admin role does not grant clinical access.{% elif request.user.user_type == 'Provider' %}Keep your account ready for clinic work. Clinical activation is separate from account access.{% else %}Keep your contact details and account preferences up to date for the clinic team.{% endif %}</p>
-  <section class="info-card" aria-labelledby="account-heading">
-    <h2 id="account-heading">Your account</h2>
-    <dl class="account-details">
-      <dt>University ID</dt><dd>{{ request.user.school_id }}</dd>
-      <dt>Account role</dt><dd>{{ request.user.get_user_type_display }}</dd>
-      <dt>Account status</dt><dd><span class="badge">{{ request.user.get_account_status_display }}</span></dd>
-      {% if patient %}<dt>Patient affiliation</dt><dd>{{ patient.affiliation|default:'Awaiting verification' }}</dd>{% endif %}
-      {% if provider %}
-        <dt>Provider designation</dt><dd>{{ provider.provider_type }}</dd>
-        <dt>Clinical profile</dt><dd>{% if provider_ready %}Active{% else %}Not activated for clinical work{% endif %}</dd>
+  <header class="overview-heading">
+    <h1>{% if request.user.is_staff %}Clinic operations{% elif provider %}Your clinical workspace{% else %}Your clinic visits{% endif %}</h1>
+    <p class="dateline">{% include 'includes/icon.html' with name='calendar' %}{{ today|date:"l, j F Y" }}</p>
+  </header>
+  <section class="spotlight" aria-labelledby="next-action">
+    <div class="spotlight-copy">
+      {% if request.user.is_staff %}
+        <h2 id="next-action">Today's reception queue</h2><p>Check patients in, start a walk-in visit, or open an encounter for the attending provider.</p>
+        <a class="button accent" href="{% url 'reception:queue' %}">Open reception queue</a>
+      {% elif provider_ready %}
+        <h2 id="next-action">{% if provider.provider_type == 'Nurse' %}Triage and vital signs{% else %}Your assigned encounters{% endif %}</h2>
+        <p>{% if provider.provider_type == 'Nurse' %}Open a draft visit to record measurements for triage.{% else %}Resume a draft consultation or review the visits you have finalized.{% endif %}</p>
+        <a class="button accent" href="{% url 'consultation:list' %}">Open clinical encounters</a>
+      {% elif provider %}
+        <h2 id="next-action">Provider activation</h2><p>Ask the clinic admin to review your designation and activate your clinical profile.</p>
+        <a class="button accent" href="{% url 'profile:profile' %}">View your profile</a>
+      {% elif next_visit %}
+        <h2 id="next-action">Your next appointment</h2><p><strong>{{ next_visit.slot.start_time|date:"l, F j · g:i A" }}</strong> · Manila time<br>{{ next_visit.slot.provider.provider.get_full_name }} · {{ next_visit.slot.room|default:"Room unverified" }}</p>
+        <a class="button accent" href="{% url 'booking:detail' next_visit.pk %}">View appointment</a>
+      {% else %}
+        <h2 id="next-action">Book a clinic visit</h2><p>You have no upcoming appointments. Choose a provider and an available time at the university clinic.</p>
+        <a class="button accent" href="{% url 'booking:browse' %}">Book an appointment</a>
       {% endif %}
-    </dl>
-    {% if provider and not provider_ready %}<p class="notice workspace-note">Ask the clinic Admin to review your designation and activation before clinical work. Account access does not verify professional credentials.</p>{% endif %}
+    </div>
+    <div class="cross-art" aria-hidden="true"><i></i><i></i><i></i></div>
   </section>
-  <section class="home-grid" aria-label="Available account tasks">
-    <a class="feature-panel panel-primary" href="{% url 'profile:profile' %}">
-      <span class="panel-kicker">YOUR DETAILS</span><h2>Your profile</h2>
-      <p>Update your contact phone, home address and non-clinical bio.</p>
-    </a>
-    {% if patient %}
-      <a class="feature-panel" href="{% url 'patients:details' %}">
-        <h2>Patient details</h2>
-        <p>Manage your birth date and emergency contacts, and view recorded allergies.</p>
-      </a>
-      <a class="feature-panel" href="{% url 'booking:list' %}">
-        <h2>My appointments</h2>
-        <p>Book a clinic visit or view and manage your appointments.</p>
-      </a>
-      <a class="feature-panel" href="{% url 'prescriptions:history' %}">
-        <h2>My prescriptions</h2>
-        <p>Review prescriptions issued for you and open their prototype print copies.</p>
-      </a>
-      <a class="feature-panel" href="{% url 'patients:visits' %}">
-        <h2>My visit summaries</h2>
-        <p>Review finalized clinic visits, issued prescriptions and referral instructions.</p>
-      </a>
-      <a class="feature-panel" href="{% url 'billing:patient_charges' %}">
-        <h2>My tuition charges</h2>
-        <p>View your prototype charge amounts and posting status.</p>
-      </a>
-    {% endif %}
-    {% if provider_ready %}
-      <a class="feature-panel" href="{% url 'consultation:list' %}">
-        <h2>Clinical encounters</h2>
-        <p>Open assigned visits or the nursing triage list.</p>
-      </a>
-      <a class="feature-panel" href="{% url 'patients:allergy_lookup' %}">
-        <h2>Allergy review</h2>
-        <p>Review and record allergies for patients under your care.</p>
-      </a>
-    {% endif %}
-    {% if provider_ready or request.user.is_staff %}
-      <a class="feature-panel" href="{% url 'availability:list' %}">
-        <h2>{% if request.user.is_staff %}Clinic availability{% else %}Your availability{% endif %}</h2>
-        <p>Schedule provider and room slots in Manila time.</p>
-      </a>
-      <a class="feature-panel" href="{% url 'reception:queue' %}">
-        <h2>Reception queue</h2>
-        <p>Review check-ins and encounter assignments.</p>
-      </a>
-    {% endif %}
-    <a class="feature-panel" href="{% url 'user_settings:settings' %}">
-      <span class="panel-kicker">YOUR PREFERENCES</span><h2>Settings</h2>
-      <p>Choose light or dark mode. Email preferences can be saved, but email delivery is not available.</p>
-    </a>
-    <a class="feature-panel" href="{% url 'login:password_change' %}">
-      <span class="panel-kicker">ACCOUNT SECURITY</span><h2>Change password</h2>
-      <p>Update your own password and end your other signed-in sessions.</p>
-    </a>
-    {% if request.user.is_staff %}
-      <a class="feature-panel" href="{% url 'patient_intake:list' %}">
-        <h2>Patient intake</h2>
-        <p>Find patients, add profiles and correct university affiliation or account identity.</p>
-      </a>
-      <a class="feature-panel" href="{% url 'university:management' %}">
-        <span class="panel-kicker">CLINIC ADMINISTRATION</span><h2>Clinic setup</h2>
-        <p>Manage departments, rooms, academic terms, provider activation and personnel accounts.</p>
-      </a>
-      <a class="feature-panel" href="{% url 'login:admin_password_reset' %}">
-        <span class="panel-kicker">ADMIN ASSISTANCE</span><h2>Reset account password</h2>
-        <p>Verify a fictional account holder in person, then reset a non-Admin password. No email is sent.</p>
-      </a>
-      <a class="feature-panel" href="{% url 'admin:register_user_changelist' %}">
-        <span class="panel-kicker">READ-ONLY ADMIN</span><h2>Inspect accounts</h2>
-        <p>Review account details in Django admin. Adding, editing and deleting accounts here is disabled.</p>
-      </a>
-    {% endif %}
-  </section>
-  <section class="info-card" aria-labelledby="workspace-heading">
-    <h2 id="workspace-heading">Workspace availability</h2>
-    {% if request.user.user_type == 'Admin' %}
-      <p>Clinic setup, patient intake, availability and reception are ready. Practitioners document care in the clinical workspace.</p>
-    {% elif request.user.user_type == 'Provider' %}
-      {% if provider.provider_type == 'Nurse' %}<p>Use clinical encounters to record vitals. Nurses will not finalize consultations or issue prescriptions.</p>{% else %}<p>Use clinical encounters to document and finalize assigned visits.</p>{% endif %}
-    {% else %}
-      <p>Appointments, visit summaries and prescriptions are available from your dashboard.</p>
-    {% endif %}
-    <p class="lead">This school-project prototype is not an emergency service or an official university medical record system.</p>
-  </section>
+  <div class="overview-body">
+    <section class="directory" aria-labelledby="tasks"><h2 id="tasks">{% if request.user.is_staff %}Clinic administration{% elif provider_ready %}Clinical tools{% elif patient %}Your care records{% else %}Account settings{% endif %}</h2>
+      {% if request.user.is_staff %}
+        {% include 'includes/task_link.html' with route='patient_intake:list' label='Patient intake' description='Find a patient or add a patient profile.' icon='people' %}
+        {% include 'includes/task_link.html' with route='availability:list' label='Clinic availability' description='Arrange provider schedules and clinic rooms.' icon='calendar' %}
+        {% include 'includes/task_link.html' with route='university:management' label='Clinic setup' description='Manage personnel, catalogs and academic terms.' icon='clinic' %}
+        {% include 'includes/task_link.html' with route='login:admin_password_reset' label='Reset account password' description='Assist a verified account holder.' icon='key' %}
+        {% include 'includes/task_link.html' with route='admin:register_user_changelist' label='Inspect accounts' description='Open the read-only account directory.' icon='folder' %}
+      {% elif provider_ready %}
+        {% include 'includes/task_link.html' with route='availability:list' label='Your availability' description='Review and manage your clinic slots.' icon='calendar' %}
+        {% include 'includes/task_link.html' with route='patients:allergy_lookup' label='Allergy review' description='Review allergies for patients in your care.' icon='pulse' %}
+      {% elif patient %}
+        {% include 'includes/task_link.html' with route='patients:visits' label='My visit summaries' description='Read finalized visit summaries and referrals.' icon='record' %}
+        {% include 'includes/task_link.html' with route='prescriptions:history' label='My prescriptions' description='Review issued prescriptions and print a copy.' icon='pill' %}
+        {% include 'includes/task_link.html' with route='billing:patient_charges' label='My tuition charges' description='Review clinic charges and their posting status.' icon='receipt' %}
+      {% else %}
+        {% include 'includes/task_link.html' with route='user_settings:settings' label='Preferences' description='Choose your appearance and notification settings.' icon='settings' %}
+      {% endif %}
+    </section>
+    <aside class="identity-sheet"><h2>Your account</h2><strong class="identity-name">{{ request.user.get_full_name }}</strong>
+      <dl class="account-details"><dt>University ID</dt><dd>{{ request.user.school_id }}</dd>
+        <dt>Role</dt><dd>{{ request.user.get_user_type_display }}</dd><dt>Status</dt><dd>{{ request.user.get_account_status_display }}</dd>
+        {% if patient %}<dt>Affiliation</dt><dd>{{ patient.affiliation|default:'Awaiting verification' }}</dd>{% endif %}
+        {% if provider %}<dt>Designation</dt><dd>{{ provider.provider_type }}</dd><dt>Clinical access</dt><dd>{% if provider_ready %}Active{% else %}Not activated for clinical work{% endif %}</dd>{% endif %}
+      </dl><a href="{% url 'profile:profile' %}">View your profile</a>
+    </aside>
+  </div>
 {% endblock %}

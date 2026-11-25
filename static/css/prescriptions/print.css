@@ -1,5 +1,5 @@
 @media print {
-  .topbar, .skip-link, .site-footer, .prescription-print-instruction {
+  .prescription-print-instruction {
     display: none;
   }
 

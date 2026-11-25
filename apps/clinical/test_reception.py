@@ -70,6 +70,19 @@ class ReceptionTests(TestCase):
         self.client.force_login(self.admin)
         self.assertNotContains(self.client.get(detail), self.finalized.chief_complaint)
 
+    def test_queue_search_preserves_date_and_provider_scope(self):
+        url = reverse("reception:queue")
+        detail = reverse("reception:appointment", args=[self.current.pk])
+        self.client.force_login(self.admin)
+        for query in (self.patient.patient.school_id, self.patient.patient.get_full_name()):
+            result = self.client.get(url, {"q": query})
+            self.assertContains(result, detail)
+            self.assertNotContains(result, reverse("reception:appointment", args=[self.future.pk]))
+        self.client.force_login(self.dentist.provider)
+        hidden = self.client.get(url, {"q": self.patient.patient.school_id})
+        self.assertNotContains(hidden, detail)
+        self.assertContains(hidden, "No matching patients")
+
     def test_check_in_and_open_draft_through_the_normal_pages(self):
         self.client.force_login(self.admin)
         url = reverse("reception:appointment", args=[self.current.pk])

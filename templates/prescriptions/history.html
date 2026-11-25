@@ -2,13 +2,15 @@
 {% block title %}My prescriptions{% endblock %}
 {% block content %}
   <h1>My prescriptions</h1>
-  <p><a href="{% url 'home:home' %}">Back to dashboard</a></p>
+  <p class="lead">Review the prescriber, issue date and instructions for each prescription.</p>
   {% if page_obj.object_list %}
-    <ul class="info-card">{% for entry in page_obj %}
-      <li><a href="{% url 'prescriptions:print' entry.pk %}">View prescription #{{ entry.pk }}</a>
-        <span class="badge">{{ entry.get_status_display }}</span> · {{ entry.issued_at|date:"M j, Y" }}
-        · {{ entry.prescriber.provider.get_full_name }}</li>
+    <ul class="agenda">{% for entry in page_obj %}
+      <li>{% include 'appointments/date_tile.html' with date=entry.issued_at %}
+        <div class="agenda-summary"><a href="{% url 'prescriptions:print' entry.pk %}">View prescription #{{ entry.pk }}</a>
+          <span>{{ entry.prescriber.provider.get_full_name }} · {{ entry.issued_at|date:"M j, Y" }}</span>
+        </div><span class="badge" data-status="{{ entry.status }}">{{ entry.get_status_display }}</span>
+      </li>
     {% endfor %}</ul>
-  {% else %}<p>No issued or canceled prescriptions to show.</p>{% endif %}
+  {% else %}{% include 'includes/empty_state.html' with empty_title='No issued or canceled prescriptions to show.' empty_message='Issued prescriptions become available here for review and printing.' %}{% endif %}
   {% include 'includes/pagination.html' %}
 {% endblock %}

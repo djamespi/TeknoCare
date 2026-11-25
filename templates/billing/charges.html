@@ -1,6 +1,5 @@
 {% extends 'includes/management_list.html' %}
 {% block title %}{% if admin_view %}Tuition charges{% else %}My tuition charges{% endif %}{% endblock %}
-{% block workspace_label %}{% endblock %}
 {% block heading %}{% if admin_view %}Tuition charges{% else %}My tuition charges{% endif %}{% endblock %}
 {% block introduction %}
   {% if patient.affiliation == 'Faculty' or patient.affiliation == 'Staff' %}

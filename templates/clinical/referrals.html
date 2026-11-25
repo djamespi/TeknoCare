@@ -10,7 +10,7 @@
   {% for referral in page_obj %}
     <section class="info-card" aria-labelledby="referral-{{ referral.pk }}">
       <h2 id="referral-{{ referral.pk }}">{{ referral.destination }}</h2>
-      <p><span class="badge">{{ referral.get_status_display }}</span> · {{ referral.referred_at|date:"M j, Y, g:i A" }} · {{ referral.referred_by_provider.provider.get_full_name }}</p>
+      <p><span class="badge" data-status="{{ referral.status }}">{{ referral.get_status_display }}</span> · {{ referral.referred_at|date:"M j, Y, g:i A" }} · {{ referral.referred_by_provider.provider.get_full_name }}</p>
       <p>{{ referral.reason|linebreaksbr }}</p>
       {% if can_follow_up and referral.status == "Pending" %}
         <a href="{% url 'consultation:referral_follow_up' visit.pk referral.pk %}">Record follow-up</a>

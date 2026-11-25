@@ -1,8 +1,10 @@
 # Shared clinic interface
 
-Step 3 introduces the shared shell for clinic application pages. Keep the existing
-blue-green/teal identity and reuse these patterns when building later features.
-No frontend framework, external fonts, assets or runtime packages are required.
+Clinic application pages use a navy (#002870) and yellow (#FDD108) identity.
+DM Sans serves controls and clinical data. Instrument Serif serves display headings.
+Both Google Fonts and their licenses live in static/fonts. The masthead holds account
+controls. The sidebar exposes clinic or personal care tasks according to role and
+profile. At narrow widths the Menu button toggles navigation.
 
 ## Layout and forms
 

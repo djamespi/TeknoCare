@@ -1,9 +1,10 @@
-{% load static %}
+{% load static clinic_ui %}
 <!DOCTYPE html>
 <html lang="en" data-theme="{{ clinic_theme|default:'light' }}">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#002870">
   <title>{% block title %}Clinic{% endblock %} | TeknoCare</title>
   <link rel="stylesheet" href="{% static 'css/includes/site.css' %}">
   {% block styles %}{% endblock %}
@@ -11,11 +12,30 @@
 </head>
 <body>
   <a class="skip-link" href="#main-content">Skip to main content</a>
-  {% if request.user.is_authenticated %}{% include 'includes/navigation.html' %}{% endif %}
-  <main id="main-content" class="{% block main_class %}screen-shell{% endblock %}" tabindex="-1">
-    {% include 'includes/messages.html' %}
-    {% block content %}{% endblock %}
-  </main>
-  <footer class="site-footer">CIT-University clinic school-project prototype. Use fictional data only.</footer>
+  <header class="masthead">
+    <a class="brand" href="{% if request.user.is_authenticated %}{% url 'home:home' %}{% else %}{% url 'login:login' %}{% endif %}"><span class="brand-mark" aria-hidden="true"></span>TeknoCare</a>
+    <span class="institution">CIT-University clinic</span>
+    {% if request.user.is_authenticated %}
+      <button class="menu-toggle" type="button" hidden aria-expanded="false" aria-controls="clinic-nav">{% include 'includes/icon.html' with name='menu' %} Menu</button>
+      <details class="account-menu">
+        <summary><span class="avatar" aria-hidden="true">{{ request.user.fname|first }}{{ request.user.lname|first }}</span><span>Account</span></summary>
+        <div class="account-popover"><strong>{{ request.user.get_full_name }}</strong>
+          <a href="{% url 'profile:profile' %}">Your profile</a>
+          <a href="{% url 'user_settings:settings' %}">Settings</a>
+          <a href="{% url 'login:password_change' %}">Change password</a>
+          <form method="post" action="{% url 'logout' %}">{% csrf_token %}<button type="submit">Sign out</button></form>
+        </div>
+      </details>
+    {% endif %}
+  </header>
+  <div class="{% if request.user.is_authenticated %}workspace{% else %}public-layout{% endif %}">
+    {% if request.user.is_authenticated %}{% clinic_navigation %}{% endif %}
+    <div class="page-column">
+      <main id="main-content" class="{% block main_class %}screen-shell{% endblock %}" tabindex="-1">
+        {% include 'includes/messages.html' %}{% block content %}{% endblock %}
+      </main>
+      <footer class="site-footer">TeknoCare <span>School prototype · Use fictional data only</span></footer>
+    </div>
+  </div>
 </body>
 </html>

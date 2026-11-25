@@ -781,3 +781,7 @@ do not recommend force push, hard reset, or discarding work.
 | PostgreSQL staging/concurrency/restore | Passed on disposable PostgreSQL 16.16 with fictional records. Separate rehearsal with representative hosted data remains pending. |
 | Verification handoff requirement | Provide exact commands/manual browser checks, expected outcomes and limits; no Computer Use or screenshots; wait for user visual confirmation before recording visual approval |
 
+## Clinic interface redesign
+
+The role-based navigation, blue and yellow visual design, patient appointment agenda,
+reception search and clinical encounter sections are implemented. Manual visual review is pending.

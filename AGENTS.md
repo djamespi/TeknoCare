@@ -147,7 +147,7 @@ Step 2's access policy and manual/Git handoff are in `docs/access_policy.md` and
 ## Interface and evidence workflow
 
 Templates live in templates/<feature>, assets in static/css and static/js by
-feature. Preserve the existing dark blue-green/teal style and account navigation.
+feature. Use the clinic blue and yellow palette, shared role navigation and locally served Google Fonts.
 Registration now collects a structured emergency contact; profile edits phone,
 address and bio. Names stay on User and birth date stays on Patient.
 

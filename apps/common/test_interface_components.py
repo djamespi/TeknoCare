@@ -62,7 +62,7 @@ class InterfaceComponentTests(SimpleTestCase):
         selectors = (r':root\s*\{([^}]+)', r'\[data-theme="dark"\]\s*\{([^}]+)')
         for selector in selectors:
             palette = dict(re.findall(r'--([\w-]+):\s*(#[0-9a-fA-F]{6})', re.search(selector, stylesheet).group(1)))
-            pairs = [(foreground, background, 4.5) for foreground in ("ink", "muted", "teal") for background in ("paper", "surface")]
+            pairs = [(foreground, background, 4.5) for foreground in ("ink", "muted", "link") for background in ("paper", "surface")]
             pairs += [("error", "error-bg", 4.5), ("button-ink", "button", 4.5), ("line", "paper", 3), ("focus", "surface", 3)]
             for foreground, background, minimum in pairs:
                 with self.subTest(selector=selector, foreground=foreground, background=background):

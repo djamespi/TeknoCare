@@ -2,7 +2,8 @@ from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.core.exceptions import ValidationError
 from django.core.paginator import Paginator
-from django.db.models import Q
+from django.db.models import Q, Value
+from django.db.models.functions import Concat
 from django.shortcuts import get_object_or_404, redirect, render
 from django.utils import timezone
 from django.views.decorators.http import require_http_methods
@@ -64,9 +65,14 @@ def queue(request):
         items = _visible_appointments(actor).filter(slot__start_time__date__lte=today).filter(
             Q(slot__end_time__date__gte=today) | Q(status__in=(Appointment.Status.SCHEDULED, Appointment.Status.CHECKED_IN)),
         ).order_by("slot__start_time", "pk")
+    query = request.GET.get("q", "").strip()[:150]
+    if query:
+        items = items.alias(full_name=Concat("patient__patient__fname", Value(" "), "patient__patient__lname")).filter(
+            Q(full_name__icontains=query) | Q(patient__patient__school_id__icontains=query)
+        )
     return render(request, "clinical/reception_queue.html", {
         "today": today, "drafts": drafts, "page_obj": Paginator(items, 10).get_page(request.GET.get("page")),
-        "can_walkin": allowed(actor, "reception.walkin"),
+        "query": query, "can_walkin": allowed(actor, "reception.walkin"),
     })
 
 

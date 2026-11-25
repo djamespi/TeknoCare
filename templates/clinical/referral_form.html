@@ -6,7 +6,7 @@
   {% if referral %}
     <section class="info-card" aria-label="Original referral">
       <h2>{{ referral.destination }}</h2>
-      <p class="badge">{{ referral.get_status_display }}</p>
+      <p class="badge" data-status="{{ referral.status }}">{{ referral.get_status_display }}</p>
       <p>{{ referral.reason|linebreaksbr }}</p>
     </section>
     <p>Record the clinic's follow-up status. The original instructions stay on file.</p>

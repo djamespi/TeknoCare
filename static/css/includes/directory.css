@@ -1,0 +1,16 @@
+@font-face {
+  font-family: "DM Sans";
+  src: url("../../fonts/DM-Sans.ttf") format("truetype");
+  font-weight: 100 1000;
+  font-display: swap;
+}
+#header {
+  background: #002870;
+  color: white;
+  border-bottom: 3px solid #fdd108;
+}
+#header, #content, #nav-sidebar { font-family: "DM Sans", Arial, sans-serif; }
+#site-name a:link, #site-name a:visited { color: white; font-weight: 650; }
+#header .clinic-return { text-decoration: underline; text-underline-offset: .2em; }
+#user-tools, .module caption { text-transform: none; letter-spacing: normal; }
+.module caption, .module h2, div.breadcrumbs { background: #173d7a; color: white; }

@@ -8,7 +8,7 @@
   <div class="page-actions screen-only">
     {% if printing %}
       <a href="{% url 'patients:visit_summary' visit.pk %}">Back to visit summary</a>
-      <span>Use <kbd>Ctrl</kbd>+<kbd>P</kbd> to print or save a copy.</span>
+      {% include 'includes/print_button.html' %}
     {% else %}
       <a href="{% url 'patients:visits' %}">Back to my visit summaries</a>
       <a class="button" href="{% url 'patients:visit_print' visit.pk %}">Print visit summary</a>

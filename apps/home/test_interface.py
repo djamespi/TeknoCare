@@ -3,6 +3,7 @@ from django.test import Client, RequestFactory, TestCase
 from django.urls import resolve, reverse
 
 from apps.common.test_data import clinic_data
+from apps.appointments.models import Appointment
 from apps.common.test_interface_components import PageMarkup
 from apps.patients.models import Patient
 from apps.profile.models import Profile
@@ -136,7 +137,7 @@ class RoleDashboardTests(TestCase):
         self.admin, self.patient, self.provider, self.slot, self.record = clinic_data()
 
     def test_role_dashboards_only_link_to_available_permitted_tasks(self):
-        for user, heading in ((self.admin, "ADMIN WORKSPACE"), (self.patient.patient, "PATIENT WORKSPACE"), (self.provider.provider, "PROVIDER WORKSPACE")):
+        for user, heading in ((self.admin, "Clinic operations"), (self.patient.patient, "Your clinic visits"), (self.provider.provider, "Your clinical workspace")):
             self.client.force_login(user)
             response = self.client.get(reverse("home:home"))
             self.assertContains(response, heading)
@@ -150,7 +151,7 @@ class RoleDashboardTests(TestCase):
                 self.assertNotContains(response, f'href="{unavailable}"')
             if user.user_type == "Admin":
                 self.assertContains(response, "Inspect accounts")
-                self.assertContains(response, "does not grant clinical access")
+                self.assertNotContains(response, reverse("consultation:list"))
             else:
                 self.assertNotContains(response, "Inspect accounts")
                 self.assertNotContains(response, 'href="/login/reset-password/"')
@@ -174,6 +175,16 @@ class RoleDashboardTests(TestCase):
         self.client.force_login(self.patient.patient)
         self.assertContains(self.client.get(reverse("home:home")), "Awaiting verification")
 
+    def test_patient_overview_links_to_own_next_appointment(self):
+        visit = Appointment.objects.create(patient=self.patient, slot=self.slot, reason_for_visit="Private reason")
+        self.client.force_login(self.patient.patient)
+        response = self.client.get(reverse("home:home"))
+        self.assertContains(response, "Your next appointment")
+        self.assertContains(response, reverse("booking:detail", args=[visit.pk]))
+        self.assertNotContains(response, visit.reason_for_visit)
+        self.client.force_login(self.admin)
+        self.assertNotContains(self.client.get(reverse("home:home")), reverse("booking:detail", args=[visit.pk]))
+
     def test_inactive_unverified_and_nurse_provider_dashboards(self):
         self.client.force_login(self.provider.provider)
         for designation, active in (("Physician", False), ("Unverified", True), ("Nurse", True)):
@@ -181,7 +192,7 @@ class RoleDashboardTests(TestCase):
             response = self.client.get(reverse("home:home"))
             self.assertContains(response, designation)
             if designation == "Nurse":
-                self.assertContains(response, "Nurses will not finalize consultations or issue prescriptions")
+                self.assertContains(response, "Triage and vital signs")
             else:
                 self.assertContains(response, "Not activated for clinical work")
 
@@ -190,7 +201,7 @@ class RoleDashboardTests(TestCase):
         Provider.objects.create(provider=self.admin, provider_type="Physician", is_active=True)
         self.client.force_login(self.admin)
         response = self.client.get(reverse("home:home"))
-        self.assertContains(response, "ADMIN WORKSPACE")
+        self.assertContains(response, "Clinic operations")
         self.assertContains(response, "Staff")
         self.assertContains(response, "Physician")
         self.assertTrue(response.context["provider_ready"])

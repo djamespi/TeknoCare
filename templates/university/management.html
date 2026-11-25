@@ -1,24 +1,41 @@
 {% extends 'base.html' %}
 {% load static %}
 {% block title %}Clinic setup{% endblock %}
-{% block main_class %}home-shell{% endblock %}
 {% block styles %}<link rel="stylesheet" href="{% static 'css/home/home.css' %}">{% endblock %}
+{% block main_class %}home-shell{% endblock %}
 {% block content %}
-  <p class="eyebrow">CLINIC ADMINISTRATION</p><h1>Clinic setup</h1>
-  <p class="lead">Prepare reference data and fictional personnel accounts. No official university directory, calendar, credential verification or finance connection is loaded.</p>
-  <div class="home-grid">
-    <a class="feature-panel" href="{% url 'consultation:diagnosis_list' %}"><h2>Diagnosis catalog</h2><p>Maintain the codes available for consultation documentation.</p></a>
-    <a class="feature-panel" href="{% url 'prescriptions:catalog' %}"><h2>Medication catalog</h2><p>Manage medication formulations available for prescriptions.</p></a>
-    <a class="feature-panel" href="{% url 'university:department_list' %}"><h2>Departments</h2><p>Maintain codes and names; deactivate without changing patient affiliation.</p></a>
-    <a class="feature-panel" href="{% url 'appointments:room_list' %}"><h2>Clinic rooms</h2><p>Prepare locations without rewriting historical visits or canceling bookings.</p></a>
-    <a class="feature-panel" href="{% url 'billing:term_list' %}"><h2>Academic terms</h2><p>Set term dates and control when charges can be created or posted.</p></a>
-    <a class="feature-panel" href="{% url 'billing:charges' %}"><h2>Tuition charges</h2><p>Record student charge lines, export pending charges and simulate tuition posting.</p></a>
-    <a class="feature-panel" href="{% url 'providers:provider_list' %}"><h2>Providers</h2><p>Provision logins, attach existing Admin/Provider accounts, and review clinical activation separately.</p></a>
-    <a class="feature-panel" href="{% url 'accounts:personnel_list' %}"><h2>Personnel accounts</h2><p>Create Faculty/Staff Patient accounts with verified fictional affiliation.</p></a>
-    <a class="feature-panel" href="{% url 'patient_intake:list' %}"><h2>Patient intake</h2><p>Find patients, add profiles, and correct membership or identity details.</p></a>
-    <a class="feature-panel" href="{% url 'availability:list' %}"><h2>Clinic availability</h2><p>Schedule and review provider and room slots.</p></a>
-    <a class="feature-panel" href="{% url 'audit:history' %}"><h2>Audit history</h2><p>Review recorded actions by account, target and date.</p></a>
-    <a class="feature-panel" href="{% url 'audit:reports' %}"><h2>Operational reports</h2><p>Review appointment, visit, referral and tuition charge totals.</p></a>
-  </div>
-  <p class="notice workspace-note">Use fictional IDs, licenses, departments, room locations and calendar dates for prototype setup.</p>
+  <h1>Clinic setup</h1>
+  <p class="lead">Manage the people, locations and reference data used across the clinic.</p>
+  <section class="setup-section">
+    <h2>People and access</h2>
+    <div>
+      {% include 'includes/task_link.html' with route='patient_intake:list' label='Patient intake' description='Find a patient or correct their identity and affiliation.' icon='people' %}
+      {% include 'includes/task_link.html' with route='providers:provider_list' label='Providers' description='Review designations, clinic access and activation.' icon='clinic' %}
+      {% include 'includes/task_link.html' with route='accounts:personnel_list' label='Personnel accounts' description='Set up faculty and staff patient accounts.' icon='person' %}
+    </div>
+  </section>
+  <section class="setup-section">
+    <h2>Rooms and schedules</h2>
+    <div>
+      {% include 'includes/task_link.html' with route='availability:list' label='Clinic availability' description='Schedule provider and room slots.' icon='calendar' %}
+      {% include 'includes/task_link.html' with route='appointments:room_list' label='Clinic rooms' description='Maintain room locations and availability.' icon='clinic' %}
+      {% include 'includes/task_link.html' with route='university:department_list' label='Departments' description='Maintain university department names and codes.' icon='folder' %}
+    </div>
+  </section>
+  <section class="setup-section">
+    <h2>Clinical catalogs</h2>
+    <div>
+      {% include 'includes/task_link.html' with route='consultation:diagnosis_list' label='Diagnosis catalog' description='Maintain codes used during consultations.' icon='record' %}
+      {% include 'includes/task_link.html' with route='prescriptions:catalog' label='Medication catalog' description='Manage formulations available for prescribing.' icon='pill' %}
+    </div>
+  </section>
+  <section class="setup-section">
+    <h2>Tuition and reporting</h2>
+    <div>
+      {% include 'includes/task_link.html' with route='billing:term_list' label='Academic terms' description='Set term dates and open terms for charges.' icon='calendar' %}
+      {% include 'includes/task_link.html' with route='billing:charges' label='Tuition charges' description='Export pending charges and record simulated posting.' icon='receipt' %}
+      {% include 'includes/task_link.html' with route='audit:history' label='Audit history' description='Review recorded actions by account, target and date.' icon='clock' %}
+      {% include 'includes/task_link.html' with route='audit:reports' label='Operational reports' description='Review appointments, referrals and tuition charge totals.' icon='chart' %}
+    </div>
+  </section>
 {% endblock %}

@@ -16,7 +16,7 @@
     </form>
   </section>
   {% if not filter_form.errors %}
-    <div class="home-grid">
+    <div class="report-grid">
       <section class="info-card" aria-labelledby="appointment-count-heading">
         <h2 id="appointment-count-heading">Appointments by status</h2>
         <dl class="account-details">{% for label, count in appointment_counts %}<dt>{{ label }}</dt><dd>{{ count }}</dd>{% endfor %}</dl>

@@ -167,7 +167,7 @@ class PrescriptionWorkflowTests(TestCase):
         self.assertTrue(AuditLog.objects.filter(target_record_id=replacement.pk, target_table="prescription",
             action_performed=f"Replacement draft for prescription #{prescription.pk}").exists())
         self.client.force_login(self.patient.patient)
-        self.assertContains(self.client.get(reverse("prescriptions:print", args=[prescription.pk])), "CANCELED")
+        self.assertContains(self.client.get(reverse("prescriptions:print", args=[prescription.pk])), "Canceled prescription")
         self.assertEqual(self.client.get(reverse("prescriptions:print", args=[replacement.pk])).status_code, 404)
 
     def test_reassignment_allows_discard_but_never_changes_draft_authorship(self):

@@ -53,12 +53,12 @@ class AccountPagesTests(TestCase):
                 for link in ("home:home", "profile:profile", "user_settings:settings"):
                     self.assertContains(response, f'href="{reverse(link)}"')
 
-    def test_dashboard_shows_account_cards(self):
+    def test_patient_overview_offers_booking_and_shows_identity(self):
         self.client.force_login(self.user)
         response = self.client.get(reverse("home:home"))
-        self.assertContains(response, "Good to see you, Alex.")
+        self.assertContains(response, "Alex Student")
         self.assertContains(response, "Your profile")
-        self.assertContains(response, "YOUR PREFERENCES")
+        self.assertContains(response, "Book an appointment")
 
     def test_account_form_gets_do_not_write_rows_and_other_methods_are_rejected(self):
         self.client.force_login(self.user)

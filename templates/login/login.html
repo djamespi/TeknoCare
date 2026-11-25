@@ -1,26 +1,20 @@
 {% extends 'base.html' %}
 {% load static %}
-{% block title %}Sign in{% endblock %}
+{% block title %}Clinic sign-in{% endblock %}
 {% block styles %}<link rel="stylesheet" href="{% static 'css/login/login.css' %}">{% endblock %}
 {% block main_class %}auth-shell{% endblock %}
 {% block content %}
   <div class="auth-layout">
-    <section class="auth-brand" aria-labelledby="welcome-heading">
-      <p class="eyebrow">UNIVERSITY CLINIC</p>
-      <h2 id="welcome-heading">Care that keeps campus moving.</h2>
-      <p>Your TeknoCare account workspace, built as a CIT-University school-project prototype.</p>
+    <section class="auth-brand"><h2>CIT-University<br> clinic</h2>
+      <div class="cross-art" aria-hidden="true"><i></i><i></i><i></i></div>
+      <p>Appointments, visit summaries and care records for the university community.</p>
     </section>
-    <section class="auth-card" aria-labelledby="login-heading">
-      <p class="eyebrow">WELCOME BACK</p>
-      <h1 id="login-heading">Sign in</h1>
-      <form method="post">
-        {% csrf_token %}
-        <input type="hidden" name="next" value="{{ next }}">
-        {% include 'includes/form_fields.html' %}
-        <button class="button" type="submit">Sign in</button>
+    <section class="auth-card"><h1>Clinic sign-in</h1><p class="lead">Use your university ID to open your workspace.</p>
+      <form method="post">{% csrf_token %}<input type="hidden" name="next" value="{{ next }}">
+        {% include 'includes/form_fields.html' %}<button class="button" type="submit">Sign in</button>
       </form>
-      <p class="auth-link">New to TeknoCare? <a href="{% url 'register:register' %}">Create a Student account</a></p>
-      <p class="auth-link">Forgot your password? Ask the clinic Admin for prototype account assistance. No reset email is sent.</p>
+      <p class="auth-link">New student? <a href="{% url 'register:register' %}">Create a student account</a></p>
+      <details class="auth-help"><summary>Forgot your password?</summary><p>Ask the clinic admin for help resetting your account password.</p></details>
     </section>
   </div>
 {% endblock %}

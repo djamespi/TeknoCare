@@ -7,7 +7,7 @@
   <p class="notice">TeknoCare prototype referral copy for school demonstration.</p>
   <div class="page-actions screen-only">
     <a href="{% url 'patients:visit_summary' visit.pk %}">Back to visit summary</a>
-    <span>Use <kbd>Ctrl</kbd>+<kbd>P</kbd> to print or save a copy.</span>
+    {% include 'includes/print_button.html' %}
   </div>
   <section class="info-card" aria-labelledby="referral-destination">
     <h2 id="referral-destination">{{ referral.destination }}</h2>

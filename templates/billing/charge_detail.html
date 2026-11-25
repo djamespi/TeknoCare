@@ -14,7 +14,7 @@
       <dt>Charge code</dt><dd>{{ charge.charge_code }}</dd>
       <dt>Term</dt><dd>{{ charge.term }}</dd>
       <dt>Amount</dt><dd>{{ charge.currency_code }} {{ charge.amount }}</dd>
-      <dt>Status</dt><dd><span class="badge">{{ charge.status }}</span></dd>
+      <dt>Status</dt><dd><span class="badge" data-status="{{ charge.status }}">{{ charge.status }}</span></dd>
       {% if admin_view %}
         <dt>University ID</dt><dd>{{ charge.record.patient.patient.school_id }}</dd>
         <dt>Encounter</dt><dd>{{ charge.record_id }} · {{ charge.record.get_status_display }}</dd>

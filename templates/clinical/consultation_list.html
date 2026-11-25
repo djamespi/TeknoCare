@@ -2,7 +2,7 @@
 {% block title %}Clinical encounters{% endblock %}
 {% block main_class %}home-shell{% endblock %}
 {% block content %}
-  <h1>Clinical encounters</h1>
+  <h1>{% if nurse %}Triage encounters{% elif finalized %}Finalized encounters{% else %}Draft encounters{% endif %}</h1>
   {% if nurse %}
     <p class="lead">Open your assigned Draft encounters and today’s triage encounters to record vitals.</p>
   {% else %}
@@ -21,7 +21,7 @@
           <tr><th scope="row">{{ visit.patient.patient.get_full_name }} ({{ visit.patient.patient.school_id }})</th>
               <td>{{ visit.visited_at|date:"M j, Y, g:i A" }} · {{ visit.appointment_id|yesno:"Scheduled,Walk-in" }}</td>
               <td>{{ visit.provider.provider.get_full_name }}</td>
-              <td><a href="{% url 'consultation:workspace' visit.pk %}">Open encounter</a></td></tr>
+              <td><a href="{% url 'consultation:workspace' visit.pk %}">{% if finalized %}View encounter{% elif nurse %}Open triage{% else %}Resume encounter{% endif %}</a></td></tr>
         {% endfor %}</tbody>
       </table>
     </div>
