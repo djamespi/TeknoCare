@@ -6,7 +6,7 @@ import { useLookups, useStore } from '../data/store'
 import { useNav } from '../nav'
 
 export default function Account() {
-  const { db, me, actions } = useStore()
+  const { db, me, actions, demo } = useStore()
   const { run } = useNav()
   const { name } = useLookups()
   const u = me!
@@ -51,6 +51,10 @@ export default function Account() {
               <a className="block font-semibold text-brand underline" href="/patients/">My patient details</a>
             </div>}
           </Card>
+          {demo && <Card className="p-6">
+            <SectionTitle title="Demo data" description="Sample data is saved in the TeknoCare demo database." />
+            <Button variant="outline" icon={RotateCcw} onClick={() => run(() => actions.logout())}>Switch sample account</Button>
+          </Card>}
         </div>
       </div>
     </div>

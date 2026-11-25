@@ -24,3 +24,13 @@ export const age = (dob: string | null) => {
 }
 export const cap = (s: string) => s.charAt(0).toUpperCase() + s.slice(1).replace(/_/g, ' ')
 
+
+export function clinicStatus(now = new Date(new Date().toLocaleString('en-US', { timeZone: 'Asia/Manila' }))) {
+  const day = now.getDay()
+  const h = now.getHours() + now.getMinutes() / 60
+  const close = day === 6 ? 12 : day === 0 ? 0 : 17
+  if (day !== 0 && h >= 8 && h < close) return { open: true, label: `Open now · closes ${close === 12 ? '12:00 PM' : '5:00 PM'}` }
+  const opensTomorrow = h >= close || day === 0
+  const nextDay = opensTomorrow ? (day === 6 ? 'Monday' : day === 0 ? 'Monday' : 'tomorrow') : 'today'
+  return { open: false, label: `Closed · opens ${nextDay} at 8:00 AM` }
+}

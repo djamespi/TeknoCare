@@ -3,7 +3,10 @@ import type { AccountStatus, AppointmentStatus, DB, EmergencyContact, MedicalRec
 
 export class DomainError extends Error {}
 
-type Session = { actor: number | null; db: DB | null; csrf: string }
+type Session = {
+  actor: number | null; db: DB | null; csrf: string; demo: boolean;
+  next_open: { start: string; provider: string } | null; open_referrals: number;
+}
 const tableNames = [
   'department', 'user', 'patient', 'provider', 'user_profile', 'user_settings',
   'emergency_contact', 'patient_allergy', 'clinic_room', 'slot', 'appointment',
@@ -85,13 +88,17 @@ function useDbState() {
       updateProfile: (values: Partial<UserProfile>) => send('profile', values),
       updateSettings: (_user: number, values: Partial<UserSettings>) => send('preferences', values),
       setAccountStatus: (id: number, status: AccountStatus) => send('account-status', { id, status }),
+      addProvider: (values: Record<string, string>) => send<number>('add-provider', values),
+      changeCharge: (id: number, operation: 'post' | 'void', status: string, reason: string) =>
+        send('change-charge', { id, operation, status, reason, confirm: true }),
       addSlots: (provider: number, room: number | null, date: string, from: string, to: string, minutes: number) =>
         send<number>('add-slots', { provider, room, date, from, to, minutes }),
       toggleSlot: (id: number) => send('toggle-slot', { id, version: slotVersion(id) }),
       saveReference: (table: keyof DB, entry: object, id?: number) => send('save-reference', { table, entry, id }),
     }
   }, [db, send])
-  return { db, me, actions, pending: !session && !failed, failed }
+  return { db, me, actions, pending: !session && !failed, failed, demo: session?.demo ?? false,
+    nextOpen: session?.next_open, openReferrals: session?.open_referrals ?? 0 }
 }
 
 const Store = createContext<ReturnType<typeof useDbState> | null>(null)

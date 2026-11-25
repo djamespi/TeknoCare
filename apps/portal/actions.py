@@ -7,7 +7,7 @@ from django.utils import timezone
 from apps.appointments.forms import BookingForm
 from apps.appointments.models import Appointment, Slot
 from apps.appointments.services import book_appointment, cancel_appointment, save_room, save_slot
-from apps.billing.services import save_term
+from apps.billing.services import save_term, simulate_posting, simulate_void
 from apps.clinical.consultation import NOTE_FIELDS, create_diagnosis, finalize_consultation, record_vitals, save_consultation
 from apps.clinical.forms import ReferralForm, VitalSignForm
 from apps.clinical.models import MedicalRecord, RecordDiagnosis, Referral
@@ -23,7 +23,8 @@ from apps.prescriptions.services import (
 )
 from apps.profile.forms import ProfileForm
 from apps.profile.models import Profile
-from apps.register.services import set_account_status
+from apps.providers.forms import ProviderAccountForm
+from apps.register.services import create_provider_account, set_account_status
 from apps.university.services import save_department
 from apps.user_settings.forms import UserSettingsForm
 from apps.user_settings.models import UserSettings
@@ -43,6 +44,27 @@ def book(actor, data):
 
 def cancel(actor, data):
     return cancel_appointment(actor=actor, appointment_id=data["id"]).pk
+
+
+def add_provider(actor, data):
+    require_permission(actor, "accounts.manage")
+    form = ProviderAccountForm(data)
+    values = validated(form)
+    return create_provider_account(
+        actor=actor, **form.account_values(), provider_type=values["provider_type"],
+        license_number=values["license_number"], specialization=values["specialization"] or None,
+    ).pk
+
+
+def change_charge(actor, data):
+    if data.get("confirm") is not True:
+        raise ValidationError("Confirm this simulated change first.")
+    if data["operation"] == "post":
+        return simulate_posting(actor=actor, charge_id=data["id"], confirmed=True).pk
+    if data["operation"] == "void":
+        return simulate_void(actor=actor, charge_id=data["id"], reason=data["reason"],
+                             expected_status=data["status"].title(), confirmed=True).pk
+    raise ValidationError("Choose a valid charge action.")
 
 
 def set_appointment(actor, data):
@@ -212,6 +234,8 @@ def save_reference(actor, data):
 
 
 ACTIONS = {
+    "add-provider": add_provider,
+    "change-charge": change_charge,
     "book": book,
     "cancel-booking": cancel,
     "appointment-status": set_appointment,

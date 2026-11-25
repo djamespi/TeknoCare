@@ -785,4 +785,10 @@ do not recommend force push, hard reset, or discarding work.
 
 The exported Figma Make frontend is mounted at `/portal/` and uses the
 original layouts and images with Django sessions and ERD-backed services.
-Shared reference catalogs were imported to Supabase. Visual review is pending.
+The shared reference catalog is available in the regular clinic database.
+The complete Make fixture was imported separately to `teknocare_make_demo`
+on the Supabase host. Counts were checked for all 22 ERD tables and sign-in was
+verified for five sample accounts. The Make demo restores sample account cards,
+clinic hours, a next-opening preview, charts, and the exported motion.
+See [the sample portal setup](../README.md#preview-with-the-make-sample-data).
+Visual review is pending.

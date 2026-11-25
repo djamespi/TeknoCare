@@ -40,12 +40,35 @@ export function Card({ className, children, as: As = 'div', plain }: { className
 
 /** Fades and lifts content in as it scrolls into view. */
 export function Reveal({ children, delay = 0, className }: { children: ReactNode; delay?: number; className?: string }) {
-  return <div className={className}>{children}</div>
+  const ref = useRef<HTMLDivElement>(null)
+  const [shown, setShown] = useState(false)
+  useEffect(() => {
+    const el = ref.current
+    if (!el) return
+    if (!('IntersectionObserver' in window) || window.matchMedia('(prefers-reduced-motion: reduce)').matches) { setShown(true); return }
+    const io = new IntersectionObserver(([e]) => { if (e.isIntersecting) { setShown(true); io.disconnect() } }, { rootMargin: '0px 0px -40px 0px' })
+    io.observe(el)
+    return () => io.disconnect()
+  }, [])
+  return <div ref={ref} className={cx('reveal', shown && 'is-in', className)} style={{ transitionDelay: `${delay}ms` }}>{children}</div>
 }
 
 /** Animated number that counts up on mount. */
 export function CountUp({ value, format = (n) => Math.round(n).toLocaleString('en-PH'), duration = 1100 }: { value: number; format?: (n: number) => string; duration?: number }) {
-  return <>{format(value)}</>
+  const [n, setN] = useState(0)
+  useEffect(() => {
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) { setN(value); return }
+    let raf = 0
+    const t0 = performance.now()
+    const tick = (t: number) => {
+      const p = Math.min(1, (t - t0) / duration)
+      setN(value * (1 - Math.pow(1 - p, 3)))
+      if (p < 1) raf = requestAnimationFrame(tick)
+    }
+    raf = requestAnimationFrame(tick)
+    return () => cancelAnimationFrame(raf)
+  }, [value, duration])
+  return <>{format(n)}</>
 }
 
 export function Sparkline({ data, className, stroke = 'var(--tc-brand)', fill = true }: { data: number[]; className?: string; stroke?: string; fill?: boolean }) {

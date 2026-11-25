@@ -1,6 +1,7 @@
 import json
 
 from django.contrib.auth import login, logout
+from django.conf import settings
 from django.core.exceptions import ObjectDoesNotExist, PermissionDenied, ValidationError
 from django.db import IntegrityError, transaction
 from django.http import JsonResponse
@@ -10,6 +11,8 @@ from django.views.decorators.cache import never_cache
 from django.views.decorators.http import require_GET, require_POST
 
 from apps.audit.models import AuditLog
+from apps.appointments.booking_views import _bookable_slots
+from apps.clinical.models import Referral
 from apps.common.permissions import active_user, require_permission
 from apps.login.forms import LoginForm
 from apps.register.forms import RegistrationForm
@@ -27,7 +30,15 @@ def index(request):
 def session_snapshot(request):
     actor = active_user(request.user)
     data = portal_data(actor) if actor else None
-    return {"actor": actor.pk if actor else None, "db": data, "csrf": get_token(request)}
+    demo = getattr(settings, "TEKNOCARE_MAKE_DEMO", False)
+    next_open = None
+    if demo and not actor:
+        selected = _bookable_slots().order_by("start_time", "pk").first()
+        if selected:
+            next_open = {"start": selected.start_time, "provider": selected.provider.provider.get_full_name()}
+    open_referrals = Referral.objects.filter(status=Referral.Status.PENDING).count() if actor and actor.is_staff else 0
+    return {"actor": actor.pk if actor else None, "db": data, "csrf": get_token(request),
+            "demo": demo, "next_open": next_open, "open_referrals": open_referrals}
 
 
 @never_cache

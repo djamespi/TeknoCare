@@ -1,4 +1,5 @@
 """Role-scoped read models consumed by the Make frontend."""
+from django.conf import settings
 from django.db.models import Q
 from django.utils import timezone
 
@@ -63,7 +64,7 @@ def record_rows(actor, query):
             )
         if chart:
             full.append(visit.pk)
-        if chart or triage:
+        if chart or triage or (own and getattr(settings, "TEKNOCARE_MAKE_DEMO", False)):
             vitals.append(visit.pk)
         records.append(record)
     return records, full, vitals

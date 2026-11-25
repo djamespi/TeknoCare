@@ -20,6 +20,26 @@ The homepage and sign-in routes open the Make frontend when the build is
 available. After frontend edits, rebuild before refreshing the page. For a
 deployment, build before running Django's `collectstatic`.
 
+### Preview with the Make sample data
+
+Use the existing Supabase connection in `.env` with the dedicated
+`teknocare_make_demo` database settings. The portal shows sample-account cards
+that fill the university ID. Sign in with your private sample password from
+`tmp/make-demo-password.txt` in the checkout where the import was run.
+
+```powershell
+$env:DEBUG = 'true'
+$env:ALLOWED_HOSTS = '127.0.0.1,localhost'
+$env:DATABASE_SSL_REQUIRE = 'true'
+python manage.py runserver 127.0.0.1:8010 --settings=config.settings_make_demo
+```
+
+Open [the sample portal](http://127.0.0.1:8010/portal/). The demo settings use
+dedicated session and CSRF cookies. The sample records are in a separate
+PostgreSQL database on the Supabase host. Supabase's Table Editor still opens
+the project's default `postgres` database. Use the sample portal to view the
+imported records and the standard Django settings for the regular clinic.
+
 ## Start locally in PowerShell
 
 Run commands from `C:\Users\ADMIN\CITU_TeknoCare\TeknoCare`, the folder containing

@@ -1,3 +1,4 @@
+import { clinicStatus } from '../data/format'
 import { useEffect, useState, type ReactNode } from 'react'
 import {
   CalendarCheck, CalendarPlus, CalendarRange, ChevronDown, ClipboardList, FileHeart, HeartPulse, House, LayoutDashboard, Library, LogOut,
@@ -241,6 +242,11 @@ function HeroBackdrop() {
 }
 
 function Footer() {
+  const { demo } = useStore()
+  return demo ? <SampleFooter /> : <ClinicFooter />
+}
+
+function ClinicFooter() {
   return (
     <footer className="relative mt-20 overflow-hidden bg-navy-950 text-white">
       <div aria-hidden className="pointer-events-none absolute inset-0">
@@ -270,6 +276,56 @@ function Footer() {
         <div className="mx-auto flex max-w-6xl flex-col gap-2 px-5 py-5 text-xs text-white/45 sm:flex-row sm:items-center sm:justify-between sm:px-8">
           <span>TeknoCare · CIT-University clinic</span>
           <span className="flex items-center gap-1.5"><ShieldCheck className="size-3.5" />Use fictional data only</span>
+        </div>
+      </div>
+    </footer>
+  )
+}
+
+function SampleFooter() {
+  const status = clinicStatus()
+  return (
+    <footer className="relative mt-20 overflow-hidden bg-navy-950 text-white">
+      <div aria-hidden className="pointer-events-none absolute inset-0">
+        <div className="absolute -top-40 left-1/2 h-72 w-[70%] -translate-x-1/2 rounded-full bg-navy-700/40 blur-[100px]" />
+        <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-gold/50 to-transparent" />
+        <div className="noise absolute inset-0" />
+      </div>
+      <div className="relative mx-auto grid max-w-6xl gap-10 px-5 py-14 sm:px-8 md:grid-cols-[1.5fr_1fr_1fr_1fr]">
+        <div>
+          <Logo light />
+          <p className="mt-4 max-w-xs text-sm leading-relaxed text-white/55">The Health Services Center of Cebu Institute of Technology – University, caring for students, faculty and staff since day one.</p>
+          <span className={cx('mt-5 inline-flex items-center gap-2 rounded-full px-3 py-1 text-xs font-semibold ring-1', status.open ? 'bg-emerald-400/10 text-emerald-300 ring-emerald-400/20' : 'bg-white/5 text-white/60 ring-white/10')}>
+            <span className="relative flex size-2">
+              {status.open && <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald-400 opacity-70" />}
+              <span className={cx('relative inline-flex size-2 rounded-full', status.open ? 'bg-emerald-400' : 'bg-white/40')} />
+            </span>
+            {status.label}
+          </span>
+        </div>
+        <div>
+          <p className="mb-4 flex items-center gap-2 font-display font-semibold"><Clock className="size-4 text-gold" />Sample clinic hours</p>
+          <ul className="space-y-2 text-sm text-white/60">
+            <li className="flex justify-between gap-4"><span>Mon – Fri</span><span className="text-white/80">8:00 AM – 5:00 PM</span></li>
+            <li className="flex justify-between gap-4"><span>Saturday</span><span className="text-white/80">8:00 AM – 12:00 PM</span></li>
+            <li className="flex justify-between gap-4"><span>Sunday</span><span className="text-white/80">Closed</span></li>
+          </ul>
+        </div>
+        <div>
+          <p className="mb-4 flex items-center gap-2 font-display font-semibold"><MapPin className="size-4 text-gold" />Find us</p>
+          <p className="text-sm leading-relaxed text-white/60">Health Services Center<br />Main Campus, N. Bacalso Avenue<br />Cebu City, 6000</p>
+        </div>
+        <div>
+          <p className="mb-4 flex items-center gap-2 font-display font-semibold"><Phone className="size-4 text-gold" />Get in touch</p>
+          <ul className="space-y-2 text-sm text-white/60">
+            <li>Contact the clinic administrator for support.</li>
+          </ul>
+        </div>
+      </div>
+      <div className="relative border-t border-white/10">
+        <div className="mx-auto flex max-w-6xl flex-col gap-2 px-5 py-5 text-xs text-white/45 sm:flex-row sm:items-center sm:justify-between sm:px-8">
+          <span>© {new Date().getFullYear()} Cebu Institute of Technology – University · TeknoCare</span>
+          <span className="flex items-center gap-1.5"><ShieldCheck className="size-3.5" />Fictional clinic workflow</span>
         </div>
       </div>
     </footer>

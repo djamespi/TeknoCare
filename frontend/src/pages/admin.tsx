@@ -7,14 +7,14 @@ import type { AccountStatus, DB } from '../data/types'
 import { useNav } from '../nav'
 
 export function Overview() {
-  const { db, actions } = useStore()
+  const { db, actions, demo, openReferrals } = useStore()
   const { go, run } = useNav()
   const { name, slotById } = useLookups()
   const weekAhead = Date.now() + 7 * 86_400_000
   const upcoming = db.appointment.filter((a) => a.status === 'booked' && Date.parse(slotById.get(a.slot_id)!.start_time) >= Date.now() && Date.parse(slotById.get(a.slot_id)!.start_time) < weekAhead).length
+  const review = demo ? db.user.filter(user => user.account_status === "suspended" && user.user_type !== "admin") : []
   const pendingCharges = db.student_charge.filter((c) => c.status === 'pending')
   const openTerm = db.academic_term.find((t) => t.is_open_for_charges)
-  const arrivals = db.appointment.filter(a => a.status === "checked_in" && dayKey(slotById.get(a.slot_id)!.start_time) === dayKey(new Date().toISOString())).length
   return (
     <div>
       <PageHeader
@@ -25,7 +25,7 @@ export function Overview() {
         stats={[
           { icon: Users, label: 'Registered patients', value: db.patient.length },
           { icon: CalendarDays, label: 'Visits in the next 7 days', value: upcoming },
-          { icon: Send, label: 'Checked in today', value: arrivals },
+          { icon: Send, label: 'Open referrals', value: openReferrals },
           { icon: Wallet, label: 'Charges awaiting posting', value: pendingCharges.reduce((s, c) => s + c.amount, 0), format: peso },
         ]}
       />
@@ -35,6 +35,15 @@ export function Overview() {
       </div>
       <div className="grid gap-5 lg:grid-cols-2">
         <Card className="p-6">
+          {demo && <div className="mb-5">
+            <SectionTitle title="Accounts to verify" description="Review sample registrations before they can book." action={review.length > 0 && <Badge tone="gold">{review.length} waiting</Badge>} />
+            {review.length === 0 ? <Empty icon={UserCheck} title="All caught up" /> : <ul className="divide-y divide-line">
+              {review.map(u => <li key={u.user_id} className="flex items-center gap-3 py-3">
+                <Avatar name={name(u.user_id)} /><div className="flex-1"><p className="font-semibold">{name(u.user_id)}</p><p className="text-xs text-muted">{u.school_id}</p></div>
+                <Button size="sm" icon={Check} onClick={() => run(() => actions.setAccountStatus(u.user_id, 'active'), 'Sample account activated.')}>Verify</Button>
+              </li>)}
+            </ul>}
+          </div>}
           <SectionTitle title="Reception" description="Manage arrivals and open encounters for checked-in patients." />
           <a className="font-semibold text-brand underline" href="/reception/">Open reception queue</a>
         </Card>
@@ -59,6 +68,11 @@ export function People() {
   const { run } = useNav()
   const { name, providerById, patientById, deptById } = useLookups()
   const [tab, setTab] = useState<'all' | 'patient' | 'provider' | 'admin'>('all')
+  const [addOpen, setAddOpen] = useState(false)
+  const [pv, setPv] = useState({ school_id: '', first_name: '', last_name: '', email: '',
+    provider_type: 'Unverified', license_number: '', specialization: '', password1: '', password2: '' })
+  const providerField = (key: keyof typeof pv) => (event: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) =>
+    setPv({ ...pv, [key]: event.target.value })
   const [q, setQ] = useState('')
   const rows = db.user.filter((u) => (tab === 'all' || u.user_type === tab) && `${u.fname} ${u.lname} ${u.email} ${u.school_id}`.toLowerCase().includes(q.toLowerCase()))
   const describe = (id: number) => {
@@ -70,7 +84,7 @@ export function People() {
   }
   return (
     <div>
-      <PageHeader title="People" description="Patients, providers and administrators with access to TeknoCare." action={<Button variant="accent" icon={Plus} onClick={() => window.location.assign('/clinic/providers/new/')}>Add provider</Button>}
+      <PageHeader title="People" description="Patients, providers and administrators with access to TeknoCare." action={<Button variant="accent" icon={Plus} onClick={() => setAddOpen(true)}>Add provider</Button>}
         stats={[{ icon: Users, label: 'Patients', value: db.user.filter((u) => u.user_type === 'patient').length }, { icon: ShieldAlert, label: 'Providers', value: db.provider.length }, { icon: UserCheck, label: 'Active accounts', value: db.user.filter((u) => u.account_status === 'active').length }]} />
       <div className="mb-5 flex flex-col gap-3 lg:flex-row">
         <Tabs value={tab} onChange={setTab} items={[{ value: 'all', label: 'Everyone' }, { value: 'patient', label: 'Patients' }, { value: 'provider', label: 'Providers' }, { value: 'admin', label: 'Admins' }]} />
@@ -98,6 +112,25 @@ export function People() {
         {rows.length === 0 && <Empty icon={Users} title="No one matches" />}
       </Card>
 
+      <Modal open={addOpen} onClose={() => setAddOpen(false)} title="Add a provider" description="Creates an inactive provider account for clinic review." wide>
+        <form className="grid grid-cols-2 gap-4" onSubmit={async event => {
+          event.preventDefault()
+          if (await run(() => actions.addProvider(pv), 'Provider account created. Review activation under Clinic setup.')) setAddOpen(false)
+        }}>
+          <Field label="First name"><Input required value={pv.first_name} onChange={providerField('first_name')} /></Field>
+          <Field label="Last name"><Input required value={pv.last_name} onChange={providerField('last_name')} /></Field>
+          <Field label="University ID"><Input required value={pv.school_id} onChange={providerField('school_id')} /></Field>
+          <Field label="Email"><Input required type="email" value={pv.email} onChange={providerField('email')} /></Field>
+          <Field label="Type"><Select value={pv.provider_type} onChange={providerField('provider_type')}>
+            {['Unverified', 'Physician', 'Nurse', 'Dentist'].map(option => <option key={option}>{option}</option>)}
+          </Select></Field>
+          <Field label="License number"><Input value={pv.license_number} onChange={providerField('license_number')} /></Field>
+          <Field label="Specialization" className="col-span-2"><Input value={pv.specialization} onChange={providerField('specialization')} /></Field>
+          <Field label="Initial password"><Input required type="password" autoComplete="new-password" value={pv.password1} onChange={providerField('password1')} /></Field>
+          <Field label="Confirm password"><Input required type="password" autoComplete="new-password" value={pv.password2} onChange={providerField('password2')} /></Field>
+          <Button className="col-span-2" type="submit">Create provider</Button>
+        </form>
+      </Modal>
     </div>
   )
 }
@@ -107,12 +140,14 @@ export function Charges() {
   const { run } = useNav()
   const { name, termById, recordById } = useLookups()
   const [status, setStatus] = useState<'all' | 'pending' | 'posted' | 'voided'>('pending')
+  const [confirmation, setConfirmation] = useState<{ id: number; operation: 'post' | 'void'; status: string } | null>(null)
+  const [reason, setReason] = useState('')
   const [term, setTerm] = useState('all')
   const rows = db.student_charge.filter((c) => (status === 'all' || c.status === status) && (term === 'all' || c.term_id === Number(term))).sort((a, b) => b.created_at.localeCompare(a.created_at))
   const count = (s: string) => db.student_charge.filter((c) => c.status === s).length
   return (
     <div>
-      <PageHeader title="Student charges" description="Review student visit charges and their tuition posting status." action={<Button variant="accent" onClick={() => window.location.assign('/clinic/charges/find/')}>Find an encounter</Button>}
+      <PageHeader title="Student charges" description="Review student visit charges and their tuition posting status. Posting records a simulated tuition charge. Payment is handled outside TeknoCare." action={<Button variant="accent" onClick={() => window.location.assign('/clinic/charges/find/')}>Find an encounter</Button>}
         stats={[
           { icon: Receipt, label: 'Pending', value: db.student_charge.filter((c) => c.status === 'pending').reduce((s, c) => s + c.amount, 0), format: peso, hint: `${count('pending')} charges` },
           { icon: CircleCheck, label: 'Posted to tuition', value: db.student_charge.filter((c) => c.status === 'posted').reduce((s, c) => s + c.amount, 0), format: peso, hint: `${count('posted')} charges` },
@@ -140,8 +175,8 @@ export function Charges() {
                   <td className={cx('px-5 py-4 text-right font-semibold', c.status === 'voided' && 'text-muted line-through')}>{peso(c.amount)}</td>
                   <td className="px-5 py-4 text-right">
                     <div className="flex justify-end gap-1">
-                      {c.status === 'pending' && <Button size="sm" icon={Receipt} onClick={() => window.location.assign('/clinic/charges/' + c.charge_id + '/')}>Review posting</Button>}
-                      {c.status !== 'voided' && <Button size="sm" variant="danger" icon={Ban} onClick={() => window.location.assign('/clinic/charges/' + c.charge_id + '/')}>Review void</Button>}
+                      {c.status === 'pending' && <Button size="sm" icon={Receipt} onClick={() => setConfirmation({ id: c.charge_id, operation: 'post', status: c.status })}>Post</Button>}
+                      {(c.status === 'pending' || c.billing_reference === `DEMO-POST-${c.charge_code}` && c.status === 'posted') && <Button size="sm" variant="danger" icon={Ban} onClick={() => { setReason(''); setConfirmation({ id: c.charge_id, operation: 'void', status: c.status }) }}>Void</Button>}
                     </div>
                   </td>
                 </tr>
@@ -152,6 +187,15 @@ export function Charges() {
         {rows.length === 0 && <Empty icon={Receipt} title="No charges here" />}
       </Card>
 
+      <Modal open={confirmation !== null} onClose={() => setConfirmation(null)}
+        title={confirmation?.operation === 'post' ? 'Post this charge?' : 'Void this charge?'}
+        description="Confirm the simulated tuition action for this sample clinic workflow.">
+        {confirmation?.operation === 'void' && <Field label="Reason"><Input value={reason} onChange={e => setReason(e.target.value)} /></Field>}
+        <div className="mt-6 flex justify-end gap-2"><Button variant="ghost" onClick={() => setConfirmation(null)}>Keep charge</Button>
+          <Button disabled={confirmation?.operation === 'void' && !reason.trim()} onClick={async () => {
+            if (confirmation && await run(() => actions.changeCharge(confirmation.id, confirmation.operation, confirmation.status, reason), 'Charge updated.')) setConfirmation(null)
+          }}>{confirmation?.operation === 'post' ? 'Simulate posting' : 'Void charge'}</Button></div>
+      </Modal>
     </div>
   )
 }
@@ -349,7 +393,7 @@ function AffiliationDonut() {
               const el = (
                 <circle key={g.label} cx="64" cy="64" r={r} fill="none" stroke={g.color} strokeWidth="16" strokeLinecap="butt"
                   strokeDasharray={`${len} ${C - len}`} strokeDashoffset={-acc}
-                  className="origin-center transition-all duration-700" style={{ animation: `tc-rise .8s ${i * 120}ms both` }} />
+                  className="donut-segment origin-center transition-all duration-700" style={{ animationDelay: `${i * 120}ms` }} />
               )
               acc += len
               return el

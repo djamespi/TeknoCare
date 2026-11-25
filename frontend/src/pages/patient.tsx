@@ -7,7 +7,7 @@ import physicianImg from '../assets/service-physician.jpg'
 import nurseImg from '../assets/service-nurse.jpg'
 import dentalImg from '../assets/service-dental.jpg'
 import { Avatar, Badge, Button, Card, Empty, Field, Input, Modal, PageHeader, Reveal, SectionTitle, Select, Sparkline, Stat, Status, Tabs, Textarea, cx } from '../components/ui'
-import { age, dayKey, fmtDate, fmtDateTime, fmtDay, fmtTime, peso, relative } from '../data/format'
+import { age, clinicStatus, dayKey, fmtDate, fmtDateTime, fmtDay, fmtTime, peso, relative } from '../data/format'
 import { useLookups, useStore } from '../data/store'
 import type { Affiliation, Severity } from '../data/types'
 import { useNav } from '../nav'
@@ -60,7 +60,7 @@ function LiveDot({ on = true }: { on?: boolean }) {
 }
 
 export function PatientHome() {
-  const { me, db } = useStore()
+  const { me, db, demo } = useStore()
   const { go } = useNav()
   const { appts, records, patient, providerName, roomById, providerById, pid } = usePatientData()
   const next = appts.find((a) => a.status === 'booked' && new Date(a.slot.end_time) > new Date())
@@ -73,7 +73,7 @@ export function PatientHome() {
   const last = vitals[vitals.length - 1]
   const hour = new Date().getHours()
   const greet = hour < 12 ? 'Good morning' : hour < 18 ? 'Good afternoon' : 'Good evening'
-  const status = { open: false, label: 'View available clinic times' }
+  const status = demo ? clinicStatus() : { open: false, label: 'View available clinic times' }
   const providers = db.provider.filter((p) => p.eligible && p.provider_type !== 'unverified')
 
   const quick = [
@@ -181,7 +181,7 @@ export function PatientHome() {
                   </li>
                 ))}
               </ul>
-            ) : <p className="flex items-center gap-2 text-sm text-muted"><CircleCheck className="size-4 text-emerald-500" />No known allergies</p>}
+            ) : <p className="flex items-center gap-2 text-sm text-muted"><CircleCheck className="size-4 text-muted" />No allergies documented</p>}
             <p className="mt-5 mb-2 text-[13px] font-semibold text-muted">Emergency contact</p>
             {contact ? (
               <div className="flex items-center gap-3">
@@ -273,7 +273,7 @@ export function BookVisit() {
 
   return (
     <div>
-      <PageHeader title="Book a visit" description="Choose the kind of care you need, then pick a time that works for you. Times are shown in Manila time." />
+      <PageHeader eyebrow={<><Sparkles className="size-3.5 text-gold" />Online appointment booking</>} title="Book a visit" description="Choose the kind of care you need, then pick a time that works for you. Times are shown in Manila time." />
       <PendingBanner />
       <div className="grid gap-8 lg:grid-cols-[1fr_340px]">
         <div className="space-y-10">
@@ -596,7 +596,7 @@ export function Billing() {
   }
   return (
     <div>
-      <PageHeader title="Clinic charges" description="View charges for visits recorded with a student affiliation. Posted indicates tuition posting."
+      <PageHeader title="Clinic charges" description="View charges for visits recorded with a student affiliation. Posted indicates a tuition charge. Payment is handled outside TeknoCare."
         stats={[{ icon: Wallet, label: 'Recorded charges', value: total, format: peso }, { icon: GraduationCap, label: 'Posted to tuition', value: posted, format: peso }, { icon: Clock, label: 'Awaiting posting', value: total - posted, format: peso }]} />
       <Card className="overflow-hidden">
         {charges.length === 0 ? <Empty icon={Wallet} title="No charges" text="You haven’t been charged for any clinic visits." /> : (

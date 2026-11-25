@@ -112,6 +112,8 @@
 }
 
 .animate-rise { animation: tc-rise 0.55s cubic-bezier(0.2, 0.7, 0.2, 1) both; }
+.login-photo { animation: tc-rise 1.6s ease-out both; }
+.donut-segment { animation: tc-rise 0.8s both; }
 .animate-blur-in { animation: tc-blur-in 0.8s cubic-bezier(0.2, 0.7, 0.2, 1) both; }
 .animate-float { animation: tc-float 6s ease-in-out infinite; }
 .aurora-a { animation: tc-drift-a 18s ease-in-out infinite; }
@@ -194,16 +196,10 @@
 .no-scrollbar::-webkit-scrollbar { display: none; }
 
 @media (prefers-reduced-motion: reduce) {
-  .animate-rise, .animate-blur-in, .animate-float, .aurora-a, .aurora-b, .grow-y, .text-shine { animation: none; }
+  .animate-rise, .animate-blur-in, .animate-float, .animate-ping, .aurora-a, .aurora-b, .grow-y, .text-shine, .login-photo, .donut-segment { animation: none; }
+  .text-shine { background: none; color: #fdd108; }
   .draw { animation: none; stroke-dashoffset: 0; }
   .reveal { opacity: 1; transform: none; transition: none; }
   .sheen::after { display: none; }
+  .donut-segment { transition: none; }
 }
-
-/* Keep the Make composition visible from the first paint. */
-.animate-rise, .animate-blur-in, .animate-float, .animate-ping, .aurora-a, .aurora-b, .grow-y, .draw, .text-shine { animation: none !important; }
-.text-shine { color: #fdd108; background: none; }
-.reveal { opacity: 1; transform: none; }
-.draw { stroke-dashoffset: 0; }
-
-@media (prefers-reduced-motion: reduce) { *, *::before, *::after { transition: none !important; } }
