@@ -331,9 +331,9 @@ export function Logo({ light, standaloneMark }: { light?: boolean; standaloneMar
       <span className="size-9 shrink-0 overflow-hidden rounded-full">
         <img src={citLogo} alt="CIT-University" width={36} height={36} className="size-full scale-[1.2]" />
       </span>
-      <span className="flex items-center gap-2.5">
+      <span className={cx('flex items-center', standaloneMark ? 'gap-1.5' : 'gap-2.5')}>
         {standaloneMark ? (
-          <img src={clinicLogo} alt="" width={36} height={36} className="size-9 shrink-0 scale-[1.15] object-contain" />
+          <img src={clinicLogo} alt="" width={36} height={36} className="size-9 shrink-0 object-contain" />
         ) : (
           <span className="grid size-10 shrink-0 place-items-center rounded-xl bg-navy">
             <img src={clinicLogo} alt="" width={32} height={32} className="size-8 object-contain" />

@@ -62,11 +62,11 @@ summary, button { cursor: pointer; }
 .portal-head { position: relative; z-index: 5; border-bottom: 1px solid var(--rule); background: var(--paper); }
 .head-inner, .site-footer { width: 100%; max-width: 1500px; margin-inline: auto; padding-inline: var(--gutter); }
 .head-inner { min-height: 80px; display: flex; align-items: center; gap: clamp(12px, 3vw, 42px); }
-.wordmark { display: inline-flex; align-items: center; gap: 9px; text-decoration: none; font: 750 1.58rem/.95 var(--display); letter-spacing: -.065em; }
+.wordmark { display: inline-flex; align-items: center; gap: 5px; text-decoration: none; font: 750 1.58rem/.95 var(--display); letter-spacing: -.065em; }
 .wordmark small { display: block; margin-top: 5px; font: 550 .7rem/1 "DM Sans",sans-serif; color: var(--muted); letter-spacing: 0; }
-.university-mark { flex: 0 0 34px; height: 34px; margin-inline-end: 5px; border-radius: 50%; overflow: hidden; }
+.university-mark { flex: 0 0 34px; height: 34px; margin-inline-end: 9px; border-radius: 50%; overflow: hidden; }
 .university-mark img { display: block; width: 100%; height: 100%; transform: scale(1.2); }
-.clinic-mark { flex: none; width: 34px; height: auto; transform: scale(1.15); }
+.clinic-mark { flex: none; width: 34px; height: auto; }
 .public-nav, .service-nav { margin-left: auto; }
 .public-nav a, .primary-links a, .services-menu > summary, .account-label { font-weight: 600; font-size: .92rem; }
 .service-nav, .primary-links { display: flex; align-items: center; gap: clamp(8px, 2.2vw, 32px); }
