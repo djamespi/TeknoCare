@@ -807,3 +807,7 @@ the student selects Submit.
 Dashboard and tab banners use the supplied clinic hallway photo with the
 primary blue overlay. Navigation labels stay on one line, and registration
 separates the step heading, fields, and actions with a yellow step indicator.
+
+The desktop sign-in and registration forms scroll separately from the
+fixed clinic panel. The supplied TeknoCare mark sits on primary blue in the
+auth panel and footer and appears without a container in navigation.

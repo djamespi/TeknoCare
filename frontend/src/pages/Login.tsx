@@ -16,9 +16,9 @@ export default function Login() {
   const [pw, setPw] = useState('')
   const [busy, setBusy] = useState(false)
   return (
-    <div className="grid min-h-screen bg-white lg:grid-cols-[1.05fr_1fr]">
-      <div className="hidden bg-navy-950 lg:block">
-        <div className="relative isolate flex min-h-[max(100svh,44rem)] flex-col justify-between gap-16 overflow-hidden p-12 text-white">
+    <div className="grid min-h-screen bg-white lg:h-dvh lg:min-h-0 lg:grid-cols-[1.05fr_1fr] lg:grid-rows-[minmax(0,1fr)] lg:overflow-hidden">
+      <div className="hidden overflow-y-auto bg-navy-950 lg:block">
+        <div className="relative isolate flex min-h-full flex-col justify-between gap-10 overflow-hidden p-[clamp(1.5rem,6dvh,3rem)] text-white">
           <img src={hero} alt="A campus nurse speaking with a student at the TeknoCare clinic" className="login-photo absolute inset-0 -z-10 h-full w-full scale-105 object-cover" />
           <div className="absolute inset-0 -z-10 bg-gradient-to-t from-navy-950 via-navy-950/60 to-navy/20" />
           <div aria-hidden className="pointer-events-none absolute inset-0 -z-10 overflow-hidden">
@@ -29,7 +29,7 @@ export default function Login() {
           </div>
 
           {nextOpen && (
-            <div className="animate-float absolute top-28 right-10 hidden w-64 rounded-2xl bg-white/10 p-4 text-white shadow-2xl ring-1 ring-white/20 backdrop-blur-xl xl:block">
+            <div className="animate-float absolute top-28 right-10 hidden w-64 rounded-2xl bg-white/10 p-4 text-white shadow-2xl ring-1 ring-white/20 backdrop-blur-xl xl:[@media(min-height:44rem)]:block">
               <div className="flex items-center gap-3">
                 <span className="grid size-10 place-items-center rounded-xl bg-gold text-navy-950"><CalendarClock className="size-5" /></span>
                 <div className="min-w-0">
@@ -40,7 +40,7 @@ export default function Login() {
               <p className="mt-3 truncate text-xs text-white/70">{nextOpen.provider}</p>
             </div>
           )}
-          {demo && <div className="animate-float absolute top-56 right-44 hidden items-center gap-2 rounded-full bg-white/10 px-3.5 py-2 text-xs font-semibold text-white shadow-xl ring-1 ring-white/20 backdrop-blur-xl xl:flex" style={{ animationDuration: '7s', animationDelay: '1s' }}>
+          {demo && <div className="animate-float absolute top-56 right-44 hidden items-center gap-2 rounded-full bg-white/10 px-3.5 py-2 text-xs font-semibold text-white shadow-xl ring-1 ring-white/20 backdrop-blur-xl xl:[@media(min-height:44rem)]:flex" style={{ animationDuration: '7s', animationDelay: '1s' }}>
             <HeartPulse className="size-4 text-gold" /> {status.open ? 'Clinic is open now' : 'Walk-ins welcome on weekdays'}
           </div>}
 
@@ -49,7 +49,7 @@ export default function Login() {
             <p className="animate-rise mb-5 inline-flex items-center gap-2 rounded-full bg-white/10 px-3.5 py-1.5 text-[13px] font-medium ring-1 ring-white/15 backdrop-blur">
               <span className="relative flex size-2"><span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-gold opacity-70" /><span className="relative inline-flex size-2 rounded-full bg-gold" /></span> CIT-University Health Services
             </p>
-            <h1 className="animate-blur-in text-[56px] leading-[1.02] font-bold">
+            <h1 className="animate-blur-in text-[clamp(2rem,7.5dvh,3.5rem)] leading-[1.02] font-bold">
               Care that keeps <span className="text-shine">Wildcats</span> well.
             </h1>
             <p className="animate-rise mt-5 text-[17px] leading-relaxed text-white/75" style={{ animationDelay: '150ms' }}>
@@ -72,10 +72,10 @@ export default function Login() {
         </div>
       </div>
 
-      <div className="relative flex flex-col overflow-hidden px-6 py-10 sm:px-12 lg:px-16">
+      <div className="relative flex flex-col overflow-x-hidden px-6 py-10 sm:px-12 lg:overflow-y-auto lg:px-16 lg:[scrollbar-gutter:stable]">
         <div aria-hidden className="pointer-events-none absolute -top-32 -right-32 size-80 rounded-full bg-gold/25 blur-[100px]" />
         <div className="relative lg:hidden"><Logo /></div>
-        <div className="animate-rise relative mx-auto my-auto w-full max-w-md py-10">
+        <div className="animate-rise relative mx-auto my-auto w-full max-w-md shrink-0 py-10">
           <h2 className="text-[34px] leading-tight font-bold text-navy">{mode === 'in' ? 'Welcome back' : 'Create your account'}</h2>
           <p className="mt-2 text-[15px] text-[#5b6478]">{mode === 'in' ? 'Use your university ID to sign in.' : demo ? 'Register a sample student with fictional details.' : 'Create a student account to book visits and view your records.'}</p>
           <div className="my-7"><Tabs value={mode} onChange={setMode} items={[{ value: 'in', label: 'Sign in' }, { value: 'up', label: 'Register' }]} /></div>
@@ -100,7 +100,7 @@ export default function Login() {
             }} />
           </div>
         </div>
-        <p className="relative text-center text-xs text-[#5b6478]">Cebu Institute of Technology – University · Health Services Center</p>
+        <p className="relative shrink-0 text-center text-xs text-[#5b6478]">Cebu Institute of Technology – University · Health Services Center</p>
       </div>
     </div>
   )

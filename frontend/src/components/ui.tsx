@@ -6,6 +6,7 @@ import { createPortal } from 'react-dom'
 import { ChevronLeft, X, type LucideIcon } from 'lucide-react'
 import { HeroSlotContext } from './hero-slot'
 import citLogo from '../../../static/images/cit_logo.png'
+import clinicLogo from '../../../static/images/clinic_logo.png'
 
 export const cx = (...c: (string | false | null | undefined)[]) => c.filter(Boolean).join(' ')
 
@@ -324,18 +325,20 @@ export function Toast({ message, onDone }: { message: string | null; onDone: () 
   )
 }
 
-export function Logo({ light }: { light?: boolean }) {
+export function Logo({ light, standaloneMark }: { light?: boolean; standaloneMark?: boolean }) {
   return (
     <span className="inline-flex items-center gap-3.5">
       <span className="size-9 shrink-0 overflow-hidden rounded-full">
         <img src={citLogo} alt="CIT-University" width={36} height={36} className="size-full scale-[1.2]" />
       </span>
       <span className="flex items-center gap-2.5">
-        <span className="grid size-9 shrink-0 place-items-center rounded-xl bg-gold">
-          <svg viewBox="0 0 24 24" className="size-5 text-navy" fill="currentColor" aria-hidden>
-            <path d="M9.5 3h5a1 1 0 0 1 1 1v4.5H20a1 1 0 0 1 1 1v5a1 1 0 0 1-1 1h-4.5V20a1 1 0 0 1-1 1h-5a1 1 0 0 1-1-1v-4.5H4a1 1 0 0 1-1-1v-5a1 1 0 0 1 1-1h4.5V4a1 1 0 0 1 1-1Z" />
-          </svg>
-        </span>
+        {standaloneMark ? (
+          <img src={clinicLogo} alt="" width={48} height={48} className="size-10 shrink-0 object-contain sm:size-12" />
+        ) : (
+          <span className="grid size-10 shrink-0 place-items-center rounded-xl bg-navy">
+            <img src={clinicLogo} alt="" width={32} height={32} className="size-8 object-contain" />
+          </span>
+        )}
         <span className={cx('font-display text-[19px] font-bold tracking-tight', light ? 'text-white' : 'text-ink')}>
           Tekno<span className={light ? 'text-gold' : 'text-brand'}>Care</span>
         </span>

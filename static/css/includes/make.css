@@ -12,8 +12,6 @@ body { font-family: "Plus Jakarta Sans", "DM Sans", sans-serif; background: var(
 .head-inner, .site-footer { max-width: 1220px; }
 .wordmark, .primary-links a, .public-nav a, .services-menu > summary, .profile-menu > summary { color: #fff; }
 .wordmark small { color: #dbe4f5; }
-.clinic-mark i { background: white; }
-.clinic-mark i:nth-child(2) { background: var(--accent); }
 .portal-head > div > :focus-visible, .primary-links a:focus-visible, .services-menu > summary:focus-visible, .profile-menu > summary:focus-visible { outline-color: var(--accent); }
 .home-shell, .make-inner { max-width: 1220px; width: 100%; margin-inline: auto; padding-inline: var(--gutter); }
 .make-shell { padding-bottom: 60px; }

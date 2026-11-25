@@ -66,11 +66,7 @@ summary, button { cursor: pointer; }
 .wordmark small { display: block; margin-top: 5px; font: 550 .7rem/1 "DM Sans",sans-serif; color: var(--muted); letter-spacing: 0; }
 .university-mark { flex: 0 0 34px; height: 34px; margin-inline-end: 5px; border-radius: 50%; overflow: hidden; }
 .university-mark img { display: block; width: 100%; height: 100%; transform: scale(1.2); }
-.clinic-mark { display: grid; grid-template: 1fr 1fr / 1fr 1fr; gap: 2px; width: 34px; height: 34px; transform: rotate(-6deg); }
-.clinic-mark i { background: var(--link); border-radius: 65% 10% 35% 10%; }
-.clinic-mark i:nth-child(2) { background: var(--accent); transform: rotate(90deg); }
-.clinic-mark i:nth-child(3) { transform: rotate(-90deg); }
-.clinic-mark i:nth-child(4) { transform: rotate(180deg); }
+.clinic-mark { flex: none; width: clamp(38px, 6vw, 48px); height: auto; }
 .public-nav, .service-nav { margin-left: auto; }
 .public-nav a, .primary-links a, .services-menu > summary, .account-label { font-weight: 600; font-size: .92rem; }
 .service-nav, .primary-links { display: flex; align-items: center; gap: clamp(8px, 2.2vw, 32px); }

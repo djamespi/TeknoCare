@@ -96,9 +96,9 @@ export function Shell({ children }: { children: ReactNode }) {
     <div className={cx('min-h-screen bg-canvas text-ink', dark && 'dark')}>
       <a href="#main-content" onClick={(event) => { event.preventDefault(); document.getElementById('main-content')?.focus() }} className="sr-only z-50 focus:not-sr-only focus:fixed focus:top-2 focus:left-2 focus:bg-gold focus:p-3">Skip to main content</a>
       <header className={cx('sticky top-0 z-30 text-white transition-[background-color,box-shadow,backdrop-filter] duration-300', scrolled || mobileOpen ? 'bg-navy/85 shadow-[0_10px_40px_-12px_rgba(0,19,58,0.55)] backdrop-blur-xl backdrop-saturate-150 dark:bg-navy-950/85' : 'bg-transparent')}>
-        <div className="mx-auto flex h-16 max-w-7xl items-center gap-2 px-5 sm:px-8">
+        <div className="mx-auto flex h-16 max-w-7xl items-center gap-2 px-3 sm:px-8">
           <button onClick={() => go(home)} className="mr-2 shrink-0 cursor-pointer rounded-xl focus-visible:outline-2 focus-visible:outline-gold xl:mr-4" aria-label="TeknoCare home">
-            <Logo light />
+            <Logo light standaloneMark />
           </button>
 
           <nav className="no-scrollbar hidden h-full min-w-0 flex-1 items-stretch gap-0.5 overflow-x-auto lg:flex" aria-label="Main">
