@@ -2,18 +2,18 @@
 {% block title %}Tuition charge detail{% endblock %}
 {% block main_class %}home-shell{% endblock %}
 {% block content %}
-  <h1>Tuition charge detail</h1>
+  <h1>Tuition charge statement</h1>
   {% if admin_view %}
     <p><a href="{% url 'billing:charges' %}">Back to tuition charges</a></p>
   {% else %}
     <p><a href="{% url 'billing:patient_charges' %}">Back to my tuition charges</a></p>
   {% endif %}
-  <section class="info-card" aria-labelledby="charge-heading">
+  <section class="record-cover" aria-labelledby="charge-heading">
     <h2 id="charge-heading">{{ charge.description }}</h2>
+    <p class="charge-amount">{{ charge.currency_code }} {{ charge.amount }}</p>
     <dl class="account-details">
       <dt>Charge code</dt><dd>{{ charge.charge_code }}</dd>
       <dt>Term</dt><dd>{{ charge.term }}</dd>
-      <dt>Amount</dt><dd>{{ charge.currency_code }} {{ charge.amount }}</dd>
       <dt>Status</dt><dd><span class="badge" data-status="{{ charge.status }}">{{ charge.status }}</span></dd>
       {% if admin_view %}
         <dt>University ID</dt><dd>{{ charge.record.patient.patient.school_id }}</dd>

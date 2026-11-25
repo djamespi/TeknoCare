@@ -13,19 +13,37 @@
 {% block empty_state %}
   {% include 'includes/empty_state.html' with empty_title='No available times' empty_message='Change the filters or check again later.' %}
 {% endblock %}
-{% block results %}
-  <ul class="agenda" aria-label="Available appointment times">
-    {% for slot in page_obj %}
-      <li>{% include 'appointments/date_tile.html' with date=slot.start_time %}
-        <div class="agenda-summary">
-          <strong>{{ slot.start_time|date:"M j, Y · g:i A" }} to {% if slot.start_time|date:"Y-m-d" != slot.end_time|date:"Y-m-d" %}{{ slot.end_time|date:"M j, Y · " }}{% endif %}{{ slot.end_time|date:"g:i A" }}</strong>
-          <span>{{ slot.provider.provider.get_full_name }} · {{ slot.provider.get_provider_type_display }}</span>
-          <span>{{ slot.room }}</span>
-        </div>
-        {% if original %}{% url 'booking:confirm_reschedule' original.pk slot.pk as choice_url %}
-        {% else %}{% url 'booking:book' slot.pk as choice_url %}{% endif %}
-        <a class="button button-secondary" href="{{ choice_url }}" aria-label="Select {{ slot.start_time|date:'M j, Y, g:i:s A' }} with {{ slot.provider.provider.get_full_name }}">Select time</a>
-      </li>
+{% block result_tools %}
+  <nav class="service-choices" aria-label="Choose a type of care">
+    {% for value,label in filter_form.fields.provider_type.choices %}
+      <a href="{% querystring provider_type=value provider=None page=None %}"{% if request.GET.provider_type|default:'' == value %} aria-current="true"{% endif %}>
+        {% if value == 'Dentist' %}{% include 'includes/icon.html' with name='clinic' %}
+        {% elif value == 'Nurse' %}{% include 'includes/icon.html' with name='pulse' %}
+        {% elif value %}{% include 'includes/icon.html' with name='person' %}
+        {% else %}{% include 'includes/icon.html' with name='calendar' %}{% endif %}{{ label }}
+      </a>
     {% endfor %}
-  </ul>
+  </nav>
+  {% if week %}<nav class="week-picker" aria-label="Availability over the next seven days">
+    {% for day, count in week %}{% with value=day|date:'Y-m-d' %}
+      <a href="{% querystring date=value page=None %}"{% if request.GET.date == value %} aria-current="date"{% endif %}>
+        <span>{{ day|date:"D" }}</span><strong>{{ day|date:"j" }}</strong><small>{{ count }} open</small>
+      </a>
+    {% endwith %}{% endfor %}
+  </nav>{% endif %}
+{% endblock %}
+{% block results %}
+  {% regroup page_obj by start_time|date:"l, F j, Y" as days %}
+  {% for day in days %}
+    <section><h2>{{ day.grouper }}</h2><ul class="day-slots">
+      {% for slot in day.list %}
+        <li><div><strong>{{ slot.start_time|date:"g:i A" }} – {% if slot.start_time|date:"Y-m-d" != slot.end_time|date:"Y-m-d" %}{{ slot.end_time|date:"M j, Y" }}, {% endif %}{{ slot.end_time|date:"g:i A" }}</strong>
+          <span>{{ slot.provider.provider.get_full_name }} · {{ slot.provider.get_provider_type_display }}</span><small>{{ slot.room }}</small></div>
+          {% if original %}{% url 'booking:confirm_reschedule' original.pk slot.pk as choice_url %}
+          {% else %}{% url 'booking:book' slot.pk as choice_url %}{% endif %}
+          <a class="button button-secondary" href="{{ choice_url }}" aria-label="Select {{ slot.start_time|date:'M j, Y, g:i:s A' }} with {{ slot.provider.provider.get_full_name }}">Choose time</a>
+        </li>
+      {% endfor %}
+    </ul></section>
+  {% endfor %}
 {% endblock %}

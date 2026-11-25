@@ -41,11 +41,15 @@ def _counts(rows, field, choices):
     return [(label, counts.get(value, 0)) for value, label in choices]
 
 
-def operational_report(filters):
+def reportable_appointments():
     fixtures = _assessment_accounts()
-    clinic_appointments = Appointment.objects.exclude(
+    return Appointment.objects.exclude(
         Q(patient_id__in=fixtures) | Q(slot__provider_id__in=fixtures),
     )
+
+
+def operational_report(filters):
+    fixtures = _assessment_accounts()
     clinic_visits = MedicalRecord.objects.exclude(
         Q(patient_id__in=fixtures) | Q(provider_id__in=fixtures) | Q(appointment__slot__provider_id__in=fixtures),
     )
@@ -56,7 +60,7 @@ def operational_report(filters):
     if term := filters["term"]:
         clinic_charges = clinic_charges.filter(term=term)
 
-    appointments = filter_dates(clinic_appointments, "slot__start_time", filters)
+    appointments = filter_dates(reportable_appointments(), "slot__start_time", filters)
     visits = filter_dates(clinic_visits, "visited_at", filters)
     referrals = filter_dates(clinic_referrals, "referred_at", filters)
     charges = filter_dates(clinic_charges, "created_at", filters)

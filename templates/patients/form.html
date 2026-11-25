@@ -1,14 +1,11 @@
 {% extends 'base.html' %}
 {% block title %}{{ title }}{% endblock %}
+{% block main_class %}home-shell{% endblock %}
 {% block content %}
-  <h1>{{ title }}</h1>
-  {% if description %}<p class="lead">{{ description }}</p>{% endif %}
   <p><a href="{{ back_href }}">Back</a></p>
-  <section class="form-card" aria-label="{{ title }}">
-    <form method="post">
-      {% csrf_token %}
-      {% include 'includes/form_fields.html' %}
-      <button class="button" type="submit">Save</button>
+  <div class="editor-layout"><header><h1>{{ title }}</h1>{% if description %}<p class="lead">{{ description }}</p>{% endif %}</header>
+    <form class="editor-form" method="post">{% csrf_token %}{% include 'includes/form_fields.html' %}
+      <div class="page-actions"><button class="button" type="submit">Save</button><a href="{{ back_href }}">Cancel changes</a></div>
     </form>
-  </section>
+  </div>
 {% endblock %}

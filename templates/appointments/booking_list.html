@@ -1,10 +1,13 @@
 {% extends 'base.html' %}
 {% block title %}My appointments{% endblock %}
-{% block main_class %}home-shell{% endblock %}
+{% block main_class %}make-shell{% endblock %}
 {% block content %}
-  <header class="page-heading"><div><h1>My appointments</h1><p class="lead">Visit times are shown in Manila time.</p></div>
+  <div class="make-banner"><div class="make-inner">
+    <header class="page-heading"><div><h1>My appointments</h1><p class="lead">Visit times are shown in Manila time.</p></div>
     <a class="button" href="{% url 'booking:browse' %}">Book an appointment</a>
   </header>
+  </div></div>
+  <div class="make-inner make-work">
   <nav class="page-actions" aria-label="Appointment view">
     <a href="{% url 'booking:list' %}"{% if not history %} aria-current="page"{% endif %}>Upcoming</a>
     <a href="{% url 'booking:list' %}?view=history"{% if history %} aria-current="page"{% endif %}>History</a>
@@ -27,4 +30,5 @@
     {% include 'includes/empty_state.html' with empty_title='No upcoming appointments' empty_message='Choose an available time to book a visit.' %}
   {% endif %}
   {% include 'includes/pagination.html' %}
+  </div>
 {% endblock %}

@@ -2,9 +2,12 @@
 {% load static %}
 {% block title %}Operational reports{% endblock %}
 {% block styles %}<link rel="stylesheet" href="{% static 'css/home/home.css' %}">{% endblock %}
-{% block main_class %}home-shell{% endblock %}
+{% block main_class %}make-shell{% endblock %}
 {% block content %}
-  <h1>Operational reports</h1>
+  <div class="make-banner"><div class="make-inner">
+    <h1>Operational reports</h1>
+  </div></div>
+  <div class="make-inner make-work">
   <p><a href="{% url 'university:management' %}">Back to clinic setup</a></p>
   <p class="lead">The date range uses Manila time. Appointments use their scheduled slot dates,
     visits and referrals use their encounter and referral dates, and charges use their creation dates.
@@ -17,22 +20,10 @@
   </section>
   {% if not filter_form.errors %}
     <div class="report-grid">
-      <section class="info-card" aria-labelledby="appointment-count-heading">
-        <h2 id="appointment-count-heading">Appointments by status</h2>
-        <dl class="account-details">{% for label, count in appointment_counts %}<dt>{{ label }}</dt><dd>{{ count }}</dd>{% endfor %}</dl>
-      </section>
-      <section class="info-card" aria-labelledby="visit-count-heading">
-        <h2 id="visit-count-heading">Visits by status</h2>
-        <dl class="account-details">{% for label, count in visit_counts %}<dt>{{ label }}</dt><dd>{{ count }}</dd>{% endfor %}</dl>
-      </section>
-      <section class="info-card" aria-labelledby="affiliation-count-heading">
-        <h2 id="affiliation-count-heading">Affiliation at visit</h2>
-        <dl class="account-details">{% for label, count in affiliation_counts %}<dt>{{ label }}</dt><dd>{{ count }}</dd>{% endfor %}</dl>
-      </section>
-      <section class="info-card" aria-labelledby="referral-count-heading">
-        <h2 id="referral-count-heading">Referrals by status</h2>
-        <dl class="account-details">{% for label, count in referral_counts %}<dt>{{ label }}</dt><dd>{{ count }}</dd>{% endfor %}</dl>
-      </section>
+      {% include 'includes/report_distribution.html' with heading='Appointments by status' total=appointment_total unit='appointments' rows=appointment_counts only %}
+      {% include 'includes/report_distribution.html' with heading='Visits by status' total=visit_total unit='visits' rows=visit_counts only %}
+      {% include 'includes/report_distribution.html' with heading='Affiliation at visit' total=visit_total unit='visits' rows=affiliation_counts only %}
+      {% include 'includes/report_distribution.html' with heading='Referrals by status' total=referral_total unit='referrals' rows=referral_counts only %}
     </div>
     <section class="info-card" aria-labelledby="workload-heading">
       <h2 id="workload-heading">Provider workload</h2>
@@ -77,4 +68,5 @@
       {% endif %}
     </section>
   {% endif %}
+  </div>
 {% endblock %}

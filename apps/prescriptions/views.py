@@ -3,9 +3,10 @@ from django.contrib.auth.decorators import login_required
 from django.core.exceptions import PermissionDenied, ValidationError
 from django.core.paginator import Paginator
 from django.db import IntegrityError
-from django.db.models import Q
+from django.db.models import Count, Q
 from django.http import Http404
 from django.shortcuts import get_object_or_404, redirect, render
+from django.urls import reverse
 from django.views.decorators.cache import never_cache
 from django.views.decorators.http import require_http_methods
 
@@ -13,6 +14,7 @@ from apps.clinical.models import MedicalRecord
 from apps.common.permissions import allowed, require_permission
 from apps.common.web import ReferenceFilterForm, add_form_errors, clinic_admin_required
 from apps.patients.models import Patient
+from apps.portal.entrypoint import portal_ready
 
 from .forms import MedicationForm, PrescriptionActionForm, PrescriptionItemForm, ReplacementForm
 from .models import Medication, Prescription
@@ -192,6 +194,35 @@ def medication_list(request):
         entries = entries.none()
     return render(request, "prescriptions/catalog.html", {
         "filter_form": form, "page_obj": Paginator(entries, 10).get_page(request.GET.get("page")),
+    })
+
+
+@login_required
+@require_http_methods(["GET"])
+def formulary(request):
+    require_permission(request.user, "consultation.access")
+    if not request.GET and portal_ready():
+        return redirect(reverse("portal:index") + "#/formulary")
+    form = ReferenceFilterForm(request.GET)
+    entries = Medication.objects.order_by("generic_name", "strength", "medication_code")
+    totals = entries.aggregate(
+        medications=Count("pk"),
+        active=Count("pk", filter=Q(is_active=True)),
+        forms=Count("dosage_form", distinct=True),
+    )
+    if form.is_valid():
+        query = form.cleaned_data["q"]
+        entries = entries.filter(
+            Q(medication_code__icontains=query) | Q(generic_name__icontains=query)
+            | Q(dosage_form__icontains=query) | Q(strength__icontains=query),
+        )
+        if state := form.cleaned_data["state"]:
+            entries = entries.filter(is_active=state == "active")
+    else:
+        entries = entries.none()
+    return render(request, "prescriptions/formulary.html", {
+        "filter_form": form, "totals": totals,
+        "page_obj": Paginator(entries, 16).get_page(request.GET.get("page")),
     })
 
 

@@ -31,6 +31,7 @@ urlpatterns = [
     path('clinical/', include('apps.clinical.consultation_urls')),
     path('prescriptions/', include('apps.prescriptions.urls')),
     path('settings/', include('apps.user_settings.urls')),
+    path('portal/', include('apps.portal.urls')),
     path('clinic/', include('apps.university.urls')),
     path('clinic/', include('apps.audit.urls')),
     path('clinic/rooms/', include('apps.appointments.urls')),

@@ -43,6 +43,20 @@ class PrescriptionWorkflowTests(TestCase):
     def draft(self):
         return start_prescription(actor=self.doctor.provider, record_id=self.visit.pk)
 
+    def test_formulary_is_read_only_and_limited_to_active_clinicians(self):
+        url = reverse("prescriptions:formulary")
+        self.client.force_login(self.patient.patient)
+        self.assertEqual(self.client.get(url).status_code, 403)
+        self.client.force_login(self.nurse.provider)
+        response = self.client.get(url, {"q": self.medication.dosage_form})
+        self.assertContains(response, self.medication.generic_name)
+        self.assertEqual(response.context["totals"]["active"], 1)
+        self.assertNotContains(response, reverse("prescriptions:medication_edit", args=[self.medication.pk]))
+        self.assertEqual(self.client.post(url).status_code, 405)
+        self.nurse.is_active = False
+        self.nurse.save(update_fields=["is_active"])
+        self.assertEqual(self.client.get(url).status_code, 403)
+
     def version(self, prescription):
         prescription.refresh_from_db()
         return prescription_version(prescription, prescription.items.all())

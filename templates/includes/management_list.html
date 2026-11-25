@@ -1,20 +1,22 @@
 {% extends 'base.html' %}
 {% block main_class %}home-shell{% endblock %}
 {% block content %}
-  {% block back_link %}<p class="return-link"><a href="{% url 'university:management' %}">Back to clinic setup</a></p>{% endblock %}
-  <h1>{% block heading %}{% endblock %}</h1>
-  <p class="lead">{% block introduction %}{% endblock %}</p>
-  <div class="page-actions">{% block actions %}{% endblock %}</div>
-  <section class="form-card" aria-label="Filter results">
-    <form method="get" class="filter-form">
+  {% block back_link %}<p><a href="{% url 'university:management' %}">Clinic setup</a></p>{% endblock %}
+  <header class="page-heading"><div><h1>{% block heading %}{% endblock %}</h1><p class="lead">{% block introduction %}{% endblock %}</p></div>
+    <div class="page-actions">{% block actions %}{% endblock %}</div></header>
+  <div class="directory-layout">
+    <aside class="filter-rail"><h2>Filters</h2><form method="get" class="filter-form">
       {% include 'includes/form_fields.html' with form=filter_form only %}
-      <button class="button" type="submit">Filter</button><a href="{{ request.path }}">Reset filters</a>
-    </form>
-  </section>
-  {% if page_obj.object_list %}
-    {% block results %}<div class="table-scroll results-table" role="region" aria-label="Results" tabindex="0">{% block table %}{% endblock %}</div>{% endblock %}
-  {% else %}
-    {% block empty_state %}{% include 'includes/empty_state.html' with empty_title='No matching entries' empty_message='Try another search or adjust the filters.' %}{% endblock %}
-  {% endif %}
-  {% include 'includes/pagination.html' %}
+      <button class="button" type="submit">Apply filters</button><a href="{{ request.path }}">Reset filters</a>
+    </form></aside>
+    <section class="directory-results" aria-label="Results">
+      {% block result_tools %}{% endblock %}
+      {% if page_obj.object_list %}
+        {% block results %}<div class="table-scroll" role="region" aria-label="Results table" tabindex="0">{% block table %}{% endblock %}</div>{% endblock %}
+      {% else %}
+        {% block empty_state %}{% include 'includes/empty_state.html' with empty_title='No matching entries' empty_message='Try another search or adjust the filters.' %}{% endblock %}
+      {% endif %}
+      {% include 'includes/pagination.html' %}
+    </section>
+  </div>
 {% endblock %}

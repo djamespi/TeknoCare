@@ -12,6 +12,7 @@ from django.views.decorators.http import require_http_methods
 
 from apps.audit.models import AuditLog
 from apps.common.permissions import require_permission
+from apps.portal.entrypoint import portal_ready
 from apps.register.services import change_password, reset_account_password
 from .forms import AdminPasswordResetForm, LoginForm, PasswordChangeForm
 
@@ -28,6 +29,8 @@ def _return_url(request):
 def login_view(request):
     if request.user.is_authenticated:
         return redirect(_return_url(request))
+    if request.method == "GET" and request.GET.get("next", "") in {"", reverse("home:home")} and portal_ready():
+        return redirect("portal:index")
 
     form = LoginForm(request.POST if request.method == "POST" else None, request=request)
     if request.method == "POST" and form.is_valid():

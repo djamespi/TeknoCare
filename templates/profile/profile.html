@@ -1,24 +1,13 @@
 {% extends 'base.html' %}
-{% block title %}Profile{% endblock %}
+{% block title %}Your profile{% endblock %}
+{% block main_class %}home-shell{% endblock %}
 {% block content %}
   <h1>Your profile</h1>
-  <p class="lead">Update your contact phone, home address and non-clinical bio.</p>
-  <section class="info-card" aria-labelledby="identity-heading">
-    <h2 id="identity-heading">Account identity</h2>
-    <dl class="account-details">
-      <dt>Name</dt><dd>{{ request.user.get_full_name|default:'Not recorded' }}</dd>
-      <dt>University ID</dt><dd>{{ request.user.school_id }}</dd>
-    </dl>
-    <p>Contact the clinic Admin to correct your account identity.</p>
-  </section>
-  {% if has_patient_profile %}
-    <p><a href="{% url 'patients:details' %}">Patient details, emergency contacts and allergies</a></p>
-  {% endif %}
-  <section class="form-card" aria-label="Edit contact details">
-    <form method="post">
-      {% csrf_token %}
-      {% include 'includes/form_fields.html' %}
-      <button class="button" type="submit">Save profile</button>
-    </form>
-  </section>
+  <div class="account-layout">{% include 'includes/account_nav.html' %}
+    <div><header class="record-cover"><h2>{{ request.user.get_full_name|default:'Name not recorded' }}</h2><p>University ID · {{ request.user.school_id }}</p>
+      <p>Contact the clinic admin to correct your account identity.</p>
+      {% if has_patient_profile %}<a href="{% url 'patients:details' %}">Patient details, emergency contacts and allergies</a>{% endif %}
+    </header><h2>Contact details</h2><p class="lead">Update your contact phone, home address and non-clinical bio.</p>
+    <form class="editor-form" method="post">{% csrf_token %}{% include 'includes/form_fields.html' %}<button class="button" type="submit">Save profile</button></form></div>
+  </div>
 {% endblock %}

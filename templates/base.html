@@ -1,41 +1,43 @@
 {% load static clinic_ui %}
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en" data-theme="{{ clinic_theme|default:'light' }}">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
   <meta name="theme-color" content="#002870">
-  <title>{% block title %}Clinic{% endblock %} | TeknoCare</title>
+  <title>{% block title %}University clinic{% endblock %} | TeknoCare</title>
   <link rel="stylesheet" href="{% static 'css/includes/site.css' %}">
+  <link rel="stylesheet" href="{% static 'css/includes/make.css' %}">
   {% block styles %}{% endblock %}
   <script src="{% static 'js/includes/forms.js' %}" defer></script>
 </head>
 <body>
   <a class="skip-link" href="#main-content">Skip to main content</a>
-  <header class="masthead">
-    <a class="brand" href="{% if request.user.is_authenticated %}{% url 'home:home' %}{% else %}{% url 'login:login' %}{% endif %}"><span class="brand-mark" aria-hidden="true"></span>TeknoCare</a>
-    <span class="institution">CIT-University clinic</span>
-    {% if request.user.is_authenticated %}
-      <button class="menu-toggle" type="button" hidden aria-expanded="false" aria-controls="clinic-nav">{% include 'includes/icon.html' with name='menu' %} Menu</button>
-      <details class="account-menu">
-        <summary><span class="avatar" aria-hidden="true">{{ request.user.fname|first }}{{ request.user.lname|first }}</span><span>Account</span></summary>
-        <div class="account-popover"><strong>{{ request.user.get_full_name }}</strong>
-          <a href="{% url 'profile:profile' %}">Your profile</a>
-          <a href="{% url 'user_settings:settings' %}">Settings</a>
-          <a href="{% url 'login:password_change' %}">Change password</a>
-          <form method="post" action="{% url 'logout' %}">{% csrf_token %}<button type="submit">Sign out</button></form>
-        </div>
-      </details>
-    {% endif %}
-  </header>
-  <div class="{% if request.user.is_authenticated %}workspace{% else %}public-layout{% endif %}">
-    {% if request.user.is_authenticated %}{% clinic_navigation %}{% endif %}
-    <div class="page-column">
-      <main id="main-content" class="{% block main_class %}screen-shell{% endblock %}" tabindex="-1">
-        {% include 'includes/messages.html' %}{% block content %}{% endblock %}
-      </main>
-      <footer class="site-footer">TeknoCare <span>School prototype · Use fictional data only</span></footer>
+  <header class="portal-head">
+    <div class="head-inner">
+      <a class="wordmark" href="{% if request.user.is_authenticated %}{% url 'home:home' %}{% else %}{% url 'login:login' %}{% endif %}">
+        <span class="clinic-mark" aria-hidden="true"><i></i><i></i><i></i><i></i></span>
+        <span>TeknoCare<small>CIT-University clinic</small></span>
+      </a>
+      {% if request.user.is_authenticated %}
+        {% clinic_navigation %}
+        <details class="profile-menu" data-menu><summary aria-label="Account menu"><span class="avatar">{{ request.user.fname|first }}{{ request.user.lname|first }}</span><span class="account-label">Account</span></summary>
+          <div class="profile-pop"><strong>{{ request.user.get_full_name|default:request.user.school_id }}</strong>
+            <small>{{ request.user.get_user_type_display }} · {{ request.user.school_id }}</small>
+            <a href="{% url 'profile:profile' %}">Your profile</a><a href="{% url 'user_settings:settings' %}">Settings</a>
+            <a href="{% url 'login:password_change' %}">Change password</a>
+            <form method="post" action="{% url 'logout' %}">{% csrf_token %}<button type="submit">Sign out</button></form>
+          </div>
+        </details>
+      {% else %}
+        <nav class="public-nav" aria-label="Account access">
+          {% if request.resolver_match.namespace == 'register' %}<a href="{% url 'login:login' %}">Sign in</a>{% else %}<a href="{% url 'register:register' %}">Student registration</a>{% endif %}
+        </nav>
+      {% endif %}
     </div>
-  </div>
+  </header>
+  <main id="main-content" class="{% block main_class %}screen-shell{% endblock %}" tabindex="-1">
+    {% include 'includes/messages.html' %}{% block content %}{% endblock %}
+  </main>
+  <footer class="site-footer"><span>CIT-University clinic</span><span>School prototype · Use fictional data only</span></footer>
 </body>
 </html>

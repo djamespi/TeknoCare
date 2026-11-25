@@ -1,10 +1,24 @@
 # TeknoCare
 
-CIT-University clinic school-project prototype built with Django 5.2 LTS,
-server-rendered templates, CSS and JavaScript. The prototype covers booking,
+CIT-University clinic school-project prototype built with Django 5.2 LTS and the
+React frontend exported from Figma Make. The prototype covers booking,
 reception, clinical documentation, patient summaries, simulated tuition charges
 and operational reporting. The checked-in ERD has 22 entities and 28 foreign keys.
 See the [development roadmap](docs/development_plan.md).
+
+## Build the Figma Make frontend
+
+From the folder containing `manage.py`, use Node.js 24 and run:
+
+```powershell
+npm.cmd --prefix frontend ci
+npm.cmd --prefix frontend run build
+```
+
+Open [the portal](http://127.0.0.1:8000/portal/) once Django is running.
+The homepage and sign-in routes open the Make frontend when the build is
+available. After frontend edits, rebuild before refreshing the page. For a
+deployment, build before running Django's `collectstatic`.
 
 ## Start locally in PowerShell
 

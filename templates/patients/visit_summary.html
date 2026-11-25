@@ -2,7 +2,9 @@
 {% load static %}
 {% block title %}Visit summary #{{ visit.pk }}{% endblock %}
 {% block styles %}<link rel="stylesheet" href="{% static 'css/patients/visit_print.css' %}">{% endblock %}
+{% block main_class %}document-shell{% endblock %}
 {% block content %}
+  <div class="document-brand"><strong>TeknoCare</strong><span>CIT-University clinic</span></div>
   <h1>Visit summary #{{ visit.pk }}</h1>
   <p class="notice">TeknoCare prototype visit summary for school demonstration.</p>
   <div class="page-actions screen-only">

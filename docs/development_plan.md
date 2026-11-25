@@ -783,5 +783,6 @@ do not recommend force push, hard reset, or discarding work.
 
 ## Clinic interface redesign
 
-The role-based navigation, blue and yellow visual design, patient appointment agenda,
-reception search and clinical encounter sections are implemented. Manual visual review is pending.
+The exported Figma Make frontend is mounted at `/portal/` and uses the
+original layouts and images with Django sessions and ERD-backed services.
+Shared reference catalogs were imported to Supabase. Visual review is pending.

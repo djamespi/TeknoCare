@@ -1,0 +1,5 @@
+<section class="distribution"><h2>{{ heading }}</h2><p>{{ total }} {{ unit }}</p>
+  <dl>{% for label,count in rows %}<div><dt>{{ label }}</dt>
+    <dd><meter min="0" max="{{ total|default:1 }}" value="{{ count }}" aria-label="{{ label }}">{{ count }}</meter><b>{{ count }}</b></dd>
+  </div>{% endfor %}</dl>
+</section>

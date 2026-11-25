@@ -1,12 +1,22 @@
-<nav class="sidebar" id="clinic-nav" aria-label="Main navigation">
-  {% for group, links in groups %}
-    <div class="nav-group"><p>{{ group }}</p>
-      {% for route, label, icon in links %}
-        {% url route as target %}
-        <a href="{{ target }}"{% if current == target %} aria-current="page"{% elif section == route %} aria-current="location"{% endif %}>
-          {% include 'includes/icon.html' with name=icon %}{{ label }}
-        </a>
-      {% endfor %}
+<nav class="service-nav" aria-label="Main navigation">
+  <div class="primary-links">
+    {% for route, label in primary %}{% url route as target %}
+      <a href="{{ target }}"{% if current == target %} aria-current="page"{% elif section == route %} aria-current="location"{% endif %}>{{ label }}</a>
+    {% endfor %}
+  </div>
+  <details class="services-menu" data-menu><summary>{% include 'includes/icon.html' with name='menu' %} Services</summary>
+    <div class="service-finder">
+      <div class="finder-search" hidden><label for="find-service">Find a service</label><input id="find-service" type="search" placeholder="Search by name" autocomplete="off"></div>
+      <div class="service-groups">
+        {% for group, links in groups %}
+          <section><h2>{{ group }}</h2>
+            {% for route, label, icon in links %}{% url route as target %}
+              <a href="{{ target }}"{% if current == target %} aria-current="page"{% elif section == route %} aria-current="location"{% endif %}>{% include 'includes/icon.html' with name=icon %}{{ label }}</a>
+            {% endfor %}
+          </section>
+        {% endfor %}
+      </div>
+      <p class="finder-empty" role="status" hidden>No services match that name.</p>
     </div>
-  {% endfor %}
+  </details>
 </nav>

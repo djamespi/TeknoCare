@@ -1,7 +1,9 @@
 {% extends 'base.html' %}
 {% block title %}My visit summaries{% endblock %}
 {% block content %}
-  <h1>My visit summaries</h1><p class="lead">Open a finalized visit to read your summary and referral instructions.</p>
+  <h1>My visit summaries</h1>
+  {% include 'includes/record_navigation.html' with section='visits' %}
+  <p class="lead">Open a finalized visit to read your summary and referral instructions.</p>
   {% if page_obj.object_list %}
     <ul class="agenda">{% for visit in page_obj %}
       <li>{% include 'appointments/date_tile.html' with date=visit.visited_at %}

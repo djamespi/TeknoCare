@@ -1,9 +1,12 @@
 {% extends 'base.html' %}
 {% block title %}Reception queue{% endblock %}
-{% block main_class %}home-shell{% endblock %}
+{% block main_class %}make-shell{% endblock %}
 {% block content %}
-  <h1>Today's reception queue</h1>
+  <div class="make-banner"><div class="make-inner">
+    <h1>Today's reception queue</h1>
   <p class="lead">{{ today|date:"F j, Y" }} · Manila time</p>
+  </div></div>
+  <div class="make-inner make-work">
   <div class="page-actions">
     {% if can_walkin %}<a class="button" href="{% url 'reception:walkin_lookup' %}">Start walk-in</a>{% endif %}
   </div>
@@ -19,28 +22,18 @@
     {% if query %}<a href="{% url 'reception:queue' %}{% if drafts %}?view=drafts{% endif %}">Clear search</a>{% endif %}
   </form>
   {% if page_obj.object_list %}
-    <div class="table-scroll results-table" role="region" aria-label="Reception queue entries" tabindex="0">
-      <table>
-        <caption>{% if drafts %}Today's draft encounters{% else %}Today's appointments and unresolved earlier bookings{% endif %}</caption>
-        <thead><tr><th scope="col">Patient</th><th scope="col">Time</th><th scope="col">{% if drafts %}Attending provider{% else %}Scheduled provider{% endif %}</th><th scope="col">Status</th><th scope="col">Action</th></tr></thead>
-        <tbody>
-          {% for item in page_obj %}
-            <tr>
-              <th scope="row">{{ item.patient.patient.get_full_name }} ({{ item.patient.patient.school_id }})</th>
-              {% if drafts %}
-                <td>{{ item.visited_at|date:"M j, g:i A" }} · {% if item.appointment_id %}Scheduled visit{% else %}Walk-in{% endif %}</td>
-                <td>{{ item.provider.provider.get_full_name }}</td>
-              {% else %}
-                <td>{{ item.slot.start_time|date:"M j, g:i A" }} – {{ item.slot.end_time|date:"M j, g:i A" }}</td>
-                <td>{{ item.slot.provider.provider.get_full_name }}</td>
-              {% endif %}
-              <td><span class="badge" data-status="{{ item.status }}">{{ item.get_status_display }}</span></td>
-              <td>{% if drafts %}<a href="{% url 'reception:encounter' item.pk %}">View encounter</a>{% else %}<a href="{% url 'reception:appointment' item.pk %}">View appointment</a>{% endif %}</td>
-            </tr>
-          {% endfor %}
-        </tbody>
-      </table>
-    </div>
+    <p class="queue-count">{{ page_obj.paginator.count }} {% if drafts %}draft encounter{{ page_obj.paginator.count|pluralize }}{% else %}appointment{{ page_obj.paginator.count|pluralize }} including unresolved earlier bookings{% endif %}</p>
+    <ul class="queue-board" aria-label="Reception queue entries">
+      {% for item in page_obj %}<li>
+        <div class="queue-time">{% if drafts %}<strong>{{ item.visited_at|date:"g:i A" }}</strong>{{ item.visited_at|date:"M j, Y" }}
+          {% else %}<strong>{{ item.slot.start_time|date:"g:i A" }}</strong>{{ item.slot.start_time|date:"M j, Y" }}{% endif %}</div>
+        <div class="queue-person"><strong>{{ item.patient.patient.get_full_name }}</strong><small>{{ item.patient.patient.school_id }}</small></div>
+        <div class="queue-assignment">{% if drafts %}{{ item.provider.provider.get_full_name }}<small>{{ item.appointment_id|yesno:"Scheduled visit,Walk-in visit" }}</small>
+          {% else %}{{ item.slot.provider.provider.get_full_name }}<small>Ends {{ item.slot.end_time|date:"M j, g:i A" }}</small>{% endif %}</div>
+        <span class="badge" data-status="{{ item.status }}">{{ item.get_status_display }}</span>
+        {% if drafts %}<a href="{% url 'reception:encounter' item.pk %}">View encounter</a>{% else %}<a href="{% url 'reception:appointment' item.pk %}">View appointment</a>{% endif %}
+      </li>{% endfor %}
+    </ul>
   {% elif query %}
     {% include 'includes/empty_state.html' with empty_title="No matching patients" empty_message="Try another name or university ID in this queue." %}
   {% elif drafts %}
@@ -49,4 +42,5 @@
     {% include 'includes/empty_state.html' with empty_title='No appointments in the queue' empty_message='Today’s bookings and unresolved earlier bookings appear here.' %}
   {% endif %}
   {% include 'includes/pagination.html' %}
+  </div>
 {% endblock %}

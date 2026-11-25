@@ -1,8 +1,11 @@
 {% extends 'base.html' %}
 {% block title %}Clinical encounters{% endblock %}
-{% block main_class %}home-shell{% endblock %}
+{% block main_class %}make-shell{% endblock %}
 {% block content %}
-  <h1>{% if nurse %}Triage encounters{% elif finalized %}Finalized encounters{% else %}Draft encounters{% endif %}</h1>
+  <div class="make-banner"><div class="make-inner">
+    <h1>{% if nurse %}Triage encounters{% elif finalized %}Finalized encounters{% else %}Draft encounters{% endif %}</h1>
+  </div></div>
+  <div class="make-inner make-work">
   {% if nurse %}
     <p class="lead">Open your assigned Draft encounters and today’s triage encounters to record vitals.</p>
   {% else %}
@@ -13,20 +16,18 @@
     </nav>
   {% endif %}
   {% if page_obj.object_list %}
-    <div class="table-scroll results-table" role="region" aria-label="Clinical encounters" tabindex="0">
-      <table>
-        <caption>{% if finalized %}Finalized{% else %}Draft{% endif %} encounters in Manila time</caption>
-        <thead><tr><th scope="col">Patient</th><th scope="col">Visit</th><th scope="col">Attending provider</th><th scope="col">Action</th></tr></thead>
-        <tbody>{% for visit in page_obj %}
-          <tr><th scope="row">{{ visit.patient.patient.get_full_name }} ({{ visit.patient.patient.school_id }})</th>
-              <td>{{ visit.visited_at|date:"M j, Y, g:i A" }} · {{ visit.appointment_id|yesno:"Scheduled,Walk-in" }}</td>
-              <td>{{ visit.provider.provider.get_full_name }}</td>
-              <td><a href="{% url 'consultation:workspace' visit.pk %}">{% if finalized %}View encounter{% elif nurse %}Open triage{% else %}Resume encounter{% endif %}</a></td></tr>
-        {% endfor %}</tbody>
-      </table>
-    </div>
+    <ul class="queue-board" aria-label="Clinical encounters in Manila time">
+      {% for visit in page_obj %}<li>
+        <div class="queue-time"><strong>{{ visit.visited_at|date:"g:i A" }}</strong>{{ visit.visited_at|date:"M j, Y" }}</div>
+        <div class="queue-person"><strong>{{ visit.patient.patient.get_full_name }}</strong><small>{{ visit.patient.patient.school_id }}</small></div>
+        <div class="queue-assignment">{{ visit.provider.provider.get_full_name }}<small>{{ visit.appointment_id|yesno:"Scheduled visit,Walk-in visit" }}</small></div>
+        <span class="badge" data-status="{{ visit.status }}">{{ visit.get_status_display }}</span>
+        <a href="{% url 'consultation:workspace' visit.pk %}">{% if finalized %}View encounter{% elif nurse %}Open triage{% else %}Resume encounter{% endif %}</a>
+      </li>{% endfor %}
+    </ul>
   {% else %}
     {% include 'includes/empty_state.html' with empty_title="No encounters in this view" empty_message="Newly assigned visits appear after reception opens an encounter." %}
   {% endif %}
   {% include 'includes/pagination.html' %}
+  </div>
 {% endblock %}

@@ -56,5 +56,8 @@ def reports(request):
             "workload_page": Paginator(report.pop("workload"), 10).get_page(request.GET.get("workload_page")),
             "charges_page": Paginator(report.pop("charge_totals"), 10).get_page(request.GET.get("charges_page")),
             **report,
+            "appointment_total": sum(count for _, count in report["appointment_counts"]),
+            "visit_total": sum(count for _, count in report["visit_counts"]),
+            "referral_total": sum(count for _, count in report["referral_counts"]),
         })
     return render(request, "audit/reports.html", context)

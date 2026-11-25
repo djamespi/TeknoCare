@@ -4,14 +4,14 @@
 {% block content %}
   <h1>Create a tuition charge</h1>
   <p><a href="{% url 'billing:charge_lookup' %}">Find another encounter</a> &middot; <a href="{% url 'billing:charges' %}">Back to tuition charges</a></p>
-  <section class="info-card" aria-labelledby="encounter-heading">
+  <div class="account-layout"><aside class="account-rail" aria-labelledby="encounter-heading">
     <h2 id="encounter-heading">Encounter {{ visit.pk }}</h2>
     <dl class="account-details">
       <dt>University ID</dt><dd>{{ visit.patient.patient.school_id }}</dd>
       <dt>Affiliation at visit</dt><dd>{{ visit.affiliation_at_visit|default:'Unverified' }}</dd>
       <dt>Encounter status</dt><dd>{{ visit.get_status_display }}</dd>
     </dl>
-  </section>
+  </aside><div>
   {% if form %}
     <section class="form-card" aria-label="New charge">
       {% if visit.status == 'Draft' %}<p class="notice">A charge can stay Pending until the encounter is finalized.</p>{% endif %}
@@ -27,4 +27,5 @@
   {% else %}
     <p class="notice">This encounter has no verified Student affiliation for billing.</p>
   {% endif %}
+  </div></div>
 {% endblock %}

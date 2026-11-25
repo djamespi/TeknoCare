@@ -2,6 +2,7 @@
 {% block title %}My prescriptions{% endblock %}
 {% block content %}
   <h1>My prescriptions</h1>
+  {% include 'includes/record_navigation.html' with section='prescriptions' %}
   <p class="lead">Review the prescriber, issue date and instructions for each prescription.</p>
   {% if page_obj.object_list %}
     <ul class="agenda">{% for entry in page_obj %}

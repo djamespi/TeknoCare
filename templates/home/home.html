@@ -1,60 +1,71 @@
 {% extends 'base.html' %}
 {% load static %}
-{% block title %}Clinic overview{% endblock %}
+{% block title %}Clinic home{% endblock %}
 {% block styles %}<link rel="stylesheet" href="{% static 'css/home/home.css' %}">{% endblock %}
-{% block main_class %}home-shell{% endblock %}
+{% block main_class %}make-shell{% endblock %}
 {% block content %}
-  <header class="overview-heading">
-    <h1>{% if request.user.is_staff %}Clinic operations{% elif provider %}Your clinical workspace{% else %}Your clinic visits{% endif %}</h1>
-    <p class="dateline">{% include 'includes/icon.html' with name='calendar' %}{{ today|date:"l, j F Y" }}</p>
-  </header>
-  <section class="spotlight" aria-labelledby="next-action">
-    <div class="spotlight-copy">
-      {% if request.user.is_staff %}
-        <h2 id="next-action">Today's reception queue</h2><p>Check patients in, start a walk-in visit, or open an encounter for the attending provider.</p>
-        <a class="button accent" href="{% url 'reception:queue' %}">Open reception queue</a>
-      {% elif provider_ready %}
-        <h2 id="next-action">{% if provider.provider_type == 'Nurse' %}Triage and vital signs{% else %}Your assigned encounters{% endif %}</h2>
-        <p>{% if provider.provider_type == 'Nurse' %}Open a draft visit to record measurements for triage.{% else %}Resume a draft consultation or review the visits you have finalized.{% endif %}</p>
-        <a class="button accent" href="{% url 'consultation:list' %}">Open clinical encounters</a>
-      {% elif provider %}
-        <h2 id="next-action">Provider activation</h2><p>Ask the clinic admin to review your designation and activate your clinical profile.</p>
-        <a class="button accent" href="{% url 'profile:profile' %}">View your profile</a>
-      {% elif next_visit %}
-        <h2 id="next-action">Your next appointment</h2><p><strong>{{ next_visit.slot.start_time|date:"l, F j · g:i A" }}</strong> · Manila time<br>{{ next_visit.slot.provider.provider.get_full_name }} · {{ next_visit.slot.room|default:"Room unverified" }}</p>
-        <a class="button accent" href="{% url 'booking:detail' next_visit.pk %}">View appointment</a>
-      {% else %}
-        <h2 id="next-action">Book a clinic visit</h2><p>You have no upcoming appointments. Choose a provider and an available time at the university clinic.</p>
-        <a class="button accent" href="{% url 'booking:browse' %}">Book an appointment</a>
-      {% endif %}
+  <div class="make-banner"><div class="make-inner"><header class="work-heading">
+    <div><p class="dayline">{{ today|date:"l, F j, Y" }}</p>
+      <h1>{% if request.user.is_staff %}Clinic operations{% elif provider %}Your clinical workspace{% else %}Your clinic visits{% endif %}</h1>
     </div>
-    <div class="cross-art" aria-hidden="true"><i></i><i></i><i></i></div>
-  </section>
-  <div class="overview-body">
-    <section class="directory" aria-labelledby="tasks"><h2 id="tasks">{% if request.user.is_staff %}Clinic administration{% elif provider_ready %}Clinical tools{% elif patient %}Your care records{% else %}Account settings{% endif %}</h2>
-      {% if request.user.is_staff %}
-        {% include 'includes/task_link.html' with route='patient_intake:list' label='Patient intake' description='Find a patient or add a patient profile.' icon='people' %}
-        {% include 'includes/task_link.html' with route='availability:list' label='Clinic availability' description='Arrange provider schedules and clinic rooms.' icon='calendar' %}
-        {% include 'includes/task_link.html' with route='university:management' label='Clinic setup' description='Manage personnel, catalogs and academic terms.' icon='clinic' %}
-        {% include 'includes/task_link.html' with route='login:admin_password_reset' label='Reset account password' description='Assist a verified account holder.' icon='key' %}
-        {% include 'includes/task_link.html' with route='admin:register_user_changelist' label='Inspect accounts' description='Open the read-only account directory.' icon='folder' %}
-      {% elif provider_ready %}
-        {% include 'includes/task_link.html' with route='availability:list' label='Your availability' description='Review and manage your clinic slots.' icon='calendar' %}
-        {% include 'includes/task_link.html' with route='patients:allergy_lookup' label='Allergy review' description='Review allergies for patients in your care.' icon='pulse' %}
-      {% elif patient %}
-        {% include 'includes/task_link.html' with route='patients:visits' label='My visit summaries' description='Read finalized visit summaries and referrals.' icon='record' %}
-        {% include 'includes/task_link.html' with route='prescriptions:history' label='My prescriptions' description='Review issued prescriptions and print a copy.' icon='pill' %}
-        {% include 'includes/task_link.html' with route='billing:patient_charges' label='My tuition charges' description='Review clinic charges and their posting status.' icon='receipt' %}
-      {% else %}
-        {% include 'includes/task_link.html' with route='user_settings:settings' label='Preferences' description='Choose your appearance and notification settings.' icon='settings' %}
-      {% endif %}
-    </section>
-    <aside class="identity-sheet"><h2>Your account</h2><strong class="identity-name">{{ request.user.get_full_name }}</strong>
-      <dl class="account-details"><dt>University ID</dt><dd>{{ request.user.school_id }}</dd>
-        <dt>Role</dt><dd>{{ request.user.get_user_type_display }}</dd><dt>Status</dt><dd>{{ request.user.get_account_status_display }}</dd>
-        {% if patient %}<dt>Affiliation</dt><dd>{{ patient.affiliation|default:'Awaiting verification' }}</dd>{% endif %}
-        {% if provider %}<dt>Designation</dt><dd>{{ provider.provider_type }}</dd><dt>Clinical access</dt><dd>{% if provider_ready %}Active{% else %}Not activated for clinical work{% endif %}</dd>{% endif %}
-      </dl><a href="{% url 'profile:profile' %}">View your profile</a>
-    </aside>
+    {% if request.user.is_staff %}<a class="button" href="{% url 'reception:walkin_lookup' %}">Start a walk-in</a>
+    {% elif provider_ready %}<a class="button" href="{% url 'availability:list' %}">Manage availability</a>
+    {% elif not provider %}<a class="button" href="{% url 'booking:browse' %}">Book an appointment</a>{% endif %}
+  </header></div></div>
+  <div class="make-inner make-work">
+  {% if request.user.is_staff %}
+    <div class="work-spread">
+      <section class="roster"><h2>Today's appointments</h2><p class="muted">Bookings scheduled for today in Manila.</p>
+        <dl class="arrival-list">{% for label,count in arrivals %}<div><dt>{{ label }}</dt><dd>{{ count }}</dd></div>{% endfor %}</dl>
+        <a class="button" href="{% url 'reception:queue' %}">Open reception queue</a>
+      </section>
+      <section class="work-tools"><h2>Front desk</h2>
+        {% include 'includes/task_link.html' with route='patient_intake:list' label='Patient intake' description='Find a patient, register personnel or correct an affiliation.' icon='people' %}
+        {% include 'includes/task_link.html' with route='availability:list' label='Clinic availability' description='Review room and provider schedules.' icon='calendar' %}
+        {% include 'includes/task_link.html' with route='billing:charges' label='Tuition charges' description='Manage posting and review charge history.' icon='receipt' %}
+        <details class="help-disclosure"><summary>Account administration</summary><p><a href="{% url 'login:admin_password_reset' %}">Reset account password</a></p><p><a href="{% url 'admin:register_user_changelist' %}">Inspect accounts</a></p></details>
+      </section>
+    </div>
+  {% elif provider_ready %}
+    <div class="work-spread">
+      <section class="roster"><h2>{% if provider.provider_type == 'Nurse' %}Triage and vital signs{% else %}Draft encounters{% endif %}</h2>
+        <p class="muted">Most recent open visits in your worklist.</p>
+        <ul class="record-stream">{% for draft in drafts %}<li><time>{{ draft.visited_at|date:"M j · g:i A" }}</time>
+          <a href="{% url 'consultation:workspace' draft.pk %}">Encounter #{{ draft.pk }}</a><small>{{ draft.appointment_id|yesno:"Scheduled visit,Walk-in visit" }}</small></li>
+        {% empty %}<li>There are no open encounters in your worklist.</li>{% endfor %}</ul>
+        <a class="button" href="{% url 'consultation:list' %}">Open clinical encounters</a>
+      </section>
+      <section class="work-tools"><h2>Clinic tools</h2>
+        {% include 'includes/task_link.html' with route='reception:queue' label='Reception queue' description='Review arrivals and visit assignments.' icon='people' %}
+        {% include 'includes/task_link.html' with route='patients:allergy_lookup' label='Allergy review' description='Review documented allergies for patients under your care.' icon='pulse' %}
+      </section>
+    </div>
+  {% elif provider %}
+    <section class="roster"><h2>Provider activation</h2><p>Not activated for clinical work. Contact the clinic admin to review your designation.</p><a href="{% url 'profile:profile' %}">Your profile</a></section>
+  {% else %}
+    <div class="care-spread">
+      <section class="visit-ticket">
+        <div class="ticket-cap">{% include 'includes/icon.html' with name='calendar' %} Your next appointment</div>
+        {% if next_visit %}<h2>{{ next_visit.slot.start_time|date:"F j" }}<small>{{ next_visit.slot.start_time|date:"l · g:i A" }} · Manila</small></h2>
+          <p>{{ next_visit.slot.provider.provider.get_full_name }}<br>{{ next_visit.slot.room|default:"Room unverified" }}</p>
+          <a class="button yellow" href="{% url 'booking:detail' next_visit.pk %}">View appointment</a>
+        {% else %}<h2>No upcoming<br>appointment.</h2><p>Choose a clinic time that fits your schedule.</p>
+          <a class="button yellow" href="{% url 'booking:browse' %}">Find a time</a>{% endif %}
+      </section>
+      <section class="recent-care"><h2>Latest visit summaries</h2>
+        <ul class="record-stream">{% for visit in recent_visits %}<li><time>{{ visit.visited_at|date:"M j, Y" }}</time>
+          <a href="{% url 'patients:visit_summary' visit.pk %}">Visit summary #{{ visit.pk }}</a></li>
+          {% empty %}<li class="quiet-empty">{% include 'includes/icon.html' with name='record' %}<p>Your first summary will appear here after a clinician finalizes your visit.</p></li>{% endfor %}</ul>
+        <a href="{% url 'patients:visits' %}">All visit summaries</a>
+      </section>
+    </div>
+    <div class="care-shortcuts"><a href="{% url 'prescriptions:history' %}">{% include 'includes/icon.html' with name='pill' %} My prescriptions</a><a href="{% url 'patients:details' %}">{% include 'includes/icon.html' with name='person' %} Patient details</a><a href="{% url 'billing:patient_charges' %}">{% include 'includes/icon.html' with name='receipt' %} My tuition charges</a></div>
+  {% endif %}
+  <details class="identity-fold"><summary>Account and university details</summary>
+    <dl class="account-details"><dt>University ID</dt><dd>{{ request.user.school_id }}</dd><dt>Role and status</dt><dd>{{ request.user.get_user_type_display }} · {{ request.user.get_account_status_display }}</dd>
+      {% if patient %}<dt>Affiliation</dt><dd>{{ patient.affiliation|default:'Awaiting verification' }}</dd>{% endif %}
+      {% if provider %}<dt>Designation</dt><dd>{{ provider.provider_type }}</dd>{% endif %}
+    </dl>
+  </details>
   </div>
 {% endblock %}

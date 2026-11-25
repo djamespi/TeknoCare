@@ -2,32 +2,31 @@
 {% load static %}
 {% block title %}Student registration{% endblock %}
 {% block styles %}<link rel="stylesheet" href="{% static 'css/login/login.css' %}">{% endblock %}
-{% block main_class %}auth-shell{% endblock %}
 {% block content %}
-  <div class="registration-layout">
-    <header class="registration-intro"><h1>Student registration</h1>
-      <p>Enter fictional details for this school prototype. Have your university ID and an emergency contact handy.</p>
-      <p>Personnel accounts are set up by the clinic admin.</p>
-      <p>Already registered? <a href="{% url 'login:login' %}">Sign in</a></p>
-    </header>
-    <form class="registration-form" method="post">{% csrf_token %}
+  <div class="enrol"><header><h1>Student registration</h1><p class="lead">Use fictional details. The clinic admin sets up personnel accounts.</p></header>
+    <form method="post" data-enrol>{% csrf_token %}
+      <ol class="stepper" aria-label="Registration progress" hidden></ol>
       {% include 'includes/form_errors.html' %}
-      <fieldset><legend>Student details</legend>
-        {% include 'includes/form_field.html' with field=form.university_id %}
-        <div class="field-pair">{% include 'includes/form_field.html' with field=form.first_name %}{% include 'includes/form_field.html' with field=form.last_name %}</div>
-        {% include 'includes/form_field.html' with field=form.email %}
-      </fieldset>
-      <fieldset><legend>Emergency contact</legend>
-        {% include 'includes/form_field.html' with field=form.emergency_contact_name %}
-        <div class="field-pair">{% include 'includes/form_field.html' with field=form.emergency_contact_relationship %}{% include 'includes/form_field.html' with field=form.emergency_contact %}</div>
-      </fieldset>
-      <fieldset><legend>Health history</legend>
-        {% include 'includes/form_field.html' with field=form.medical_history_summary %}
-      </fieldset>
-      <fieldset><legend>Account password</legend>
-        {% include 'includes/form_field.html' with field=form.password1 %}{% include 'includes/form_field.html' with field=form.password2 %}
-      </fieldset>
-      <button class="button" type="submit">Create student account</button>
+      <div class="step-fields">
+        <fieldset data-step="Identity"><legend>Student identity</legend>
+          {% include 'includes/form_field.html' with field=form.university_id %}
+          <div class="field-pair">{% include 'includes/form_field.html' with field=form.first_name %}{% include 'includes/form_field.html' with field=form.last_name %}</div>
+          {% include 'includes/form_field.html' with field=form.email %}
+        </fieldset>
+        <fieldset data-step="Contact"><legend>Emergency contact and health history</legend>
+          {% include 'includes/form_field.html' with field=form.emergency_contact_name %}
+          <div class="field-pair">{% include 'includes/form_field.html' with field=form.emergency_contact_relationship %}{% include 'includes/form_field.html' with field=form.emergency_contact %}</div>
+          {% include 'includes/form_field.html' with field=form.medical_history_summary %}
+        </fieldset>
+        <fieldset data-step="Password"><legend>Choose your password</legend>
+          {% include 'includes/form_field.html' with field=form.password1 %}{% include 'includes/form_field.html' with field=form.password2 %}
+        </fieldset>
+      </div>
+      <div class="page-actions">
+        <button class="button button-secondary" type="button" data-back hidden>Back</button>
+        <button class="button" type="button" data-next hidden>Continue</button>
+        <button class="button" type="submit">Create student account</button>
+      </div>
     </form>
   </div>
 {% endblock %}

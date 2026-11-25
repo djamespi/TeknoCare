@@ -1,0 +1,36 @@
+{% extends 'base.html' %}
+{% block title %}Formulary{% endblock %}
+{% block main_class %}make-shell{% endblock %}
+{% block content %}
+  <header class="make-banner">
+    <div class="make-inner"><h1>Formulary</h1>
+      <p>Browse the clinic’s medication catalog by name, code, strength or dosage form.</p>
+      <dl class="make-stats">
+        <div>{% include 'includes/icon.html' with name='pill' %}<dt>Medications</dt><dd>{{ totals.medications }}</dd></div>
+        <div>{% include 'includes/icon.html' with name='record' %}<dt>Active in catalog</dt><dd>{{ totals.active }}</dd></div>
+        <div>{% include 'includes/icon.html' with name='folder' %}<dt>Dosage forms</dt><dd>{{ totals.forms }}</dd></div>
+      </dl>
+    </div>
+  </header>
+  <div class="make-inner formulary-body">
+    <form method="get" class="filter-form catalog-search" role="search" aria-label="Search formulary">
+      {% include 'includes/form_fields.html' with form=filter_form only %}
+      <button class="button" type="submit">Search medicines</button>
+      {% if request.GET.q or request.GET.state %}<a href="{% url 'prescriptions:formulary' %}">Clear filters</a>{% endif %}
+    </form>
+    {% if page_obj.object_list %}
+      <ul class="medicine-grid" aria-label="Formulary results">
+        {% for medicine in page_obj %}
+          <li><span class="medicine-icon">{% include 'includes/icon.html' with name='pill' %}</span>
+            <div><h2>{{ medicine.generic_name }}</h2><p>{{ medicine.strength }} · {{ medicine.dosage_form }}</p>
+              {% if not medicine.is_active %}<p>Inactive in catalog</p>{% endif %}
+            </div><code>{{ medicine.medication_code }}</code>
+          </li>
+        {% endfor %}
+      </ul>
+      {% include 'includes/pagination.html' %}
+    {% else %}
+      {% include 'includes/empty_state.html' with empty_title='No medicines found' empty_message='Try a different medicine name or clear the filters.' %}
+    {% endif %}
+  </div>
+{% endblock %}

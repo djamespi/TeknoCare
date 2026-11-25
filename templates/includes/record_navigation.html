@@ -1,0 +1,5 @@
+<nav class="record-tabs" aria-label="My health records">
+  <a href="{% url 'patients:visits' %}"{% if section == 'visits' %} aria-current="page"{% endif %}>Visit summaries</a>
+  <a href="{% url 'prescriptions:history' %}"{% if section == 'prescriptions' %} aria-current="page"{% endif %}>Prescriptions</a>
+  <a href="{% url 'patients:details' %}"{% if section == 'details' %} aria-current="page"{% endif %}>Patient details</a>
+</nav>

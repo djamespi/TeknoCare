@@ -29,6 +29,7 @@ def clinic_navigation(context):
         operations.extend([
             ("consultation:list", "Clinical encounters", "pulse"),
             ("patients:allergy_lookup", "Allergy review", "record"),
+            ("prescriptions:formulary", "Formulary", "pill"),
         ])
     if user.is_staff or clinician:
         operations.append(("availability:list", "Availability", "calendar"))
@@ -45,6 +46,7 @@ def clinic_navigation(context):
         ]))
     if has_patient:
         groups.append(("My care", [
+            ("booking:browse", "Book a visit", "calendar"),
             ("booking:list", "My appointments", "calendar"),
             ("patients:visits", "My visit summaries", "record"),
             ("prescriptions:history", "My prescriptions", "pill"),
@@ -58,11 +60,18 @@ def clinic_navigation(context):
     route = request.resolver_match.view_name if request.resolver_match else ""
     if route.startswith(("consultation:diagnosis", "prescriptions:medication", "prescriptions:catalog")):
         section = "university:management"
-    elif route.startswith("prescriptions:") and route not in {"prescriptions:history", "prescriptions:print"}:
+    elif route.startswith("prescriptions:") and route not in {"prescriptions:history", "prescriptions:print", "prescriptions:formulary"}:
         section = "consultation:list"
     elif route.startswith("home:"):
         section = "home:home"
     else:
         sections = [(reverse(name), name) for _, links in groups for name, _, _ in links if name != "home:home"]
         section = max((item for item in sections if current.startswith(item[0])), default=("", ""))[1]
-    return {"groups": groups, "current": current, "section": section}
+    primary = [("home:home", "Home")]
+    if user.is_staff:
+        primary.extend([("reception:queue", "Reception"), ("patient_intake:list", "People"), ("billing:charges", "Charges"), ("university:management", "Clinic setup")])
+    elif clinician:
+        primary.extend([("consultation:list", "Encounters"), ("availability:list", "Schedule"), ("prescriptions:formulary", "Formulary")])
+    elif has_patient:
+        primary.extend([("booking:browse", "Book a visit"), ("booking:list", "Appointments"), ("patients:visits", "Records"), ("patients:details", "Health profile")])
+    return {"groups": groups, "primary": primary, "current": current, "section": section}

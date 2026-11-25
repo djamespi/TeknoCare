@@ -1,10 +1,43 @@
 # Shared clinic interface
 
 Clinic application pages use a navy (#002870) and yellow (#FDD108) identity.
-DM Sans serves controls and clinical data. Instrument Serif serves display headings.
-Both Google Fonts and their licenses live in static/fonts. The masthead holds account
-controls. The sidebar exposes clinic or personal care tasks according to role and
-profile. At narrow widths the Menu button toggles navigation.
+Plus Jakarta Sans serves controls and clinical data. Bricolage Grotesque serves display headings.
+The fonts and licenses live in static/fonts. The header offers role-specific primary
+destinations and a searchable Services directory. Registration, booking, navigation
+and the patient chart also work with JavaScript disabled.
+
+The task-first home pages draw on the [NHS hub page pattern](https://service-manual.nhs.uk/design-system/patterns/hub-page).
+The booking review uses the [GOV.UK check answers pattern](https://design-system.service.gov.uk/patterns/check-answers/).
+The original sign-in image in `static/clinic-visit.jpg` depicts a fictional consultation.
+It was generated with the built-in ImageGen tool using this brief.
+
+> Editorial photograph for a university clinic portal in Cebu. A fictional Filipino university student, clearly adult, in a pale blue shirt and a nurse in navy scrubs talking across a simple clinic desk. Candid and warm, natural window light, wide architectural framing, green foliage outside louvered windows, subtle film texture. Faces in the upper middle of the frame, enough breathing room to crop as a landscape banner or tall panel. No logos or text.
+
+The [Figma Make source](https://www.figma.com/make/lvmXXb3jU9vbkkADR9us4k/Build-TeknoCare-Clinic)
+provides the React components, routes, theme and interaction layouts in
+`frontend/src`. The supplied Make ZIP provides the four original photos and
+favicon. Django serves the built portal at `/portal/` and redirects entry pages
+there when the bundle is present. Protected Django forms remain reachable through
+the portal where a workflow needs extra controls, including provider onboarding and
+simulated finance confirmations. The ERD and authorization services govern both
+interfaces.
+
+The adapter uses same-origin Django session cookies and CSRF tokens. Authenticated
+responses deliver role-scoped data. The reference import added 7 departments,
+16 diagnoses and 12 medications to Supabase. The provider Formulary reads active
+catalog entries. The catalog represents formulations available for prescribing.
+
+Build from the Django project root using Node.js 24 or a compatible Vite runtime.
+
+```powershell
+npm.cmd --prefix frontend ci
+npm.cmd --prefix frontend run check
+npm.cmd --prefix frontend run build
+```
+
+The build writes `static/portal`. Build before `collectstatic` when deploying.
+The Make prototype authentication, sample browser database and demo reset controls
+were removed. The Django templates provide the no-JavaScript clinic pages.
 
 ## Layout and forms
 

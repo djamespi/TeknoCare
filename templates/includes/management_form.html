@@ -1,10 +1,8 @@
 {% extends 'base.html' %}
 {% block title %}{{ title }}{% endblock %}
+{% block main_class %}home-shell{% endblock %}
 {% block content %}
-  <h1>{{ title }}</h1>
-  <p class="lead">{{ description }}</p>
-  <p><a href="{% url back_url %}">Back to list</a> &middot; <a href="{% url 'university:management' %}">Clinic setup</a></p>
-  <section class="form-card" aria-label="{{ title }}">
-    <form method="post">{% csrf_token %}{% include 'includes/form_fields.html' %}<button class="button" type="submit">Save</button></form>
-  </section>
+  <p><a href="{% url back_url %}">Back to list</a></p>
+  <div class="editor-layout"><header><h1>{{ title }}</h1><p class="lead">{{ description }}</p><a href="{% url 'university:management' %}">Clinic setup</a></header>
+    <form class="editor-form" method="post">{% csrf_token %}{% include 'includes/form_fields.html' %}<button class="button" type="submit">Save</button></form></div>
 {% endblock %}

@@ -1,0 +1,13 @@
+{% load static %}
+<!doctype html>
+<html lang="en"><head>
+  <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="theme-color" content="#002870"><meta name="robots" content="noindex">
+  <title>TeknoCare · CIT-University clinic</title>
+  <link rel="icon" href="{% static 'portal/favicon.png' %}">
+  <link rel="stylesheet" href="{% static 'portal/style.css' %}">
+  <script type="module" src="{% static 'portal/app.js' %}"></script>
+</head><body>
+  <div id="root"><p>Opening TeknoCare…</p></div>
+  <noscript><p><a href="{% url 'login:login' %}?next={% url 'profile:profile' %}">Open the clinic pages without JavaScript</a></p></noscript>
+</body></html>

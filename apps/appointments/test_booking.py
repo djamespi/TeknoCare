@@ -77,10 +77,13 @@ class BookingWorkflowTests(TestCase):
         url = reverse("booking:browse")
         response = self.client.get(url, {"date": starts.date(), "provider": self.provider.pk, "provider_type": "Physician"})
         self.assertEqual([slot.pk for slot in response.context["page_obj"]], [slots[0].pk])
+        self.assertEqual(dict(response.context["week"])[starts.date()], 1)
         self.assertContains(response, "12:10:00 AM")
         self.book(patient=self.other, slot=slots[0])
         ClinicRoom.objects.filter(pk=self.alternative.room_id).update(is_active=False)
-        self.assertContains(self.client.get(url, {"date": starts.date()}), "No available times")
+        unavailable = self.client.get(url, {"date": starts.date()})
+        self.assertContains(unavailable, "No available times")
+        self.assertEqual(dict(unavailable.context["week"])[starts.date()], 0)
         self.assertNotContains(self.client.get(url), reverse("booking:book", args=[self.alternative.pk]))
 
     def test_history_contains_canceled_and_started_appointments(self):

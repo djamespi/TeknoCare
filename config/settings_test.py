@@ -9,3 +9,4 @@ DATABASES = {"default": {"ENGINE": "django.db.backends.sqlite3", "NAME": ":memor
 PASSWORD_HASHERS = ["django.contrib.auth.hashers.MD5PasswordHasher"]
 EMAIL_BACKEND = "django.core.mail.backends.locmem.EmailBackend"
 TEKNOCARE_LOCAL_DEMO = True
+TEKNOCARE_MAKE_PORTAL = False

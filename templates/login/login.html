@@ -1,20 +1,21 @@
 {% extends 'base.html' %}
 {% load static %}
-{% block title %}Clinic sign-in{% endblock %}
+{% block title %}University clinic sign-in{% endblock %}
 {% block styles %}<link rel="stylesheet" href="{% static 'css/login/login.css' %}">{% endblock %}
-{% block main_class %}auth-shell{% endblock %}
+{% block main_class %}entry-shell{% endblock %}
 {% block content %}
-  <div class="auth-layout">
-    <section class="auth-brand"><h2>CIT-University<br> clinic</h2>
-      <div class="cross-art" aria-hidden="true"><i></i><i></i><i></i></div>
-      <p>Appointments, visit summaries and care records for the university community.</p>
-    </section>
-    <section class="auth-card"><h1>Clinic sign-in</h1><p class="lead">Use your university ID to open your workspace.</p>
+  <div class="entry">
+    <figure class="entry-scene"><img src="{% static 'clinic-visit.jpg' %}" alt="" fetchpriority="high">
+      <figcaption>TeknoCare<br><small>CIT-University clinic</small></figcaption>
+    </figure>
+    <section class="entry-form">
+      <h1>University clinic<br>sign-in<span class="headline-dot" aria-hidden="true">.</span></h1>
+      <p class="lead">Use your university ID to access your clinic account.</p>
       <form method="post">{% csrf_token %}<input type="hidden" name="next" value="{{ next }}">
         {% include 'includes/form_fields.html' %}<button class="button" type="submit">Sign in</button>
       </form>
-      <p class="auth-link">New student? <a href="{% url 'register:register' %}">Create a student account</a></p>
-      <details class="auth-help"><summary>Forgot your password?</summary><p>Ask the clinic admin for help resetting your account password.</p></details>
+      <details class="help-disclosure"><summary>Password help</summary><p>Ask the clinic admin to help reset your password.</p></details>
+      <p class="register-link">First visit? <a href="{% url 'register:register' %}">Create a student account</a></p>
     </section>
   </div>
 {% endblock %}

@@ -3,6 +3,7 @@
 {% block main_class %}home-shell{% endblock %}
 {% block content %}
   <h1>Your patient details</h1>
+  {% include 'includes/record_navigation.html' with section='details' %}
   <p><a href="{% url 'profile:profile' %}">Back to profile</a></p>
   <section class="info-card" aria-labelledby="patient-heading">
     <h2 id="patient-heading">Personal details</h2>

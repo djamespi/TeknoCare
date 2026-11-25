@@ -2,11 +2,17 @@
 {% load static %}
 {% block title %}Clinic setup{% endblock %}
 {% block styles %}<link rel="stylesheet" href="{% static 'css/home/home.css' %}">{% endblock %}
-{% block main_class %}home-shell{% endblock %}
+{% block main_class %}make-shell{% endblock %}
 {% block content %}
-  <h1>Clinic setup</h1>
+  <div class="make-banner"><div class="make-inner">
+    <h1>Clinic setup</h1>
   <p class="lead">Manage the people, locations and reference data used across the clinic.</p>
-  <section class="setup-section">
+  </div></div>
+  <div class="make-inner make-work">
+  <div class="setup-layout"><nav class="setup-index" aria-label="Clinic setup sections">
+    <a href="#people">People and access</a><a href="#scheduling">Rooms and schedules</a><a href="#catalogs">Clinical catalogs</a><a href="#finance">Tuition and reporting</a>
+  </nav><div>
+  <section id="people" class="setup-section">
     <h2>People and access</h2>
     <div>
       {% include 'includes/task_link.html' with route='patient_intake:list' label='Patient intake' description='Find a patient or correct their identity and affiliation.' icon='people' %}
@@ -14,7 +20,7 @@
       {% include 'includes/task_link.html' with route='accounts:personnel_list' label='Personnel accounts' description='Set up faculty and staff patient accounts.' icon='person' %}
     </div>
   </section>
-  <section class="setup-section">
+  <section id="scheduling" class="setup-section">
     <h2>Rooms and schedules</h2>
     <div>
       {% include 'includes/task_link.html' with route='availability:list' label='Clinic availability' description='Schedule provider and room slots.' icon='calendar' %}
@@ -22,14 +28,14 @@
       {% include 'includes/task_link.html' with route='university:department_list' label='Departments' description='Maintain university department names and codes.' icon='folder' %}
     </div>
   </section>
-  <section class="setup-section">
+  <section id="catalogs" class="setup-section">
     <h2>Clinical catalogs</h2>
     <div>
       {% include 'includes/task_link.html' with route='consultation:diagnosis_list' label='Diagnosis catalog' description='Maintain codes used during consultations.' icon='record' %}
       {% include 'includes/task_link.html' with route='prescriptions:catalog' label='Medication catalog' description='Manage formulations available for prescribing.' icon='pill' %}
     </div>
   </section>
-  <section class="setup-section">
+  <section id="finance" class="setup-section">
     <h2>Tuition and reporting</h2>
     <div>
       {% include 'includes/task_link.html' with route='billing:term_list' label='Academic terms' description='Set term dates and open terms for charges.' icon='calendar' %}
@@ -38,4 +44,6 @@
       {% include 'includes/task_link.html' with route='audit:reports' label='Operational reports' description='Review appointments, referrals and tuition charge totals.' icon='chart' %}
     </div>
   </section>
+  </div></div>
+  </div>
 {% endblock %}

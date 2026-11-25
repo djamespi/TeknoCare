@@ -2,7 +2,10 @@ from django.contrib import messages
 from django.core.exceptions import ValidationError
 from django.db import IntegrityError
 from django.shortcuts import redirect, render
+from django.urls import reverse
 from django.views.decorators.http import require_http_methods
+
+from apps.portal.entrypoint import portal_ready
 
 from .forms import RegistrationForm
 
@@ -11,6 +14,8 @@ from .forms import RegistrationForm
 def register_view(request):
     if request.user.is_authenticated:
         return redirect("home:home")
+    if request.method == "GET" and portal_ready():
+        return redirect(reverse("portal:index") + "#/register")
 
     form = RegistrationForm(request.POST if request.method == "POST" else None)
     if request.method == "POST" and form.is_valid():

@@ -1,14 +1,14 @@
 {% extends 'base.html' %}
-{% block title %}Settings{% endblock %}
+{% block title %}Account preferences{% endblock %}
+{% block main_class %}home-shell{% endblock %}
 {% block content %}
-  <h1>Settings</h1>
-  <p class="lead">Choose how your signed-in clinic workspace looks. Changes apply after saving and are kept with your account.</p>
-  <p class="notice">Email delivery is not available. Saving an email preference does not send messages or enable password-recovery emails.</p>
-  <section class="form-card" aria-label="Edit preferences">
-    <form method="post">
-      {% csrf_token %}
-      {% include 'includes/form_fields.html' %}
+  <h1>Account preferences</h1>
+  <div class="account-layout">{% include 'includes/account_nav.html' %}
+    <form method="post" class="preferences-form">{% csrf_token %}
+      {% include 'includes/form_errors.html' %}
+      <fieldset><legend>Appearance</legend>{% include 'includes/form_field.html' with field=form.dark_mode %}</fieldset>
+      <fieldset><legend>Notifications</legend>{% include 'includes/form_field.html' with field=form.email_notifications %}</fieldset>
       <button class="button" type="submit">Save settings</button>
     </form>
-  </section>
+  </div>
 {% endblock %}

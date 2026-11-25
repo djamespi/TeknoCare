@@ -1,11 +1,13 @@
 import sqlite3
+from datetime import timedelta
 
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.core.exceptions import PermissionDenied, ValidationError
 from django.core.paginator import Paginator
 from django.db import IntegrityError, OperationalError
-from django.db.models import Exists, OuterRef
+from django.db.models import Count, Exists, OuterRef
+from django.db.models.functions import TruncDate
 from django.shortcuts import get_object_or_404, redirect, render
 from django.utils import timezone
 from django.views.decorators.http import require_http_methods
@@ -106,18 +108,25 @@ def slot_browse(request, appointment_id=None):
 
     form = BookingFilterForm(request.GET)
     slots = _bookable_slots().order_by("start_time", "pk")
+    week = []
     if form.is_valid():
         filters = form.cleaned_data
-        if filters["date"]:
-            slots = slots.filter(start_time__date=filters["date"])
         if filters["provider"]:
             slots = slots.filter(provider=filters["provider"])
         if filters["provider_type"]:
             slots = slots.filter(provider__provider_type=filters["provider_type"])
+        today = timezone.localdate()
+        days = [today + timedelta(days=offset) for offset in range(7)]
+        counts = dict(slots.filter(start_time__date__range=(days[0], days[-1])).order_by()
+                      .annotate(day=TruncDate("start_time")).values_list("day").annotate(count=Count("pk")))
+        week = [(day, counts.get(day, 0)) for day in days]
+        if filters["date"]:
+            slots = slots.filter(start_time__date=filters["date"])
     else:
         slots = slots.none()
     return render(request, "appointments/booking_slots.html", {
-        "original": original, "filter_form": form, "page_obj": Paginator(slots, 10).get_page(request.GET.get("page")),
+        "original": original, "filter_form": form, "week": week,
+        "page_obj": Paginator(slots, 10).get_page(request.GET.get("page")),
     })
 
 

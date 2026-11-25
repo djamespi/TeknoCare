@@ -1,0 +1,7 @@
+<nav class="account-rail" aria-label="Account sections"><h2>Your account</h2>
+  {% with route=request.resolver_match.view_name %}
+    <a href="{% url 'profile:profile' %}"{% if route == 'profile:profile' %} aria-current="page"{% endif %}>Contact profile</a>
+    <a href="{% url 'user_settings:settings' %}"{% if route == 'user_settings:settings' %} aria-current="page"{% endif %}>Preferences</a>
+    <a href="{% url 'login:password_change' %}"{% if route == 'login:password_change' %} aria-current="page"{% endif %}>Password</a>
+  {% endwith %}
+</nav>

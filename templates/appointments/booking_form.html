@@ -1,24 +1,23 @@
 {% extends 'base.html' %}
 {% block title %}{% if original %}Confirm new appointment time{% else %}Confirm appointment{% endif %}{% endblock %}
+{% block main_class %}home-shell{% endblock %}
 {% block content %}
-  <h1>{% if original %}Confirm new appointment time{% else %}Confirm appointment{% endif %}</h1>
-  <p>
-    {% if original %}<a href="{% url 'booking:reschedule' original.pk %}">Back to available times</a>
-    {% else %}<a href="{% url 'booking:browse' %}">Back to available times</a>{% endif %}
-  </p>
-  <section class="info-card" aria-label="Selected time">
-    <h2>Selected time in Manila</h2>
-    {% include 'appointments/booking_slot_details.html' %}
-  </section>
-  {% if original %}<p>Your original appointment stays scheduled until this replacement is confirmed.</p>{% endif %}
-  <section class="form-card" aria-label="Appointment confirmation">
-    <form method="post">
-      {% csrf_token %}
-      {% include 'includes/form_fields.html' %}
-      <div class="page-actions">
-        <button class="button" type="submit">{% if original %}Confirm new time{% else %}Book appointment{% endif %}</button>
-        {% if form.non_field_errors %}<a href="{{ request.path }}">Reload this time</a>{% endif %}
-      </div>
-    </form>
-  </section>
+  <p><a href="{% if original %}{% url 'booking:reschedule' original.pk %}{% else %}{% url 'booking:browse' %}{% endif %}">Change selected time</a></p>
+  <h1>{% if original %}Reschedule your appointment{% else %}Confirm appointment{% endif %}</h1>
+  <div class="review-layout">
+    <section class="form-card"><h2>Visit details</h2>
+      {% if original %}<p>Your original appointment stays scheduled until this replacement is confirmed.</p>{% endif %}
+      <form method="post" data-booking-review>{% csrf_token %}
+        <div data-edit-fields>{% include 'includes/form_fields.html' %}</div>
+        <div data-review-copy hidden><h3>Reason for visit</h3><p></p></div>
+        <div class="page-actions">
+          <button class="button" type="button" data-review hidden>Review booking</button>
+          <button class="button" type="submit">{% if original %}Confirm new time{% else %}Book appointment{% endif %}</button>
+          <button class="button button-secondary" type="button" data-edit hidden>Edit reason</button>
+          {% if form.non_field_errors %}<a href="{{ request.path }}">Reload this time</a>{% endif %}
+        </div>
+      </form>
+    </section>
+    <aside class="review-ticket"><h2>Selected clinic visit</h2><p>Times in Manila</p>{% include 'appointments/booking_slot_details.html' %}</aside>
+  </div>
 {% endblock %}

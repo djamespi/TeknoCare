@@ -1,11 +1,13 @@
 {% extends 'base.html' %}
 {% block title %}Prescription #{{ prescription.pk }}{% endblock %}
 {% block content %}
-  <h1>Prescription #{{ prescription.pk }}</h1>
+  <p><a href="{% url 'prescriptions:encounter' visit.pk %}">Back to encounter prescriptions</a></p>
+  <header class="record-cover"><h1>Prescription #{{ prescription.pk }}</h1>
   <p>{{ visit.patient.patient.get_full_name }} · Prescriber {{ prescription.prescriber.provider.get_full_name }}</p>
   <p class="badge">{% if prescription.status == 'Canceled' and not prescription.issued_at %}Discarded{% else %}{{ prescription.get_status_display }}{% endif %}</p>
   {% if prescription.issued_at %}<p>Issued {{ prescription.issued_at|date:"M j, Y, g:i A" }} Manila time.</p>{% endif %}
-  <p><a href="{% url 'prescriptions:encounter' visit.pk %}">Back to encounter prescriptions</a></p>
+
+  </header>
   <div class="page-actions">
     {% if can_edit %}<a class="button" href="{% url 'prescriptions:item_create' visit.pk prescription.pk %}">Add medication item</a>{% endif %}
     {% if prescription.issued_at %}<a class="button" href="{% url 'prescriptions:print' prescription.pk %}">Prototype print view</a>{% endif %}

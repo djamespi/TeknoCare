@@ -2,30 +2,30 @@
 {% block title %}{% if can_read_notes %}Consultation{% else %}Triage and vitals{% endif %}{% endblock %}
 {% block main_class %}home-shell{% endblock %}
 {% block content %}
-  <h1>{% if can_read_notes %}Consultation{% else %}Triage and vitals{% endif %}</h1>
-  <p><a href="{% url 'consultation:list' %}{% if visit.status == 'Finalized' %}?view=finalized{% endif %}">Back to clinical encounters</a></p>
-  <section class="info-card" aria-labelledby="visit-heading">
-    <h2 id="visit-heading">Encounter #{{ visit.pk }} <span class="badge" data-status="{{ visit.status }}">{{ visit.get_status_display }}</span></h2>
-    <dl class="account-details">
-      <dt>Patient</dt><dd>{{ visit.patient.patient.get_full_name }} ({{ visit.patient.patient.school_id }})</dd>
-      <dt>Attending provider</dt><dd>{{ visit.provider.provider.get_full_name }}</dd>
-      <dt>Visit time in Manila</dt><dd>{{ visit.visited_at|date:"M j, Y, g:i A" }}</dd>
-      {% if visit.appointment_id %}<dt>Appointment status</dt><dd>{{ visit.appointment.get_status_display }}</dd>{% endif %}
-      {% if visit.finalized_at %}<dt>Finalized at</dt><dd>{{ visit.finalized_at|date:"M j, Y, g:i A" }}</dd>{% endif %}
-    </dl>
-  </section>
-
-  <nav class="encounter-index" aria-label="Encounter sections">
-    <a href="#allergies-heading">Allergies</a><a href="#vitals-heading">Vitals</a>
-    {% if can_read_notes %}<a href="#notes-heading">Notes and diagnoses</a><a href="#history-heading">Visit history</a>{% endif %}
-    {% if finalize_form %}<a href="#finalize-heading">Finalization</a>{% endif %}
-  </nav>
-  <section class="info-card" aria-labelledby="allergies-heading">
-    <h2 id="allergies-heading">Allergy alerts</h2>
+  <p><a href="{% url 'consultation:list' %}{% if visit.status == 'Finalized' %}?view=finalized{% endif %}">Clinical encounters</a></p>
+  <header class="record-cover">
+    <p>Encounter #{{ visit.pk }} · {{ visit.visited_at|date:"M j, Y, g:i A" }} Manila <span class="badge" data-status="{{ visit.status }}">{{ visit.get_status_display }}</span></p>
+    <h1>{{ visit.patient.patient.get_full_name }}</h1>
+    <p>{{ visit.patient.patient.school_id }} · Attending provider {{ visit.provider.provider.get_full_name }}</p>
+    {% if visit.appointment_id %}<p>Appointment status · {{ visit.appointment.get_status_display }}</p>{% endif %}
+    {% if visit.finalized_at %}<p>Finalized {{ visit.finalized_at|date:"M j, Y, g:i A" }}</p>{% endif %}
+  </header>
+  <section class="allergy-strip" aria-labelledby="allergies-heading"><h2 id="allergies-heading">Allergy alerts</h2>
     {% include 'patients/allergy_table.html' %}
   </section>
-
-  <section class="info-card" aria-labelledby="vitals-heading">
+  <div class="chart-layout" data-chart="{% if can_read_notes %}notes{% else %}vitals{% endif %}">
+    <aside class="chart-rail"><h2>Patient chart</h2>
+      <nav class="encounter-index" aria-label="Encounter sections">
+        {% if can_read_notes %}<a href="#notes">Notes and diagnoses</a>{% endif %}
+        <a href="#vitals">Vital signs</a>
+        {% if can_read_notes %}<a href="#history">Visit history</a>{% endif %}
+        {% if finalize_form %}<a href="#finalize">Finalize encounter</a>{% endif %}
+      </nav>
+      {% if can_read_notes %}<hr><p><a href="{% url 'prescriptions:encounter' visit.pk %}">Prescriptions for this encounter</a></p>
+        <p><a href="{% url 'consultation:referrals' visit.pk %}">Referrals for this encounter</a></p>{% endif %}
+    </aside>
+    <article>
+  <section class="info-card" data-panel id="vitals" aria-labelledby="vitals-heading">
     <h2 id="vitals-heading">Recorded vital signs</h2>
     {% if vitals %}
       <div class="table-scroll" role="region" aria-label="Vital signs" tabindex="0">
@@ -47,7 +47,7 @@
     {% if vitals_form %}
       <h3>Record vital signs</h3>
       <p>Enter the measurements taken. Leave the rest blank.</p>
-      <form class="vitals-form" method="post">
+      <form class="vitals-form" method="post" action="#vitals">
         {% csrf_token %}
         {% include 'includes/form_fields.html' with form=vitals_form only %}
         <button class="button" name="action" value="vitals" type="submit">Save vital signs</button>
@@ -55,16 +55,12 @@
     {% endif %}
   </section>
 
-  {% if can_read_notes %}
-    <div class="page-actions">
-      <a class="button" href="{% url 'prescriptions:encounter' visit.pk %}">Prescriptions for this encounter</a>
-      <a class="button" href="{% url 'consultation:referrals' visit.pk %}">Referrals for this encounter</a>
-    </div>
-    <section class="info-card" aria-labelledby="notes-heading">
+    {% if can_read_notes %}
+    <section class="info-card" data-panel id="notes" aria-labelledby="notes-heading">
       <h2 id="notes-heading">Consultation notes and diagnoses</h2>
       {% if notes_form %}
         <p>The finalized patient summary includes the chief complaint and catalog diagnosis names. Keep internal notes in the other consultation fields.</p>
-        <form method="post">
+        <form method="post" action="#notes">
           {% csrf_token %}
           {% include 'includes/form_fields.html' with form=notes_form only %}
           <button class="button" name="action" value="notes" type="submit">Save draft</button>
@@ -84,7 +80,7 @@
         {% else %}<p>No diagnoses recorded for this encounter.</p>{% endif %}
       {% endif %}
     </section>
-    <section class="info-card" aria-labelledby="history-heading">
+    <section class="info-card" data-panel id="history" aria-labelledby="history-heading">
       <h2 id="history-heading">Recent finalized visits</h2>
       {% if history %}
         <ul>{% for previous in history %}
@@ -95,14 +91,16 @@
   {% endif %}
 
   {% if finalize_form %}
-    <section class="form-card" aria-labelledby="finalize-heading">
+    <section class="form-card" data-panel id="finalize" aria-labelledby="finalize-heading">
       <h2 id="finalize-heading">Finalize encounter</h2>
       <p>Save your notes and resolve any prescription drafts. Finalization requires the chief complaint, symptoms or examination notes, and a treatment plan. The record becomes read-only.</p>
-      <form method="post">
+      <form method="post" action="#finalize">
         {% csrf_token %}
         {% include 'includes/form_fields.html' with form=finalize_form only %}
         <button class="button" name="action" value="finalize" type="submit">Finalize encounter</button>
       </form>
     </section>
   {% endif %}
+    </article>
+  </div>
 {% endblock %}

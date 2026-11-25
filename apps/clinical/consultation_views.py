@@ -3,10 +3,8 @@ from django.contrib.auth.decorators import login_required
 from django.core.exceptions import PermissionDenied, ValidationError
 from django.core.paginator import Paginator
 from django.db import IntegrityError
-from django.db.models import Q
 from django.http import Http404
 from django.shortcuts import get_object_or_404, redirect, render
-from django.utils import timezone
 from django.views.decorators.cache import never_cache
 from django.views.decorators.http import require_http_methods
 
@@ -17,6 +15,7 @@ from apps.providers.models import Provider
 from .consultation import NOTE_FIELDS, consultation_version, create_diagnosis, finalize_consultation, record_vitals, save_consultation
 from .forms import ConsultationForm, DiagnosisForm, FinalizeConsultationForm, VitalSignForm
 from .models import Diagnosis, MedicalRecord
+from .worklists import encounter_worklist
 from .reception import _audit
 
 
@@ -32,12 +31,7 @@ def worklist(request):
     actor = require_permission(request.user, "consultation.access")
     provider = clinical_provider(actor)
     finalized = request.GET.get("view") == "finalized" and provider.provider_type != Provider.Type.NURSE
-    scope = Q(provider=provider)
-    if provider.provider_type == Provider.Type.NURSE:
-        scope |= Q(visited_at__date=timezone.localdate())
-    visits = MedicalRecord.objects.filter(scope, status="Finalized" if finalized else "Draft").exclude(
-        patient_id=actor.pk,
-    ).select_related("patient__patient", "provider__provider").order_by("-visited_at", "-pk")
+    visits = encounter_worklist(provider, MedicalRecord.Status.FINALIZED if finalized else MedicalRecord.Status.DRAFT)
     return render(request, "clinical/consultation_list.html", {
         "page_obj": Paginator(visits, 10).get_page(request.GET.get("page")),
         "finalized": finalized, "nurse": provider.provider_type == Provider.Type.NURSE,
