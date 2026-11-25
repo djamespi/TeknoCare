@@ -811,3 +811,5 @@ separates the step heading, fields, and actions with a yellow step indicator.
 The desktop sign-in and registration forms scroll separately from the
 fixed clinic panel. The supplied TeknoCare mark sits on primary blue in the
 auth panel and footer and appears without a container in navigation.
+The navigation mark matches the visual size of the CIT-University seal and
+also serves as the browser tab icon.

@@ -333,7 +333,7 @@ export function Logo({ light, standaloneMark }: { light?: boolean; standaloneMar
       </span>
       <span className="flex items-center gap-2.5">
         {standaloneMark ? (
-          <img src={clinicLogo} alt="" width={48} height={48} className="size-10 shrink-0 object-contain sm:size-12" />
+          <img src={clinicLogo} alt="" width={36} height={36} className="size-9 shrink-0 scale-[1.15] object-contain" />
         ) : (
           <span className="grid size-10 shrink-0 place-items-center rounded-xl bg-navy">
             <img src={clinicLogo} alt="" width={32} height={32} className="size-8 object-contain" />

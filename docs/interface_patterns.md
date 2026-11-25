@@ -15,9 +15,10 @@ It was generated with the built-in ImageGen tool using this brief.
 
 The [Figma Make source](https://www.figma.com/make/lvmXXb3jU9vbkkADR9us4k/Build-TeknoCare-Clinic)
 provides the React components, routes, theme and interaction layouts in
-`frontend/src`. The supplied Make ZIP provides the four original photos and
-favicon. Django serves the built portal at `/portal/` and redirects entry pages
-there when the bundle is present. Protected Django forms remain reachable through
+`frontend/src`. The supplied Make ZIP provides the four original photos. The
+TeknoCare mark serves as the favicon. Django serves the built portal at
+`/portal/` and redirects entry pages there when the bundle is present.
+Protected Django forms remain reachable through
 the portal where a workflow needs extra controls, including provider onboarding and
 simulated finance confirmations. The ERD and authorization services govern both
 interfaces.

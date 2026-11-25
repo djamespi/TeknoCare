@@ -5,6 +5,7 @@
   <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
   <meta name="theme-color" content="#002870">
   <title>{% block title %}University clinic{% endblock %} | TeknoCare</title>
+  <link rel="icon" type="image/png" href="{% static 'images/clinic_logo.png' %}">
   <link rel="stylesheet" href="{% static 'css/includes/site.css' %}">
   <link rel="stylesheet" href="{% static 'css/includes/make.css' %}">
   {% block styles %}{% endblock %}
@@ -16,7 +17,7 @@
     <div class="head-inner">
       <a class="wordmark" href="{% if request.user.is_authenticated %}{% url 'home:home' %}{% else %}{% url 'login:login' %}{% endif %}">
         <span class="university-mark"><img src="{% static 'images/cit_logo.png' %}" alt="CIT-University" width="34" height="34"></span>
-        <img class="clinic-mark" src="{% static 'images/clinic_logo.png' %}" alt="" width="48" height="48">
+        <img class="clinic-mark" src="{% static 'images/clinic_logo.png' %}" alt="" width="34" height="34">
         <span>TeknoCare<small>CIT-University clinic</small></span>
       </a>
       {% if request.user.is_authenticated %}
