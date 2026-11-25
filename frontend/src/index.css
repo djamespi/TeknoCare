@@ -132,8 +132,8 @@
 
 .clinic-hero {
   background:
-    linear-gradient(105deg, rgb(0 40 112 / 97%), rgb(0 40 112 / 85%)),
-    url("../../static/images/clinic-hero.jpg") center 43% / cover no-repeat,
+    linear-gradient(105deg, rgb(0 40 112 / 94%), rgb(0 40 112 / 81%)),
+    url("../../static/images/clinic_room.png") center 56% / cover no-repeat,
     var(--color-navy);
 }
 

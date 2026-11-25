@@ -20,8 +20,8 @@ body { font-family: "Plus Jakarta Sans", "DM Sans", sans-serif; background: var(
 .make-banner {
   color: white;
   background:
-    linear-gradient(105deg, rgb(0 40 112 / 97%), rgb(0 40 112 / 85%)),
-    url("../../images/clinic-hero.jpg") center 43% / cover no-repeat,
+    linear-gradient(105deg, rgb(0 40 112 / 94%), rgb(0 40 112 / 81%)),
+    url("../../images/clinic_room.png") center 56% / cover no-repeat,
     #002870;
 }
 .make-banner .make-inner { padding-block: clamp(26px, 4.8vw, 64px); }

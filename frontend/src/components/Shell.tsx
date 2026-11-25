@@ -96,12 +96,12 @@ export function Shell({ children }: { children: ReactNode }) {
     <div className={cx('min-h-screen bg-canvas text-ink', dark && 'dark')}>
       <a href="#main-content" onClick={(event) => { event.preventDefault(); document.getElementById('main-content')?.focus() }} className="sr-only z-50 focus:not-sr-only focus:fixed focus:top-2 focus:left-2 focus:bg-gold focus:p-3">Skip to main content</a>
       <header className={cx('sticky top-0 z-30 text-white transition-[background-color,box-shadow,backdrop-filter] duration-300', scrolled || mobileOpen ? 'bg-navy/85 shadow-[0_10px_40px_-12px_rgba(0,19,58,0.55)] backdrop-blur-xl backdrop-saturate-150 dark:bg-navy-950/85' : 'bg-transparent')}>
-        <div className="mx-auto flex h-16 max-w-6xl items-center gap-2 px-5 sm:px-8">
-          <button onClick={() => go(home)} className="mr-4 shrink-0 cursor-pointer rounded-xl focus-visible:outline-2 focus-visible:outline-gold" aria-label="TeknoCare home">
+        <div className="mx-auto flex h-16 max-w-7xl items-center gap-2 px-5 sm:px-8">
+          <button onClick={() => go(home)} className="mr-2 shrink-0 cursor-pointer rounded-xl focus-visible:outline-2 focus-visible:outline-gold xl:mr-4" aria-label="TeknoCare home">
             <Logo light />
           </button>
 
-          <nav className="hidden h-full items-stretch gap-0.5 lg:flex" aria-label="Main">
+          <nav className="no-scrollbar hidden h-full min-w-0 flex-1 items-stretch gap-0.5 overflow-x-auto lg:flex" aria-label="Main">
             {items.map(({ to, label, icon: Icon, badge }) => {
               const active = isActive(current, to)
               return (
@@ -110,22 +110,22 @@ export function Shell({ children }: { children: ReactNode }) {
                   onClick={() => go(to)}
                   aria-current={active ? 'page' : undefined}
                   className={cx(
-                    'group relative flex cursor-pointer items-center gap-2 px-3 text-[14px] font-medium transition-colors',
+                    'group relative flex shrink-0 cursor-pointer items-center px-2 text-[14px] font-medium whitespace-nowrap transition-colors focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-gold xl:px-3',
                     active ? 'text-white' : 'text-white/65 hover:text-white',
                   )}
                 >
                   <span className={cx('flex items-center gap-2 rounded-lg px-1 py-1.5 transition', !active && 'group-hover:bg-white/[0.06]')}>
-                    <Icon className={cx('hidden size-4 xl:block', active ? 'text-gold' : '')} strokeWidth={2} />
+                    <Icon className={cx('hidden size-4 shrink-0 xl:block', active ? 'text-gold' : '')} strokeWidth={2} />
                     {label}
                     {badge != null && <span className="rounded-full bg-gold px-1.5 py-px text-[11px] leading-4 font-bold text-navy-950">{badge}</span>}
                   </span>
-                  <span className={cx('absolute inset-x-3 bottom-0 h-[3px] rounded-t-full bg-gold transition-opacity', active ? 'opacity-100' : 'opacity-0')} />
+                  <span className={cx('absolute inset-x-2 bottom-0 h-[3px] rounded-t-full bg-gold transition-opacity xl:inset-x-3', active ? 'opacity-100' : 'opacity-0')} />
                 </button>
               )
             })}
           </nav>
 
-          <div className="ml-auto flex items-center gap-1">
+          <div className="ml-auto flex shrink-0 items-center gap-1">
             <button
               aria-label={dark ? 'Switch to light mode' : 'Switch to dark mode'}
               onClick={() => actions.updateSettings(me.user_id, { dark_mode: !dark })}
@@ -194,8 +194,8 @@ export function Shell({ children }: { children: ReactNode }) {
                 {items.map(({ to, label, icon: Icon, badge }) => {
                   const active = isActive(current, to)
                   return (
-                    <button key={to} onClick={() => go(to)} className={cx('flex cursor-pointer items-center gap-3 rounded-xl px-3 py-3 text-[15px] font-medium transition', active ? 'bg-white/10 text-white' : 'text-white/70 hover:bg-white/5 hover:text-white')}>
-                      <Icon className={cx('size-[18px]', active && 'text-gold')} />
+                    <button key={to} onClick={() => go(to)} className={cx('flex cursor-pointer items-center gap-3 rounded-xl px-3 py-3 text-[15px] font-medium whitespace-nowrap transition', active ? 'bg-white/10 text-white' : 'text-white/70 hover:bg-white/5 hover:text-white')}>
+                      <Icon className={cx('size-[18px] shrink-0', active && 'text-gold')} />
                       <span className="flex-1 text-left">{label}</span>
                       {badge != null && <span className="rounded-full bg-gold px-2 py-px text-[11px] font-bold text-navy-950">{badge}</span>}
                     </button>

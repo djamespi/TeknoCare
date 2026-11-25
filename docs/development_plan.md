@@ -803,3 +803,7 @@ Student registration in the portal has three steps for student details,
 emergency contact and health information, and password setup. The form keeps
 entries while moving between steps and sends one registration request when
 the student selects Submit.
+
+Dashboard and tab banners use the supplied clinic hallway photo with the
+primary blue overlay. Navigation labels stay on one line, and registration
+separates the step heading, fields, and actions with a yellow step indicator.

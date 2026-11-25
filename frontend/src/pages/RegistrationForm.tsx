@@ -76,15 +76,17 @@ export default function RegistrationForm({ onRegistered }: { onRegistered: (id: 
   }
 
   return (
-    <form onSubmit={submit} aria-labelledby="registration-step" aria-busy={busy}>
-      <p className="text-xs font-semibold text-brand">Step {step + 1} of {steps.length}</p>
-      <h3 id="registration-step" ref={heading} tabIndex={-1} className="mt-1 font-display text-xl font-bold text-navy">
-        {steps[step].title}
-      </h3>
+    <form onSubmit={submit} aria-labelledby="registration-step" aria-busy={busy} className="rounded-2xl border border-line bg-white p-5 sm:p-6">
+      <header className="space-y-3">
+        <p className="w-fit rounded-full bg-navy px-3 py-1 text-xs font-semibold text-gold">Step {step + 1} of {steps.length}</p>
+        <h3 id="registration-step" ref={heading} tabIndex={-1} className="font-display text-xl font-bold text-navy">
+          {steps[step].title}
+        </h3>
+      </header>
       {feedback && (
-        <p role="alert" className="mt-3 rounded-xl bg-red-50 p-3 text-sm text-red-800">{feedback}</p>
+        <p role="alert" className="mt-4 rounded-xl bg-red-50 p-3 text-sm text-red-800">{feedback}</p>
       )}
-      <fieldset key={step} disabled={busy} className="mt-4 grid min-w-0 gap-4 sm:grid-cols-2">
+      <fieldset key={step} disabled={busy} className="mt-5 grid min-w-0 gap-x-4 gap-y-5 sm:grid-cols-2">
         {step === 0 && <>
           <Field label="First name"><Input required maxLength={50} autoComplete="given-name" {...field('first_name')} /></Field>
           <Field label="Last name"><Input required maxLength={50} autoComplete="family-name" {...field('last_name')} /></Field>
@@ -105,7 +107,7 @@ export default function RegistrationForm({ onRegistered }: { onRegistered: (id: 
           <Field label="Emergency contact phone">
             <Input required maxLength={30} type="tel" autoComplete="section-emergency tel" {...field('emergency_contact')} />
           </Field>
-          <Field label="Medical history (optional)" hint="Mention any allergies, ongoing conditions, or regular medications." className="sm:col-span-2">
+          <Field label="Medical history (optional)" hint="Mention any allergies, ongoing conditions, or regular medications." className="border-t border-line pt-5 sm:col-span-2">
             <Textarea {...field('medical_history_summary')} />
           </Field>
         </>}
@@ -118,8 +120,8 @@ export default function RegistrationForm({ onRegistered }: { onRegistered: (id: 
           </Field>
         </>}
       </fieldset>
-      <div className="mt-6 flex gap-3">
-        {step > 0 && <Button type="button" variant="outline" disabled={busy} onClick={() => { setFeedback(''); goToStep(step - 1) }}>Back</Button>}
+      <div className="mt-6 flex gap-3 border-t border-line pt-5">
+        {step > 0 && <Button type="button" variant="outline" size="lg" disabled={busy} onClick={() => { setFeedback(''); goToStep(step - 1) }}>Back</Button>}
         <Button type="submit" size="lg" disabled={busy} className="flex-1">
           {finalStep ? (busy ? 'Submitting…' : 'Submit') : 'Next'}
         </Button>
