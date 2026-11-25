@@ -358,7 +358,6 @@ export function BookVisit() {
           <Card className="overflow-hidden">
             <div className="relative overflow-hidden bg-navy p-6 text-white dark:bg-navy-900">
               <div className="pointer-events-none absolute -top-16 -right-10 size-40 rounded-full bg-gold/25 blur-2xl" />
-              <div className="hero-grid pointer-events-none absolute inset-0 opacity-60" />
               <p className="relative text-[13px] font-medium text-white/60">Your visit</p>
               {slot ? (
                 <div key={slot.slot_id} className="animate-blur-in relative">
@@ -586,7 +585,6 @@ export function Billing() {
       <div>
         <PageHeader title="Clinic charges" description="Faculty and staff clinic visits are free." />
         <Card className="relative overflow-hidden p-12 text-center">
-          <div className="dot-grid pointer-events-none absolute inset-0 [mask-image:radial-gradient(circle_at_center,#000,transparent_70%)]" />
           <div className="animate-float relative mx-auto mb-5 grid size-16 place-items-center rounded-2xl bg-gradient-to-br from-[#ffe04d] to-gold text-navy-950 shadow-xl shadow-gold/30"><UserRound className="size-7" /></div>
           <h2 className="relative text-3xl font-bold">Your visits are free</h2>
           <p className="relative mx-auto mt-2 max-w-md text-muted">There are no charges from prior student visits on your account.</p>

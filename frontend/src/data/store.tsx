@@ -1,7 +1,11 @@
 import { createContext, useCallback, useContext, useEffect, useMemo, useState, type ReactNode } from 'react'
 import type { AccountStatus, AppointmentStatus, DB, EmergencyContact, MedicalRecord, PrescriptionItem, ReferralStatus, User, UserProfile, UserSettings, VitalSign } from './types'
 
-export class DomainError extends Error {}
+export class DomainError extends Error {
+  constructor(message: string, readonly fieldErrors?: Record<string, string[]>) {
+    super(message)
+  }
+}
 
 type Session = {
   actor: number | null; db: DB | null; csrf: string; demo: boolean;
@@ -40,8 +44,8 @@ function useDbState() {
       body: JSON.stringify(values),
     })
     const payload = await response.json().catch(() => null)
-    if (!response.ok) throw new DomainError(payload?.error ?? 'Reload the page and try again.')
-    setSession(await fetchSession())
+    if (!response.ok) throw new DomainError(payload?.error ?? 'Reload the page and try again.', payload?.field_errors)
+    if (operation !== 'register') setSession(await fetchSession())
     return payload.result
   }, [csrf])
 

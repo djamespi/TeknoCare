@@ -5,6 +5,7 @@ import {
 import { createPortal } from 'react-dom'
 import { ChevronLeft, X, type LucideIcon } from 'lucide-react'
 import { HeroSlotContext } from './hero-slot'
+import citLogo from '../../../static/images/cit_logo.png'
 
 export const cx = (...c: (string | false | null | undefined)[]) => c.filter(Boolean).join(' ')
 
@@ -264,7 +265,6 @@ export function Modal({ open, onClose, title, description, children, wide }: { o
 export function Empty({ icon: Icon, title, text, action }: { icon: LucideIcon; title: string; text?: string; action?: ReactNode }) {
   return (
     <div className="relative flex flex-col items-center overflow-hidden px-6 py-14 text-center">
-      <div className="dot-grid pointer-events-none absolute inset-0 [mask-image:radial-gradient(circle_at_center,#000,transparent_65%)]" />
       <div className="relative mb-4 grid size-14 place-items-center rounded-2xl bg-gradient-to-br from-navy to-navy-700 text-gold shadow-lg shadow-navy/25">
         <Icon className="size-6" />
       </div>
@@ -326,14 +326,19 @@ export function Toast({ message, onDone }: { message: string | null; onDone: () 
 
 export function Logo({ light }: { light?: boolean }) {
   return (
-    <span className="flex items-center gap-2.5">
-      <span className="relative grid size-9 place-items-center rounded-xl bg-gold">
-        <svg viewBox="0 0 24 24" className="size-5 text-navy" fill="currentColor" aria-hidden>
-          <path d="M9.5 3h5a1 1 0 0 1 1 1v4.5H20a1 1 0 0 1 1 1v5a1 1 0 0 1-1 1h-4.5V20a1 1 0 0 1-1 1h-5a1 1 0 0 1-1-1v-4.5H4a1 1 0 0 1-1-1v-5a1 1 0 0 1 1-1h4.5V4a1 1 0 0 1 1-1Z" />
-        </svg>
+    <span className="inline-flex items-center gap-3.5">
+      <span className="size-9 shrink-0 overflow-hidden rounded-full">
+        <img src={citLogo} alt="CIT-University" width={36} height={36} className="size-full scale-[1.2]" />
       </span>
-      <span className={cx('font-display text-[19px] font-bold tracking-tight', light ? 'text-white' : 'text-ink')}>
-        Tekno<span className={light ? 'text-gold' : 'text-brand'}>Care</span>
+      <span className="flex items-center gap-2.5">
+        <span className="grid size-9 shrink-0 place-items-center rounded-xl bg-gold">
+          <svg viewBox="0 0 24 24" className="size-5 text-navy" fill="currentColor" aria-hidden>
+            <path d="M9.5 3h5a1 1 0 0 1 1 1v4.5H20a1 1 0 0 1 1 1v5a1 1 0 0 1-1 1h-4.5V20a1 1 0 0 1-1 1h-5a1 1 0 0 1-1-1v-4.5H4a1 1 0 0 1-1-1v-5a1 1 0 0 1 1-1h4.5V4a1 1 0 0 1 1-1Z" />
+          </svg>
+        </span>
+        <span className={cx('font-display text-[19px] font-bold tracking-tight', light ? 'text-white' : 'text-ink')}>
+          Tekno<span className={light ? 'text-gold' : 'text-brand'}>Care</span>
+        </span>
       </span>
     </span>
   )

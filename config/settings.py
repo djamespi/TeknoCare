@@ -39,3 +39,11 @@ except (ValueError, KeyError):
 CLINIC_CURRENCY_CODE = os.environ.get("CLINIC_CURRENCY_CODE", "PHP")
 SESSION_COOKIE_SECURE = not DEBUG
 CSRF_COOKIE_SECURE = not DEBUG
+
+TEKNOCARE_MAKE_DEMO = (
+    DATABASES["default"]["ENGINE"] == "django.db.backends.postgresql"
+    and DATABASES["default"]["NAME"] == "teknocare_make_demo"
+)
+if TEKNOCARE_MAKE_DEMO:
+    SESSION_COOKIE_NAME = "teknocare_make_session"
+    CSRF_COOKIE_NAME = "teknocare_make_csrf"

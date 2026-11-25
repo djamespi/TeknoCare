@@ -211,8 +211,8 @@ export function Shell({ children }: { children: ReactNode }) {
         )}
       </header>
 
-      <div className="relative -mt-16 overflow-hidden bg-navy pt-16 text-white dark:bg-navy-950">
-        <HeroBackdrop />
+      <div className="clinic-hero relative -mt-16 overflow-hidden pt-16 text-white">
+        <div aria-hidden className="pointer-events-none absolute inset-x-0 bottom-0 h-px bg-gradient-to-r from-transparent via-gold/60 to-transparent" />
         <div ref={setSlot} key={route} className="relative" />
       </div>
 
@@ -221,22 +221,6 @@ export function Shell({ children }: { children: ReactNode }) {
       </HeroSlotContext.Provider>
 
       <Footer />
-    </div>
-  )
-}
-
-function HeroBackdrop() {
-  return (
-    <div aria-hidden className="pointer-events-none absolute inset-0">
-      <div className="aurora-a absolute -top-48 right-[-8%] size-[560px] rounded-full bg-gold/20 blur-[120px]" />
-      <div className="aurora-b absolute -bottom-64 left-[-12%] size-[640px] rounded-full bg-[#2f6bff]/25 blur-[130px]" />
-      <div className="absolute top-0 left-[35%] size-[340px] rounded-full bg-navy-700/70 blur-[110px]" />
-      <div className="hero-grid absolute inset-0" />
-      <svg viewBox="0 0 24 24" className="animate-float absolute top-16 right-[-60px] hidden size-[380px] text-white/[0.045] md:block" fill="none" stroke="currentColor" strokeWidth="0.35">
-        <path d="M9.5 3h5a1 1 0 0 1 1 1v4.5H20a1 1 0 0 1 1 1v5a1 1 0 0 1-1 1h-4.5V20a1 1 0 0 1-1 1h-5a1 1 0 0 1-1-1v-4.5H4a1 1 0 0 1-1-1v-5a1 1 0 0 1 1-1h4.5V4a1 1 0 0 1 1-1Z" />
-      </svg>
-      <div className="noise absolute inset-0" />
-      <div className="absolute inset-x-0 bottom-0 h-px bg-gradient-to-r from-transparent via-gold/60 to-transparent" />
     </div>
   )
 }

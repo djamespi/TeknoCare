@@ -70,7 +70,12 @@ def action(request, name):
                 if request.user.is_authenticated:
                     raise PermissionDenied
                 form = RegistrationForm(values)
-                validated(form)
+                if not form.is_valid():
+                    field_errors = {field: list(messages) for field, messages in form.errors.items()}
+                    return JsonResponse({
+                        "error": " ".join(message for messages in field_errors.values() for message in messages),
+                        "field_errors": field_errors,
+                    }, status=400)
                 form.save()
             elif name == "logout":
                 logout(request)

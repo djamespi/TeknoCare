@@ -15,6 +15,7 @@
   <header class="portal-head">
     <div class="head-inner">
       <a class="wordmark" href="{% if request.user.is_authenticated %}{% url 'home:home' %}{% else %}{% url 'login:login' %}{% endif %}">
+        <span class="university-mark"><img src="{% static 'images/cit_logo.png' %}" alt="CIT-University" width="34" height="34"></span>
         <span class="clinic-mark" aria-hidden="true"><i></i><i></i><i></i><i></i></span>
         <span>TeknoCare<small>CIT-University clinic</small></span>
       </a>

@@ -790,5 +790,16 @@ The complete Make fixture was imported separately to `teknocare_make_demo`
 on the Supabase host. Counts were checked for all 22 ERD tables and sign-in was
 verified for five sample accounts. The Make demo restores sample account cards,
 clinic hours, a next-opening preview, charts, and the exported motion.
-See [the sample portal setup](../README.md#preview-with-the-make-sample-data).
+See [the hosted portal setup](../README.md#run-the-project-with-the-figma-make-data).
 Visual review is pending.
+
+The project now uses the Figma Make data through the hosted `DATABASE_URL`.
+Sign-in uses university IDs entered directly. The sign-in layout keeps the
+clinic photo in place when registration expands, and the shared portal header
+uses the CIT-University seal alongside the TeknoCare logo and a blue-tinted
+clinic photo.
+
+Student registration in the portal has three steps for student details,
+emergency contact and health information, and password setup. The form keeps
+entries while moving between steps and sends one registration request when
+the student selects Submit.
