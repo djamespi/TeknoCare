@@ -27,6 +27,14 @@ class PortalTests(TestCase):
         headers = {"X-CSRFToken": csrf} if csrf else {}
         return client.post(reverse("portal:action", args=[name]), body, content_type="application/json", headers=headers)
 
+    def assert_portal_patch(self, response, tables):
+        self.assertEqual(response.status_code, 200, response.content)
+        patch = response.json()["patch"]["db"]
+        self.assertEqual(set(patch), set(tables))
+        full = self.client.get(reverse("portal:snapshot")).json()["db"]
+        self.assertEqual(patch, {table: full[table] for table in tables})
+        return patch
+
     def test_anonymous_snapshot_and_login_require_session_and_csrf(self):
         client = Client(enforce_csrf_checks=True)
         session = client.get(reverse("portal:snapshot"))
@@ -52,15 +60,34 @@ class PortalTests(TestCase):
         self.client.force_login(self.patient.patient)
         slot = next(slot for slot in self.client.get(reverse("portal:snapshot")).json()["db"]["slot"] if slot["bookable"])
         booking = self.request_action("book", {"slot_id": slot["slot_id"], "version": slot["version"], "reason": "Fictional visit"})
-        self.assertEqual(booking.status_code, 200, booking.content)
+        tables = {"appointment", "slot", "clinic_room", "provider", "user"}
+        self.assert_portal_patch(booking, tables)
         booked = Appointment.objects.get(pk=booking.json()["result"])
         self.assertEqual(booked.patient_id, self.patient.pk)
         self.client.force_login(self.other)
         self.assertEqual(self.request_action("cancel-booking", {"id": booked.pk}).status_code, 403)
         self.client.force_login(self.patient.patient)
-        self.assertEqual(self.request_action("cancel-booking", {"id": booked.pk}).status_code, 200)
+        self.assert_portal_patch(self.request_action("cancel-booking", {"id": booked.pk}), tables)
         booked.refresh_from_db()
         self.assertEqual(booked.status, Appointment.Status.CANCELED)
+
+    def test_account_and_reference_actions_refresh_only_their_changed_tables(self):
+        self.client.force_login(self.patient.patient)
+        added = self.request_action("contact", {
+            "full_name": " Fictional Contact ", "relationship": "Parent",
+            "phone_number": "09123456789", "is_primary": True,
+        })
+        contacts = self.assert_portal_patch(added, {"emergency_contact"})["emergency_contact"]
+        contact = next(row for row in contacts if row["full_name"] == "Fictional Contact")
+        removed = self.request_action("remove-contact", {"id": contact["contact_id"]})
+        contacts = self.assert_portal_patch(removed, {"emergency_contact"})["emergency_contact"]
+        self.assertNotIn(contact["contact_id"], [row["contact_id"] for row in contacts])
+
+        self.client.force_login(self.admin)
+        saved = self.request_action("save-reference", {"table": "department", "entry": {
+            "code": "PATCH", "name": "Patch example", "is_active": True,
+        }})
+        self.assert_portal_patch(saved, {"department", "audit_log"})
 
     def test_provider_and_admin_reads_follow_existing_chart_boundaries(self):
         self.client.force_login(self.provider.provider)
@@ -90,7 +117,8 @@ class PortalTests(TestCase):
 
         original = record_version()
         vital = self.request_action("save-vitals", {"id": draft.pk, "version": original, "measurements": {"pulse_bpm": 74}})
-        self.assertEqual(vital.status_code, 200, vital.content)
+        updated = self.assert_portal_patch(vital, {"medical_record", "vital_sign"})
+        self.assertNotEqual(next(row["version"] for row in updated["medical_record"] if row["record_id"] == draft.pk), original)
         self.assertEqual(draft.vital_signs.count(), 1)
         stale = self.request_action("save-notes", {"id": draft.pk, "version": original, "notes": {"symptoms": "Fictional entry"}})
         self.assertEqual(stale.status_code, 400)
@@ -98,13 +126,26 @@ class PortalTests(TestCase):
             "medication_id": medication.pk, "dose": "Demo dose", "route": "Demo route", "frequency": "Demo frequency",
             "duration_days": 1, "quantity": 1, "quantity_unit": "Demo unit",
         }})
-        self.assertEqual(item.status_code, 200, item.content)
-        prescription = snapshot()["prescription"][0]
+        prescription_tables = {"prescription", "prescription_item"}
+        prescription_patch = self.assert_portal_patch(item, prescription_tables)
+        prescription = prescription_patch["prescription"][0]
+        removed = self.request_action("delete-prescription-item", {
+            "id": prescription_patch["prescription_item"][0]["item_id"], "version": prescription["version"],
+        })
+        prescription_patch = self.assert_portal_patch(removed, prescription_tables)
+        self.assertEqual(prescription_patch["prescription_item"], [])
+        prescription = prescription_patch["prescription"][0]
+        item = self.request_action("add-prescription-item", {
+            "id": draft.pk, "prescription_id": prescription["prescription_id"], "version": prescription["version"],
+            "item": {"medication_id": medication.pk, "dose": "Demo dose", "route": "Demo route",
+                     "frequency": "Demo frequency", "duration_days": 1, "quantity": 1, "quantity_unit": "Demo unit"},
+        })
+        prescription = self.assert_portal_patch(item, prescription_tables)["prescription"][0]
         self.assertEqual(self.request_action("finalize", {"id": draft.pk, "version": record_version()}).status_code, 400)
         issued = self.request_action("prescription-status", {
             "id": prescription["prescription_id"], "version": prescription["version"], "operation": "issue",
         })
-        self.assertEqual(issued.status_code, 200, issued.content)
+        self.assert_portal_patch(issued, prescription_tables)
         self.assertEqual(Prescription.objects.get(record=draft).status, Prescription.Status.ISSUED)
         finalized = self.request_action("finalize", {"id": draft.pk, "version": record_version()})
         self.assertEqual(finalized.status_code, 200, finalized.content)

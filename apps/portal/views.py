@@ -21,6 +21,53 @@ from .actions import ACTIONS, validated
 from .data import portal_data
 
 
+SCHEDULE_TABLES = {"appointment", "slot", "clinic_room", "provider", "user"}
+ENCOUNTER_TABLES = SCHEDULE_TABLES | {
+    "patient", "patient_allergy", "medical_record", "vital_sign", "record_diagnosis",
+    "prescription", "prescription_item", "referral",
+}
+ACTION_TABLES = {
+    "profile": {"user_profile"},
+    "preferences": {"user_settings"},
+    "birth-date": {"patient"},
+    "contact": {"emergency_contact"},
+    "remove-contact": {"emergency_contact"},
+    "book": SCHEDULE_TABLES,
+    "cancel-booking": SCHEDULE_TABLES,
+    "appointment-status": ENCOUNTER_TABLES,
+    "open-encounter": ENCOUNTER_TABLES,
+    "finalize": ENCOUNTER_TABLES,
+    "save-notes": {"medical_record"},
+    "change-diagnosis": {"medical_record", "record_diagnosis"},
+    "save-vitals": {"medical_record", "vital_sign"},
+    "add-prescription-item": {"prescription", "prescription_item"},
+    "delete-prescription-item": {"prescription", "prescription_item"},
+    "prescription-status": {"prescription", "prescription_item"},
+    "referral": {"referral"},
+    "add-provider": {"user", "provider"},
+    "account-status": {"user", "provider", "slot"},
+    "change-charge": {"student_charge"},
+    "add-slots": SCHEDULE_TABLES,
+    "toggle-slot": SCHEDULE_TABLES,
+}
+
+
+def action_patch(actor, name, values):
+    if name == "save-reference":
+        table = values["table"]
+        tables = {"clinic_room", "slot"} if table == "clinic_room" else {table}
+    else:
+        tables = ACTION_TABLES.get(name)
+    if tables is None:
+        return None
+    if actor.is_staff:
+        tables = tables | {"audit_log"}
+    patch = {"db": portal_data(actor, tables)}
+    if actor.is_staff and "referral" in tables:
+        patch["open_referrals"] = Referral.objects.filter(status=Referral.Status.PENDING).count()
+    return patch
+
+
 @never_cache
 @require_GET
 def index(request):
@@ -56,7 +103,7 @@ def action(request, name):
         values = json.loads(request.body)
         if not isinstance(values, dict):
             return JsonResponse({"error": "Send a valid clinic request."}, status=400)
-        result = None
+        response = {"result": None}
         with transaction.atomic():
             if name == "login":
                 form = LoginForm(values, request=request)
@@ -84,8 +131,10 @@ def action(request, name):
                 operation = ACTIONS.get(name)
                 if operation is None:
                     return JsonResponse({"error": "This action is unavailable."}, status=404)
-                result = operation(actor, values)
-        return JsonResponse({"result": result})
+                response["result"] = operation(actor, values)
+                response["patch"] = action_patch(actor, name, values)
+            # Serialize while the transaction can still roll back if the response cannot be built.
+            return JsonResponse(response)
     except ValidationError as error:
         return JsonResponse({"error": " ".join(error.messages)}, status=400)
     except PermissionDenied:

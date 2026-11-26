@@ -106,9 +106,9 @@ export function SectionTitle({ title, description, action }: { title: string; de
 
 export type HeroStat = { icon: LucideIcon; label: string; value: number; format?: (n: number) => string; hint?: string }
 
-export function GlassStat({ icon: Icon, label, value, format, hint, delay = 0 }: HeroStat & { delay?: number }) {
+export function GlassStat({ icon: Icon, label, value, format, hint }: HeroStat) {
   return (
-    <div className="animate-rise group rounded-2xl bg-white/[0.06] p-4 ring-1 ring-white/10 backdrop-blur-md transition hover:bg-white/[0.09] sm:p-5" style={{ animationDelay: `${150 + delay}ms` }}>
+    <div className="group rounded-2xl bg-white/[0.06] p-4 ring-1 ring-white/10 backdrop-blur-md transition hover:bg-white/[0.09] sm:p-5">
       <div className="flex items-center gap-2 text-[13px] text-white/60"><Icon className="size-4 text-gold" />{label}</div>
       <p className="mt-2 font-display text-[28px] leading-none font-bold text-white"><CountUp value={value} format={format} /></p>
       {hint && <p className="mt-1.5 text-xs text-white/50">{hint}</p>}
@@ -122,23 +122,23 @@ export function PageHeader({ title, description, action, eyebrow, back, stats, c
   const slot = useContext(HeroSlotContext)
   if (!slot) return null
   return createPortal(
-    <div className="relative mx-auto max-w-6xl px-5 pt-8 pb-12 sm:px-8 sm:pt-12 sm:pb-14">
+    <div className="page-enter relative mx-auto max-w-6xl px-5 pt-8 pb-12 sm:px-8 sm:pt-12 sm:pb-14">
       {back && (
-        <button onClick={back.onClick} className="animate-rise mb-6 inline-flex cursor-pointer items-center gap-1 rounded-full bg-white/[0.07] py-1.5 pr-3.5 pl-2 text-[13px] font-medium text-white/75 ring-1 ring-white/10 transition hover:bg-white/[0.12] hover:text-white">
+        <button onClick={back.onClick} className="mb-6 inline-flex cursor-pointer items-center gap-1 rounded-full bg-white/[0.07] py-1.5 pr-3.5 pl-2 text-[13px] font-medium text-white/75 ring-1 ring-white/10 transition hover:bg-white/[0.12] hover:text-white">
           {back.label}
         </button>
       )}
       <div className="flex flex-col gap-6 md:flex-row md:items-end md:justify-between">
         <div className="min-w-0">
-          {eyebrow && <div className="animate-rise mb-4 inline-flex items-center gap-2 rounded-full bg-white/[0.07] px-3 py-1 text-[13px] font-medium text-white/80 ring-1 ring-white/10">{eyebrow}</div>}
-          <h1 className="animate-blur-in text-[34px] leading-[1.05] font-bold text-white sm:text-[46px]">{title}</h1>
-          {description && <p className="animate-rise mt-3 max-w-2xl text-[15px] leading-relaxed text-white/65 sm:text-base" style={{ animationDelay: '120ms' }}>{description}</p>}
+          {eyebrow && <div className="mb-4 inline-flex items-center gap-2 rounded-full bg-white/[0.07] px-3 py-1 text-[13px] font-medium text-white/80 ring-1 ring-white/10">{eyebrow}</div>}
+          <h1 className="text-[34px] leading-[1.05] font-bold text-white sm:text-[46px]">{title}</h1>
+          {description && <p className="mt-3 max-w-2xl text-[15px] leading-relaxed text-white/65 sm:text-base">{description}</p>}
         </div>
-        {action && <div className="animate-rise flex shrink-0 flex-wrap gap-2" style={{ animationDelay: '180ms' }}>{action}</div>}
+        {action && <div className="flex shrink-0 flex-wrap gap-2">{action}</div>}
       </div>
       {stats && (
         <div className={cx('mt-9 grid grid-cols-2 gap-3', stats.length >= 4 ? 'lg:grid-cols-4' : 'lg:grid-cols-3')}>
-          {stats.map((st, i) => <GlassStat key={st.label} {...st} delay={i * 70} />)}
+          {stats.map((st) => <GlassStat key={st.label} {...st} />)}
         </div>
       )}
       {children && <div className="mt-9">{children}</div>}

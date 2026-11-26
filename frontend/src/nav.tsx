@@ -1,6 +1,6 @@
 import { createContext, useCallback, useContext, useEffect, useState, type ReactNode } from 'react'
 import { Toast } from './components/ui'
-import { DomainError } from './data/store'
+import { DomainError, useStore } from './data/store'
 
 type Nav = {
   route: string
@@ -15,6 +15,7 @@ const Ctx = createContext<Nav | null>(null)
 const read = () => window.location.hash.replace(/^#\/?/, '')
 
 export function NavProvider({ children }: { children: ReactNode }) {
+  const { saving } = useStore()
   const [route, setRoute] = useState(read)
   const [msg, setMsg] = useState<string | null>(null)
   useEffect(() => {
@@ -43,6 +44,7 @@ export function NavProvider({ children }: { children: ReactNode }) {
   return (
     <Ctx.Provider value={{ route, segments: route.split('/').filter(Boolean), go, toast, run }}>
       {children}
+      {saving && <p role="status" className="pointer-events-none fixed right-4 bottom-20 z-[60] rounded-xl bg-navy-950 px-4 py-2 text-sm font-medium text-white shadow-lg">Saving changes…</p>}
       <Toast message={msg} onDone={clear} />
     </Ctx.Provider>
   )

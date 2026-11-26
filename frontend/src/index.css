@@ -112,6 +112,7 @@
 }
 
 .animate-rise { animation: tc-rise 0.55s cubic-bezier(0.2, 0.7, 0.2, 1) both; }
+.page-enter { animation: tc-rise 0.16s ease-out both; }
 .login-photo { animation: tc-rise 1.6s ease-out both; }
 .donut-segment { animation: tc-rise 0.8s both; }
 .animate-blur-in { animation: tc-blur-in 0.8s cubic-bezier(0.2, 0.7, 0.2, 1) both; }
@@ -191,7 +192,7 @@
 .no-scrollbar::-webkit-scrollbar { display: none; }
 
 @media (prefers-reduced-motion: reduce) {
-  .animate-rise, .animate-blur-in, .animate-float, .animate-ping, .aurora-a, .aurora-b, .grow-y, .text-shine, .login-photo, .donut-segment { animation: none; }
+  .page-enter, .animate-rise, .animate-blur-in, .animate-float, .animate-ping, .aurora-a, .aurora-b, .grow-y, .text-shine, .login-photo, .donut-segment { animation: none; }
   .text-shine { background: none; color: #fdd108; }
   .draw { animation: none; stroke-dashoffset: 0; }
   .reveal { opacity: 1; transform: none; transition: none; }

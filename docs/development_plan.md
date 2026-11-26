@@ -813,3 +813,11 @@ fixed clinic panel. The supplied TeknoCare mark sits on primary blue in the
 auth panel and footer and appears without a container in navigation.
 The navigation mark sits slightly smaller beside the CIT-University seal.
 The browser tab icon places the TeknoCare mark on primary blue.
+
+The portal snapshot reuses account and provider checks within each request.
+Booking and cancellation availability now load alongside slots and visits.
+Tab headers and content enter together in 160 ms.
+
+Portal writes return the affected role-scoped tables in the action response.
+The frontend applies those responses in write order, using the returned
+versions for subsequent edits and showing saving status while Django works.

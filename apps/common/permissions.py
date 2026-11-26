@@ -4,6 +4,9 @@ from django.core.exceptions import PermissionDenied
 from django.utils import timezone
 
 
+_PROVIDER_UNLOADED = object()
+
+
 def active_user(actor):
     if not getattr(actor, "is_authenticated", False) or not getattr(actor, "pk", None):
         return None
@@ -45,32 +48,36 @@ def _clinical_patient_access(provider, patient):
     ))
 
 
-def allowed(user, action, target=None):
-    if not user or not required_profile_exists(user):
+def allowed(user, action, target=None, *, has_profile=None, provider=_PROVIDER_UNLOADED):
+    if not user or not (required_profile_exists(user) if has_profile is None else has_profile):
         return False
+
+    def get_provider():
+        return clinical_provider(user) if provider is _PROVIDER_UNLOADED else provider
+
     is_admin = user.user_type == "Admin"
     if action in {"accounts.manage", "reference.manage", "billing.manage", "audit.view", "reports.view"}:
         return is_admin
     if action == "account.use":
         return True
     if action == "patient.allergy_lookup":
-        return bool(clinical_provider(user))
+        return bool(get_provider())
     if action == "consultation.access":
-        return bool(clinical_provider(user))
+        return bool(get_provider())
     if action in {"schedule.access", "reception.access"}:
-        return is_admin or bool(clinical_provider(user))
+        return is_admin or bool(get_provider())
     if action == "reception.walkin":
         return is_admin
     if action == "reception.assign":
-        provider = clinical_provider(user)
-        return is_admin or bool(provider and provider.provider_type == "Nurse")
+        assigned_provider = get_provider()
+        return is_admin or bool(assigned_provider and assigned_provider.provider_type == "Nurse")
     if target is None:
         return False
     if action == "appointment.book":
         return target.patient.is_active and (is_admin or target.pk == user.pk)
     if action == "appointment.cancel":
         return (is_admin or target.patient_id == user.pk) and target.can_cancel
-    provider = clinical_provider(user)
+    provider = get_provider()
     if action == "reception.appointment":
         today = timezone.localdate()
         return is_admin or bool(provider and target.patient_id != user.pk and (
