@@ -821,3 +821,7 @@ Tab headers and content enter together in 160 ms.
 Portal writes return the affected role-scoped tables in the action response.
 The frontend applies those responses in write order, using the returned
 versions for subsequent edits and showing saving status while Django works.
+
+Buttons that make requests show a right-side spinner and fade their existing
+colors while disabled until the request settles. Django form submissions use
+the same state and preserve the clicked submit button's action value.

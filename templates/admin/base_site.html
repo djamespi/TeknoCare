@@ -1,7 +1,11 @@
 {% extends "admin/base.html" %}
 {% load static %}
 {% block title %}{{ title }} | TeknoCare account directory{% endblock %}
-{% block extrastyle %}{{ block.super }}<link rel="stylesheet" href="{% static 'css/includes/directory.css' %}">{% endblock %}
+{% block extrastyle %}{{ block.super }}
+  <link rel="stylesheet" href="{% static 'css/includes/directory.css' %}">
+  <link rel="stylesheet" href="{% static 'css/includes/button-loading.css' %}">
+{% endblock %}
+{% block extrahead %}{{ block.super }}<script src="{% static 'js/includes/button-loading.js' %}" defer></script>{% endblock %}
 {% block branding %}
   <div id="site-name"><a href="{% url 'admin:index' %}">TeknoCare account directory</a></div>
   {% if user.is_anonymous %}{% include "admin/color_theme_toggle.html" %}{% endif %}

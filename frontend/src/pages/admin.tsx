@@ -69,6 +69,7 @@ export function People() {
   const { name, providerById, patientById, deptById } = useLookups()
   const [tab, setTab] = useState<'all' | 'patient' | 'provider' | 'admin'>('all')
   const [addOpen, setAddOpen] = useState(false)
+  const [creatingProvider, setCreatingProvider] = useState(false)
   const [pv, setPv] = useState({ school_id: '', first_name: '', last_name: '', email: '',
     provider_type: 'Unverified', license_number: '', specialization: '', password1: '', password2: '' })
   const providerField = (key: keyof typeof pv) => (event: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) =>
@@ -113,9 +114,15 @@ export function People() {
       </Card>
 
       <Modal open={addOpen} onClose={() => setAddOpen(false)} title="Add a provider" description="Creates an inactive provider account for clinic review." wide>
-        <form className="grid grid-cols-2 gap-4" onSubmit={async event => {
+        <form className="grid grid-cols-2 gap-4" aria-busy={creatingProvider} onSubmit={async event => {
           event.preventDefault()
-          if (await run(() => actions.addProvider(pv), 'Provider account created. Review activation under Clinic setup.')) setAddOpen(false)
+          if (creatingProvider) return
+          setCreatingProvider(true)
+          try {
+            if (await run(() => actions.addProvider(pv), 'Provider account created. Review activation under Clinic setup.')) setAddOpen(false)
+          } finally {
+            setCreatingProvider(false)
+          }
         }}>
           <Field label="First name"><Input required value={pv.first_name} onChange={providerField('first_name')} /></Field>
           <Field label="Last name"><Input required value={pv.last_name} onChange={providerField('last_name')} /></Field>
@@ -128,7 +135,7 @@ export function People() {
           <Field label="Specialization" className="col-span-2"><Input value={pv.specialization} onChange={providerField('specialization')} /></Field>
           <Field label="Initial password"><Input required type="password" autoComplete="new-password" value={pv.password1} onChange={providerField('password1')} /></Field>
           <Field label="Confirm password"><Input required type="password" autoComplete="new-password" value={pv.password2} onChange={providerField('password2')} /></Field>
-          <Button className="col-span-2" type="submit">Create provider</Button>
+          <Button className="col-span-2" type="submit" loading={creatingProvider}>Create provider</Button>
         </form>
       </Modal>
     </div>
@@ -147,7 +154,7 @@ export function Charges() {
   const count = (s: string) => db.student_charge.filter((c) => c.status === s).length
   return (
     <div>
-      <PageHeader title="Student charges" description="Review student visit charges and their tuition posting status. Posting records a simulated tuition charge. Payment is handled outside TeknoCare." action={<Button variant="accent" onClick={() => window.location.assign('/clinic/charges/find/')}>Find an encounter</Button>}
+      <PageHeader title="Student charges" description="Review student visit charges and their tuition posting status. Posting records a simulated tuition charge. Payment is handled outside TeknoCare." action={<Button variant="accent" data-page-load onClick={() => window.location.assign('/clinic/charges/find/')}>Find an encounter</Button>}
         stats={[
           { icon: Receipt, label: 'Pending', value: db.student_charge.filter((c) => c.status === 'pending').reduce((s, c) => s + c.amount, 0), format: peso, hint: `${count('pending')} charges` },
           { icon: CircleCheck, label: 'Posted to tuition', value: db.student_charge.filter((c) => c.status === 'posted').reduce((s, c) => s + c.amount, 0), format: peso, hint: `${count('posted')} charges` },
@@ -270,7 +277,7 @@ export function Catalog() {
                       const id = Number(r[c.pk])
                       const fields = { ...r, [c.toggle!]: v }
                       delete fields[c.pk]
-                      void run(() => actions.saveReference(tab, fields, id), `${v ? 'Enabled' : 'Disabled'} ${c.label}`)
+                      return run(() => actions.saveReference(tab, fields, id), `${v ? 'Enabled' : 'Disabled'} ${c.label}`)
                     }} />
                   </td>
                 )}

@@ -1,0 +1,48 @@
+.button-loading,
+.button-loading-input > input[aria-busy="true"] {
+  opacity: 0.68;
+  cursor: wait;
+}
+
+.button-loading {
+  display: inline-flex;
+  align-items: center;
+  column-gap: 0.375rem;
+}
+
+.button-loading-input {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+}
+
+.button-loading-input > input[aria-busy="true"] {
+  padding-inline-end: 2.25rem;
+}
+
+.button-loading::after,
+.button-loading-input::after {
+  content: "";
+  box-sizing: border-box;
+  inline-size: 0.85em;
+  block-size: 0.85em;
+  flex: none;
+  border: 2px solid currentColor;
+  border-inline-end-color: transparent;
+  border-radius: 50%;
+  animation: button-spinner 0.75s linear infinite;
+}
+
+.button-loading-input::after {
+  position: absolute;
+  inset-inline-end: 0.75rem;
+  pointer-events: none;
+}
+
+@keyframes button-spinner {
+  to { transform: rotate(1turn); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .button-loading::after, .button-loading-input::after { animation: none; }
+}

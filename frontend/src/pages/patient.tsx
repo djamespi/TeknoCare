@@ -6,7 +6,7 @@ import {
 import physicianImg from '../assets/service-physician.jpg'
 import nurseImg from '../assets/service-nurse.jpg'
 import dentalImg from '../assets/service-dental.jpg'
-import { Avatar, Badge, Button, Card, Empty, Field, Input, Modal, PageHeader, Reveal, SectionTitle, Select, Sparkline, Stat, Status, Tabs, Textarea, cx } from '../components/ui'
+import { ActionButton, Avatar, Badge, Button, Card, Empty, Field, Input, Modal, PageHeader, Reveal, SectionTitle, Select, Sparkline, Stat, Status, Tabs, Textarea, cx } from '../components/ui'
 import { age, clinicStatus, dayKey, fmtDate, fmtDateTime, fmtDay, fmtTime, peso, relative } from '../data/format'
 import { useLookups, useStore } from '../data/store'
 import type { Affiliation, Severity } from '../data/types'
@@ -423,7 +423,7 @@ export function Appointments() {
               <div className="flex gap-2">
                 {rec && <Button variant="outline" size="sm" icon={FileHeart} onClick={() => go(`record/${rec.record_id}`)}>View record</Button>}
                 {a.can_cancel && <>
-                  <Button variant="outline" size="sm" onClick={() => window.location.assign(`/appointments/${a.appointment_id}/reschedule/`)}>Reschedule</Button>
+                  <Button variant="outline" size="sm" data-page-load onClick={() => window.location.assign(`/appointments/${a.appointment_id}/reschedule/`)}>Reschedule</Button>
                   <Button variant="danger" size="sm" onClick={() => setConfirm(a.appointment_id)}>Cancel</Button>
                 </>}
               </div>
@@ -547,8 +547,8 @@ export function HealthProfile({ patientId }: { patientId?: number }) {
                       <div className="flex items-center gap-2"><p className="font-semibold">{c.full_name}</p>{c.is_primary && <Badge tone="navy">Primary</Badge>}</div>
                       <p className="flex items-center gap-1.5 text-sm text-muted">{c.relationship} · <Phone className="size-3" />{c.phone_number}</p>
                     </div>
-                    {!c.is_primary && <button aria-label="Make primary" title="Make primary" onClick={() => run(() => actions.setPrimaryContact(c.contact_id))} className="cursor-pointer rounded-lg p-1.5 text-muted opacity-0 transition group-hover:opacity-100 hover:bg-surface hover:text-brand focus:opacity-100"><Star className="size-4" /></button>}
-                    <button aria-label={`Remove ${c.full_name}`} onClick={() => run(() => actions.removeContact(c.contact_id))} className="cursor-pointer rounded-lg p-1.5 text-muted opacity-0 transition group-hover:opacity-100 hover:bg-surface hover:text-red-600 focus:opacity-100"><Trash2 className="size-4" /></button>
+                    {!c.is_primary && <ActionButton aria-label="Make primary" title="Make primary" onClick={() => run(() => actions.setPrimaryContact(c.contact_id))} className="cursor-pointer rounded-lg p-1.5 text-muted opacity-0 transition group-hover:opacity-100 hover:bg-surface hover:text-brand focus:opacity-100"><Star className="size-4" /></ActionButton>}
+                    <ActionButton aria-label={`Remove ${c.full_name}`} onClick={() => run(() => actions.removeContact(c.contact_id))} className="cursor-pointer rounded-lg p-1.5 text-muted opacity-0 transition group-hover:opacity-100 hover:bg-surface hover:text-red-600 focus:opacity-100"><Trash2 className="size-4" /></ActionButton>
                   </li>
                 ))}
               </ul>

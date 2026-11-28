@@ -80,15 +80,19 @@ export default function Login() {
           <p className="mt-2 text-[15px] text-[#5b6478]">{mode === 'in' ? 'Use your university ID to sign in.' : demo ? 'Register a sample student with fictional details.' : 'Create a student account to book visits and view your records.'}</p>
           <div className="my-7"><Tabs value={mode} onChange={setMode} items={[{ value: 'in', label: 'Sign in' }, { value: 'up', label: 'Register' }]} /></div>
           {mode === 'in' && <>
-            <form className="space-y-4" onSubmit={async (event) => {
+            <form className="space-y-4" aria-busy={busy} onSubmit={async (event) => {
               event.preventDefault()
+              if (busy) return
               setBusy(true)
-              await run(() => actions.login(id, pw))
-              setBusy(false)
+              try {
+                await run(() => actions.login(id, pw))
+              } finally {
+                setBusy(false)
+              }
             }}>
               <Field label="University ID"><Input required value={id} onChange={event => setId(event.target.value)} autoComplete="username" /></Field>
               <Field label="Password"><Input required type="password" value={pw} onChange={event => setPw(event.target.value)} autoComplete="current-password" /></Field>
-              <Button disabled={busy} size="lg" className="w-full" type="submit">Sign in</Button>
+              <Button loading={busy} size="lg" className="w-full" type="submit">Sign in</Button>
             </form>
             <p className="mt-6 text-sm text-muted">For password help, contact the clinic administrator.</p>
           </>}

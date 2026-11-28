@@ -3,7 +3,7 @@ import {
   AlertOctagon, CalendarPlus, Check, CheckCircle2, ClipboardPlus, GraduationCap, Clock, FilePen, FileHeart, Lock, Pill, Plus,
   Search, Send, Star, Stethoscope, Trash2, UserCheck, UserX, Users, Activity, Library, MapPin,
 } from 'lucide-react'
-import { Avatar, Badge, Button, Card, Empty, Field, Input, Modal, PageHeader, SectionTitle, Select, Stat, Status, Tabs, Textarea, cx } from '../components/ui'
+import { ActionButton, Avatar, Badge, Button, Card, Empty, Field, Input, Modal, PageHeader, SectionTitle, Select, Stat, Status, Tabs, Textarea, cx } from '../components/ui'
 import { age, dayKey, fmtDate, fmtDateTime, fmtTime, peso } from '../data/format'
 import { useLookups, useStore } from '../data/store'
 import type { MedicalRecord, ReferralStatus } from '../data/types'
@@ -231,12 +231,12 @@ export function Encounter({ recordId }: { recordId: number }) {
                     const x = dxById.get(d.diagnosis_id)
                     return (
                       <div key={d.record_diagnosis_id} className="flex items-center gap-3 rounded-xl bg-raised px-4 py-3">
-                        <button disabled={locked} title={d.is_primary ? 'Primary diagnosis' : 'Make primary'} onClick={() => run(() => actions.setPrimaryDiagnosis(d.record_diagnosis_id))} className="cursor-pointer disabled:cursor-default">
+                        <ActionButton disabled={locked} title={d.is_primary ? 'Primary diagnosis' : 'Make primary'} onClick={() => run(() => actions.setPrimaryDiagnosis(d.record_diagnosis_id))} className="cursor-pointer disabled:cursor-default">
                           <Star className={cx('size-4', d.is_primary ? 'fill-gold text-gold' : 'text-muted')} />
-                        </button>
+                        </ActionButton>
                         <span className="font-mono text-xs font-semibold text-brand">{x?.code}</span>
                         <span className="flex-1 text-sm">{x?.description}</span>
-                        {!locked && <button aria-label="Remove diagnosis" onClick={() => run(() => actions.removeDiagnosis(d.record_diagnosis_id))} className="cursor-pointer rounded-lg p-1 text-muted hover:text-red-600"><Trash2 className="size-4" /></button>}
+                        {!locked && <ActionButton aria-label="Remove diagnosis" onClick={() => run(() => actions.removeDiagnosis(d.record_diagnosis_id))} className="cursor-pointer rounded-lg p-1 text-muted hover:text-red-600"><Trash2 className="size-4" /></ActionButton>}
                       </div>
                     )
                   })}
@@ -247,9 +247,13 @@ export function Encounter({ recordId }: { recordId: number }) {
                       {dxResults.length > 0 && (
                         <div className="animate-rise mt-2 overflow-hidden rounded-xl border border-line bg-surface shadow-xl shadow-navy/10">
                           {dxResults.map((d) => (
-                            <button key={d.diagnosis_id} onClick={() => { run(() => actions.addDiagnosis(recordId, d.diagnosis_id)); setDxQ('') }} className="flex w-full cursor-pointer items-center gap-3 px-4 py-2.5 text-left text-sm hover:bg-raised">
+                            <ActionButton key={d.diagnosis_id} onClick={async () => {
+                              if (await run(() => actions.addDiagnosis(recordId, d.diagnosis_id))) {
+                                setDxQ(current => current === dxQ ? '' : current)
+                              }
+                            }} className="flex w-full cursor-pointer items-center gap-3 px-4 py-2.5 text-left text-sm hover:bg-raised">
                               <span className="w-16 font-mono text-xs font-semibold text-brand">{d.code}</span>{d.description}
-                            </button>
+                            </ActionButton>
                           ))}
                         </div>
                       )}
@@ -275,7 +279,7 @@ export function Encounter({ recordId }: { recordId: number }) {
                         <div key={i.item_id} className="flex items-center gap-3 rounded-xl border border-line p-3.5">
                           <Pill className="size-4 shrink-0 text-brand" />
                           <div className="min-w-0 flex-1"><p className="text-sm font-semibold">{m?.generic_name} {m?.strength}</p><p className="text-xs text-muted">{i.dose} {i.route.toLowerCase()} · {i.frequency} · {i.duration_days} days · {i.quantity} {i.quantity_unit}</p></div>
-                          {r.can_prescribe && rxs.some(rx => rx.prescription_id === i.prescription_id && rx.status === "draft") && <button aria-label="Remove medicine" onClick={() => run(() => actions.removePrescriptionItem(i.item_id))} className="cursor-pointer rounded-lg p-1 text-muted hover:text-red-600"><Trash2 className="size-4" /></button>}
+                          {r.can_prescribe && rxs.some(rx => rx.prescription_id === i.prescription_id && rx.status === "draft") && <ActionButton aria-label="Remove medicine" onClick={() => run(() => actions.removePrescriptionItem(i.item_id))} className="cursor-pointer rounded-lg p-1 text-muted hover:text-red-600"><Trash2 className="size-4" /></ActionButton>}
                         </div>
                       )
                     })}
@@ -284,8 +288,8 @@ export function Encounter({ recordId }: { recordId: number }) {
               </div>
               <div>
                 {r.can_prescribe && rxs.filter(p => p.status === 'draft').map(p => <div key={p.prescription_id} className="mb-4 flex flex-wrap gap-2">
-                <Button size="sm" onClick={() => { if (window.confirm('Issue this prescription?')) void run(() => actions.prescriptionStatus(p.prescription_id, 'issue'), 'Prescription issued.') }}>Issue prescription</Button>
-                <Button size="sm" variant="outline" onClick={() => { if (window.confirm('Discard this draft?')) void run(() => actions.prescriptionStatus(p.prescription_id, 'discard'), 'Draft discarded.') }}>Discard draft</Button>
+                <Button size="sm" onClick={() => { if (window.confirm('Issue this prescription?')) return run(() => actions.prescriptionStatus(p.prescription_id, 'issue'), 'Prescription issued.') }}>Issue prescription</Button>
+                <Button size="sm" variant="outline" onClick={() => { if (window.confirm('Discard this draft?')) return run(() => actions.prescriptionStatus(p.prescription_id, 'discard'), 'Draft discarded.') }}>Discard draft</Button>
               </div>)}
               <div className="mb-2 flex items-center justify-between"><p className="text-[13px] font-semibold">Referrals</p>{r.can_refer && <Button size="sm" variant="outline" icon={Send} onClick={() => setRefOpen(true)}>Refer out</Button>}</div>
                 {refs.length === 0 ? <p className="text-sm text-muted">No referrals.</p> : refs.map((f) => (
@@ -544,14 +548,14 @@ export function Schedule() {
                     const a = apptBySlot.get(s.slot_id)
                     const past = new Date(s.start_time) < new Date()
                     return (
-                      <button key={s.slot_id} disabled={!!a || past} onClick={() => run(() => actions.toggleSlot(s.slot_id), s.is_active ? 'Slot closed.' : 'Slot reopened.')}
+                      <ActionButton key={s.slot_id} disabled={!!a || past} onClick={() => run(() => actions.toggleSlot(s.slot_id), s.is_active ? 'Slot closed.' : 'Slot reopened.')}
                         title={a ? `${name(a.patient_id)}: ${a.reason_for_visit}` : undefined}
                         className={cx('flex w-full items-center gap-2 rounded-lg px-2.5 py-1.5 text-left text-xs transition',
                           a ? 'bg-gradient-to-r from-navy to-navy-700 text-white shadow-sm shadow-navy/20 dark:from-navy-700 dark:to-navy-700' : s.is_active ? 'cursor-pointer border border-line bg-surface hover:translate-x-0.5 hover:border-gold hover:bg-gold-100/40' : 'cursor-pointer bg-raised text-muted line-through',
                           past && !a && 'opacity-45')}>
                         <span className="font-semibold">{fmtTime(s.start_time)}</span>
                         {a && <span className="truncate opacity-80">{name(a.patient_id).split(' ')[0]}</span>}
-                      </button>
+                      </ActionButton>
                     )
                   })}
                 </div>

@@ -14,7 +14,7 @@
 {% block actions %}
   {% if admin_view %}
     <a class="button" href="{% url 'billing:charge_lookup' %}">Find an encounter</a>
-    <a class="button" href="{% url 'billing:charge_export' %}{% if export_term %}?term={{ export_term }}{% endif %}">Export pending CSV{% if export_term %} for this term{% endif %}</a>
+    <a class="button" data-download href="{% url 'billing:charge_export' %}{% if export_term %}?term={{ export_term }}{% endif %}">Export pending CSV{% if export_term %} for this term{% endif %}</a>
   {% endif %}
 {% endblock %}
 {% block table %}

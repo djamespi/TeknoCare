@@ -173,7 +173,7 @@
 
 /* Light sweep for primary actions */
 .sheen { position: relative; overflow: hidden; isolation: isolate; }
-.sheen::after {
+.sheen:not(.button-loading)::after {
   content: '';
   position: absolute;
   inset: 0;
@@ -182,7 +182,7 @@
   transition: transform 0.8s ease;
   pointer-events: none;
 }
-.sheen:hover::after { transform: translateX(120%); }
+.sheen:not(.button-loading):hover::after { transform: translateX(120%); }
 
 /* Scroll reveal */
 .reveal { opacity: 0; transform: translateY(18px); transition: opacity 0.7s cubic-bezier(0.2, 0.7, 0.2, 1), transform 0.7s cubic-bezier(0.2, 0.7, 0.2, 1); }
@@ -196,6 +196,6 @@
   .text-shine { background: none; color: #fdd108; }
   .draw { animation: none; stroke-dashoffset: 0; }
   .reveal { opacity: 1; transform: none; transition: none; }
-  .sheen::after { display: none; }
+  .sheen:not(.button-loading)::after { display: none; }
   .donut-segment { transition: none; }
 }

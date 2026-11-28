@@ -122,8 +122,8 @@ export default function RegistrationForm({ onRegistered }: { onRegistered: (id: 
       </fieldset>
       <div className="mt-6 flex gap-3 border-t border-line pt-5">
         {step > 0 && <Button type="button" variant="outline" size="lg" disabled={busy} onClick={() => { setFeedback(''); goToStep(step - 1) }}>Back</Button>}
-        <Button type="submit" size="lg" disabled={busy} className="flex-1">
-          {finalStep ? (busy ? 'Submitting…' : 'Submit') : 'Next'}
+        <Button type="submit" size="lg" loading={busy} className="flex-1">
+          {finalStep ? 'Submit' : 'Next'}
         </Button>
       </div>
     </form>

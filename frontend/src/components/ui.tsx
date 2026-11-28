@@ -1,5 +1,5 @@
 import {
-  useContext, useEffect, useLayoutEffect, useRef, useState, type ButtonHTMLAttributes, type CSSProperties, type InputHTMLAttributes, type ReactNode,
+  useContext, useEffect, useLayoutEffect, useRef, useState, type ButtonHTMLAttributes, type CSSProperties, type InputHTMLAttributes, type MouseEvent, type ReactNode,
   type SelectHTMLAttributes, type TextareaHTMLAttributes,
 } from 'react'
 import { createPortal } from 'react-dom'
@@ -11,7 +11,40 @@ import clinicLogo from '../../../static/images/clinic_logo.png'
 export const cx = (...c: (string | false | null | undefined)[]) => c.filter(Boolean).join(' ')
 
 type Variant = 'primary' | 'accent' | 'ghost' | 'outline' | 'danger' | 'glass'
-export function Button({ variant = 'primary', size = 'md', icon: Icon, className, children, ...rest }: ButtonHTMLAttributes<HTMLButtonElement> & { variant?: Variant; size?: 'sm' | 'md' | 'lg'; icon?: LucideIcon }) {
+type ActionButtonProps = Omit<ButtonHTMLAttributes<HTMLButtonElement>, 'onClick'> & {
+  loading?: boolean
+  onClick?: (event: MouseEvent<HTMLButtonElement>) => void | PromiseLike<unknown>
+}
+
+export function ActionButton({ onClick, loading, disabled, className, type = 'button', ...props }: ActionButtonProps) {
+  const [pending, setPending] = useState(false)
+  const inFlight = useRef(false)
+  const busy = Boolean(loading || pending)
+
+  function click(event: MouseEvent<HTMLButtonElement>) {
+    if (inFlight.current || busy || disabled) {
+      event.preventDefault()
+      return
+    }
+    const result = onClick?.(event)
+    if (!result || typeof result.then !== 'function') return
+    inFlight.current = true
+    setPending(true)
+    const release = () => {
+      inFlight.current = false
+      setPending(false)
+    }
+    void Promise.resolve(result).then(release, error => {
+      release()
+      console.error(error)
+    })
+  }
+
+  return <button {...props} type={type} onClick={onClick ? click : undefined} disabled={disabled || busy}
+    aria-busy={busy || props['aria-busy']} className={cx(className, busy && 'button-loading')} />
+}
+
+export function Button({ variant = 'primary', size = 'md', icon: Icon, className, children, ...rest }: ActionButtonProps & { variant?: Variant; size?: 'sm' | 'md' | 'lg'; icon?: LucideIcon }) {
   const v = {
     primary: 'sheen bg-gradient-to-b from-navy-700 to-navy text-white shadow-[0_1px_0_rgba(255,255,255,0.15)_inset,0_8px_20px_-8px_rgba(0,40,112,0.6)] hover:shadow-[0_1px_0_rgba(255,255,255,0.15)_inset,0_12px_28px_-8px_rgba(0,40,112,0.7)] hover:-translate-y-px dark:from-navy-700 dark:to-navy-900',
     accent: 'sheen bg-gradient-to-b from-[#ffe04d] to-gold text-navy-950 shadow-[0_1px_0_rgba(255,255,255,0.5)_inset,0_8px_24px_-8px_rgba(253,209,8,0.7)] hover:shadow-[0_1px_0_rgba(255,255,255,0.5)_inset,0_14px_32px_-8px_rgba(253,209,8,0.85)] hover:-translate-y-px',
@@ -22,13 +55,13 @@ export function Button({ variant = 'primary', size = 'md', icon: Icon, className
   }[variant]
   const s = { sm: 'h-8 px-3 text-[13px] gap-1.5 rounded-lg', md: 'h-10 px-4 text-sm gap-2 rounded-xl', lg: 'h-12 px-6 text-[15px] gap-2 rounded-xl' }[size]
   return (
-    <button
+    <ActionButton
       className={cx('inline-flex items-center justify-center font-semibold transition-all duration-200 active:scale-[0.98] disabled:pointer-events-none disabled:opacity-45 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-gold cursor-pointer whitespace-nowrap', v, s, className)}
       {...rest}
     >
       {Icon && <Icon className={size === 'sm' ? 'size-3.5' : 'size-4'} strokeWidth={2.2} />}
       {children}
-    </button>
+    </ActionButton>
   )
 }
 
@@ -222,9 +255,9 @@ export function Select(p: SelectHTMLAttributes<HTMLSelectElement>) {
   return <select {...p} className={cx(control, 'h-11 cursor-pointer pr-8', p.className)} />
 }
 
-export function Toggle({ checked, onChange, label, description }: { checked: boolean; onChange: (v: boolean) => void; label: string; description?: string }) {
+export function Toggle({ checked, onChange, label, description }: { checked: boolean; onChange: (v: boolean) => void | PromiseLike<unknown>; label: string; description?: string }) {
   return (
-    <button type="button" role="switch" aria-checked={checked} onClick={() => onChange(!checked)} className="flex w-full cursor-pointer items-center justify-between gap-6 py-3 text-left">
+    <ActionButton role="switch" aria-checked={checked} onClick={() => onChange(!checked)} className="flex w-full cursor-pointer items-center justify-between gap-6 py-3 text-left">
       <span>
         <span className="block text-sm font-semibold">{label}</span>
         {description && <span className="block text-[13px] text-muted">{description}</span>}
@@ -232,7 +265,7 @@ export function Toggle({ checked, onChange, label, description }: { checked: boo
       <span className={cx('relative h-6 w-11 shrink-0 rounded-full transition-colors', checked ? 'bg-navy dark:bg-gold' : 'bg-line')}>
         <span className={cx('absolute top-0.5 size-5 rounded-full bg-white shadow transition-all', checked ? 'left-[22px]' : 'left-0.5')} />
       </span>
-    </button>
+    </ActionButton>
   )
 }
 

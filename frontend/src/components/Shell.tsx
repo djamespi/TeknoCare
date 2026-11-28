@@ -7,7 +7,7 @@ import {
 import { useLookups, useStore } from '../data/store'
 import { useNav } from '../nav'
 import { HeroSlotContext } from './hero-slot'
-import { Avatar, Logo, cx } from './ui'
+import { ActionButton, Avatar, Logo, cx } from './ui'
 
 type Item = { to: string; label: string; icon: LucideIcon; badge?: number }
 
@@ -126,13 +126,13 @@ export function Shell({ children }: { children: ReactNode }) {
           </nav>
 
           <div className="ml-auto flex shrink-0 items-center gap-1">
-            <button
+            <ActionButton
               aria-label={dark ? 'Switch to light mode' : 'Switch to dark mode'}
-              onClick={() => actions.updateSettings(me.user_id, { dark_mode: !dark })}
-              className="grid size-10 cursor-pointer place-items-center rounded-full text-white/70 transition hover:bg-white/10 hover:text-white"
+              onClick={() => run(() => actions.updateSettings(me.user_id, { dark_mode: !dark }))}
+              className="grid size-10 cursor-pointer place-items-center justify-center rounded-full text-white/70 transition hover:bg-white/10 hover:text-white"
             >
               {dark ? <Sun className="size-[18px]" /> : <Moon className="size-[18px]" />}
-            </button>
+            </ActionButton>
 
             <div className="relative hidden lg:block">
               <button
@@ -159,9 +159,9 @@ export function Shell({ children }: { children: ReactNode }) {
                       <button role="menuitem" onClick={() => go('account')} className="flex w-full cursor-pointer items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium hover:bg-raised">
                         <Settings2 className="size-4 text-muted" /> Account & settings
                       </button>
-                      <button role="menuitem" onClick={() => run(async () => { await actions.logout(); go('') })} className="flex w-full cursor-pointer items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium hover:bg-raised">
+                      <ActionButton role="menuitem" onClick={() => run(async () => { await actions.logout(); go('') })} className="flex w-full cursor-pointer items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium hover:bg-raised">
                         <LogOut className="size-4 text-muted" /> Sign out
-                      </button>
+                      </ActionButton>
                     </div>
 
                   </div>
@@ -204,7 +204,7 @@ export function Shell({ children }: { children: ReactNode }) {
               </nav>
               <div className="mt-3 grid grid-cols-2 gap-1 border-t border-white/10 pt-3">
                 <button onClick={() => go('account')} className="flex cursor-pointer items-center gap-3 rounded-xl px-3 py-3 text-[15px] font-medium text-white/70 hover:bg-white/5 hover:text-white"><Settings2 className="size-[18px]" /> Account</button>
-                <button onClick={() => run(async () => { await actions.logout(); go('') })} className="flex cursor-pointer items-center gap-3 rounded-xl px-3 py-3 text-[15px] font-medium text-white/70 hover:bg-white/5 hover:text-white"><LogOut className="size-[18px]" /> Sign out</button>
+                <ActionButton onClick={() => run(async () => { await actions.logout(); go('') })} className="flex cursor-pointer items-center gap-3 rounded-xl px-3 py-3 text-[15px] font-medium text-white/70 hover:bg-white/5 hover:text-white"><LogOut className="size-[18px]" /> Sign out</ActionButton>
               </div>
             </div>
           </div>
