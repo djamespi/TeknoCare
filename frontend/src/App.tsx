@@ -1,12 +1,26 @@
 import { Shell } from './components/Shell'
 import { StoreProvider, useStore } from './data/store'
 import { NavProvider, useNav } from './nav'
-import Account from './pages/Account'
-import Login from './pages/Login'
-import { Audit, Catalog, Charges, Overview, People } from './pages/admin'
-import { Appointments, Billing, BookVisit, HealthProfile, PatientHome, Records } from './pages/patient'
-import { Encounter, Formulary, PatientFile, PatientRecord, Patients, Schedule, Today } from './pages/provider'
-import { RecordDetail } from './pages/records'
+import Account from './features/account/Page'
+import Login from './features/sign-in/Page'
+import { Overview } from './features/clinic-overview/Page'
+import { People } from './features/people/Page'
+import { Charges } from './features/student-charges/Page'
+import { Catalog } from './features/clinic-setup/Page'
+import { Audit } from './features/audit-log/Page'
+import { PatientHome } from './features/patient-home/Page'
+import { BookVisit } from './features/book-visit/Page'
+import { Appointments } from './features/appointments/Page'
+import { Records } from './features/health-records/Page'
+import { HealthProfile } from './features/health-profile/Page'
+import { Billing } from './features/patient-charges/Page'
+import { Today } from './features/provider-queue/Page'
+import { Patients } from './features/patient-directory/Page'
+import { PatientFile } from './features/patient-file/Page'
+import { Schedule } from './features/provider-schedule/Page'
+import { Formulary } from './features/formulary/Page'
+import { Encounter } from './features/encounter/Page'
+import { RecordDetail } from './features/visit-record/Page'
 
 function ProviderPage({ actor, children }: { actor: number; children: React.ReactNode }) {
   const { db } = useStore()
@@ -27,7 +41,7 @@ function Routes() {
     page = { book: <BookVisit />, appointments: <Appointments />, records: <Records />, health: <HealthProfile />, billing: <Billing /> }[head ?? ''] ?? (head === 'record' && a ? <RecordDetail record_id={Number(a)} backTo="records" backLabel="Health records" /> : <PatientHome />)
   } else if (me.user_type === 'provider') {
     if (head === 'encounter' && a) page = <Encounter key={a} recordId={Number(a)} />
-    else if (head === 'patients' && a && b === 'record' && c) page = <PatientRecord patientId={Number(a)} recordId={Number(c)} />
+    else if (head === 'patients' && a && b === 'record' && c) page = <RecordDetail record_id={Number(c)} backTo={`patients/${Number(a)}`} backLabel="Patient file" />
     else if (head === 'patients' && a) page = <PatientFile key={a} patientId={Number(a)} />
     else page = { patients: <Patients />, schedule: <Schedule />, formulary: <Formulary /> }[head ?? ''] ?? <Today />
   } else {

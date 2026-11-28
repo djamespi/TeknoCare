@@ -2,6 +2,7 @@ from functools import wraps
 
 from django import forms
 from django.contrib.auth.decorators import login_required
+from django.core.exceptions import ValidationError
 
 from .permissions import require_permission
 
@@ -21,6 +22,12 @@ def add_form_errors(form, error):
             form.add_error(field if field in form.fields else None, errors)
     else:
         form.add_error(None, error)
+
+
+def validated(form):
+    if not form.is_valid():
+        raise ValidationError([error for errors in form.errors.values() for error in errors])
+    return form.cleaned_data
 
 
 class ReferenceFilterForm(forms.Form):

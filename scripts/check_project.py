@@ -16,8 +16,8 @@ def main():
         ("Django system checks", ["manage.py", "check", "--settings=config.settings_test"]),
         ("Migration drift", ["manage.py", "makemigrations", "--check", "--dry-run", "--settings=config.settings_test"]),
         ("Feature tests", ["manage.py", "test", "--noinput", "--settings=config.settings_test"]),
-        ("ERD model agreement", ["scripts/verify_erd_models.py"]),
-        ("Populated legacy upgrade", ["scripts/verify_erd_upgrade.py"]),
+        ("Clinic schema contract", ["scripts/check_model_schema.py"]),
+        ("Populated legacy upgrade", ["scripts/verify_legacy_upgrade.py"]),
     ]
     for label, arguments in checks:
         print(f"\nChecking: {label}", flush=True)

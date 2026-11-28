@@ -14,10 +14,11 @@ from apps.audit.models import AuditLog
 from apps.appointments.booking_views import _bookable_slots
 from apps.clinical.models import Referral
 from apps.common.permissions import active_user, require_permission
+from apps.common.web import validated
 from apps.login.forms import LoginForm
 from apps.register.forms import RegistrationForm
 
-from .actions import ACTIONS, validated
+from .actions import ACTIONS
 from .data import portal_data
 
 
