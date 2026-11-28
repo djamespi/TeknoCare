@@ -1,5 +1,5 @@
 import {
-  useContext, useEffect, useLayoutEffect, useRef, useState, type ButtonHTMLAttributes, type CSSProperties, type InputHTMLAttributes, type MouseEvent, type ReactNode,
+  createContext, useContext, useEffect, useLayoutEffect, useRef, useState, type ButtonHTMLAttributes, type CSSProperties, type InputHTMLAttributes, type MouseEvent, type ReactNode,
   type SelectHTMLAttributes, type TextareaHTMLAttributes,
 } from 'react'
 import { createPortal } from 'react-dom'
@@ -269,17 +269,20 @@ export function Toggle({ checked, onChange, label, description }: { checked: boo
   )
 }
 
+export const DialogLayerContext = createContext<HTMLElement | null>(null)
+
 export function Modal({ open, onClose, title, description, children, wide }: { open: boolean; onClose: () => void; title: string; description?: string; children: ReactNode; wide?: boolean }) {
+  const layer = useContext(DialogLayerContext)
   useEffect(() => {
     if (!open) return
     const k = (e: KeyboardEvent) => e.key === 'Escape' && onClose()
     window.addEventListener('keydown', k)
     return () => window.removeEventListener('keydown', k)
   }, [open, onClose])
-  if (!open) return null
-  return (
+  if (!open || !layer) return null
+  return createPortal(
     <div className="fixed inset-0 z-50 flex items-end justify-center p-0 sm:items-center sm:p-6" role="dialog" aria-modal="true" aria-label={title}>
-      <div className="absolute inset-0 bg-navy-950/50 backdrop-blur-sm" onClick={onClose} />
+      <div aria-hidden className="absolute inset-0 bg-navy-950/50 backdrop-blur-sm" onClick={onClose} />
       <div className={cx('animate-rise relative max-h-[92vh] w-full overflow-y-auto rounded-t-3xl border border-line bg-surface p-6 shadow-2xl sm:rounded-3xl sm:p-8', wide ? 'sm:max-w-2xl' : 'sm:max-w-lg')}>
         <div className="mb-6 flex items-start justify-between gap-4">
           <div>
@@ -292,7 +295,8 @@ export function Modal({ open, onClose, title, description, children, wide }: { o
         </div>
         {children}
       </div>
-    </div>
+    </div>,
+    layer,
   )
 }
 

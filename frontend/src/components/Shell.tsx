@@ -7,7 +7,7 @@ import {
 import { useLookups, useStore } from '../data/store'
 import { useNav } from '../nav'
 import { HeroSlotContext } from './hero-slot'
-import { ActionButton, Avatar, Logo, cx } from './ui'
+import { ActionButton, Avatar, DialogLayerContext, Logo, cx } from './ui'
 
 type Item = { to: string; label: string; icon: LucideIcon; badge?: number }
 
@@ -56,6 +56,7 @@ export function Shell({ children }: { children: ReactNode }) {
   const [mobileOpen, setMobileOpen] = useState(false)
   const [userOpen, setUserOpen] = useState(false)
   const [slot, setSlot] = useState<HTMLElement | null>(null)
+  const [dialogLayer, setDialogLayer] = useState<HTMLElement | null>(null)
   const [scrolled, setScrolled] = useState(false)
   const current = segments[0]
 
@@ -217,10 +218,13 @@ export function Shell({ children }: { children: ReactNode }) {
       </div>
 
       <HeroSlotContext.Provider value={slot}>
-        <main id="main-content" tabIndex={-1} key={route} className="page-enter mx-auto min-h-[45vh] max-w-6xl px-5 pt-8 pb-6 sm:px-8 sm:pt-10">{children}</main>
+        <DialogLayerContext.Provider value={dialogLayer}>
+          <main id="main-content" tabIndex={-1} key={route} className="page-enter mx-auto min-h-[45vh] max-w-6xl px-5 pt-8 pb-6 sm:px-8 sm:pt-10">{children}</main>
+        </DialogLayerContext.Provider>
       </HeroSlotContext.Provider>
 
       <Footer />
+      <div ref={setDialogLayer} />
     </div>
   )
 }

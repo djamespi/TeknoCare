@@ -825,3 +825,6 @@ versions for subsequent edits and showing saving status while Django works.
 Buttons that make requests show a right-side spinner and fade their existing
 colors while disabled until the request settles. Django form submissions use
 the same state and preserve the clicked submit button's action value.
+
+Portal dialogs mount outside the animated page content so their blurred
+backdrop covers the full viewport in either theme.
