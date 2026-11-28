@@ -81,7 +81,7 @@ class DiagnosisForm(forms.ModelForm):
     class Meta:
         model = Diagnosis
         fields = ("coding_system", "code", "description")
-        help_texts = {"coding_system": "Use supplied catalog entries or a clearly fictional coding system for the demonstration."}
+        help_texts = {"coding_system": "Enter the coding system used by the catalog entry."}
 
 
 class ReferralForm(forms.ModelForm):

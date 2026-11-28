@@ -4,6 +4,8 @@ export const fmtTime = (iso: string) => new Date(iso).toLocaleTimeString('en-PH'
 export const fmtDateTime = (iso: string) => `${fmtDate(iso)}, ${fmtTime(iso)}`
 export const fmtDay = (iso: string) => new Date(iso).toLocaleDateString('en-PH', { weekday: 'long', month: 'long', day: 'numeric', timeZone: 'Asia/Manila' })
 export const peso = (n: number) => new Intl.NumberFormat('en-PH', { style: 'currency', currency: 'PHP' }).format(n)
+export const displayChargeReference = (reference: string | null) =>
+  reference?.startsWith('DEMO-') ? 'Recorded in TeknoCare' : reference
 const manilaDay = new Intl.DateTimeFormat('en-CA', { year: 'numeric', month: '2-digit', day: '2-digit', timeZone: 'Asia/Manila' })
 export const dayKey = (iso: string) => manilaDay.format(new Date(iso))
 export const relative = (iso: string) => {

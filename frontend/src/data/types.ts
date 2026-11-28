@@ -40,6 +40,7 @@ export interface Provider {
   specialization: string | null
   eligible: boolean
   is_active: boolean
+  booking_photo?: 'mara-villareal' | 'joel-macaraeg'
 }
 
 export interface UserProfile {

@@ -77,7 +77,7 @@ export default function Login() {
         <div className="relative lg:hidden"><Logo /></div>
         <div className="animate-rise relative mx-auto my-auto w-full max-w-md shrink-0 py-10">
           <h2 className="text-[34px] leading-tight font-bold text-navy">{mode === 'in' ? 'Welcome back' : 'Create your account'}</h2>
-          <p className="mt-2 text-[15px] text-[#5b6478]">{mode === 'in' ? 'Use your university ID to sign in.' : demo ? 'Register a sample student with fictional details.' : 'Create a student account to book visits and view your records.'}</p>
+          <p className="mt-2 text-[15px] text-[#5b6478]">{mode === 'in' ? 'Use your university ID to sign in.' : 'Create a student account to book visits and view your records.'}</p>
           <div className="my-7"><Tabs value={mode} onChange={setMode} items={[{ value: 'in', label: 'Sign in' }, { value: 'up', label: 'Register' }]} /></div>
           {mode === 'in' && <>
             <form className="space-y-4" aria-busy={busy} onSubmit={async (event) => {

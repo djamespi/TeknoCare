@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { Ban, BookMarked, Building2, CalendarDays, Check, CircleCheck, DoorOpen, GraduationCap, Pill, ShieldAlert, Plus, Receipt, ScrollText, Search, Send, UserCheck, Users, Wallet } from 'lucide-react'
 import { Avatar, Badge, Button, Card, Empty, Field, Input, Modal, PageHeader, SectionTitle, Select, Stat, Status, Tabs, Toggle, cx } from '../components/ui'
-import { dayKey, fmtDate, fmtDateTime, peso, relative } from '../data/format'
+import { dayKey, displayChargeReference, fmtDate, fmtDateTime, peso, relative } from '../data/format'
 import { DomainError, useLookups, useStore } from '../data/store'
 import type { AccountStatus, DB } from '../data/types'
 import { useNav } from '../nav'
@@ -36,11 +36,11 @@ export function Overview() {
       <div className="grid gap-5 lg:grid-cols-2">
         <Card className="p-6">
           {demo && <div className="mb-5">
-            <SectionTitle title="Accounts to verify" description="Review sample registrations before they can book." action={review.length > 0 && <Badge tone="gold">{review.length} waiting</Badge>} />
+            <SectionTitle title="Suspended accounts" description="Review access before reactivating an account." action={review.length > 0 && <Badge tone="gold">{review.length} suspended</Badge>} />
             {review.length === 0 ? <Empty icon={UserCheck} title="All caught up" /> : <ul className="divide-y divide-line">
               {review.map(u => <li key={u.user_id} className="flex items-center gap-3 py-3">
                 <Avatar name={name(u.user_id)} /><div className="flex-1"><p className="font-semibold">{name(u.user_id)}</p><p className="text-xs text-muted">{u.school_id}</p></div>
-                <Button size="sm" icon={Check} onClick={() => run(() => actions.setAccountStatus(u.user_id, 'active'), 'Sample account activated.')}>Verify</Button>
+                <Button size="sm" icon={Check} onClick={() => run(() => actions.setAccountStatus(u.user_id, 'active'), 'Account reactivated.')}>Reactivate</Button>
               </li>)}
             </ul>}
           </div>}
@@ -78,7 +78,10 @@ export function People() {
   const rows = db.user.filter((u) => (tab === 'all' || u.user_type === tab) && `${u.fname} ${u.lname} ${u.email} ${u.school_id}`.toLowerCase().includes(q.toLowerCase()))
   const describe = (id: number) => {
     const p = providerById.get(id)
-    if (p) return `${p.provider_type[0].toUpperCase() + p.provider_type.slice(1)} · ${p.license_number ?? 'No license'}`
+    if (p) {
+      const designation = p.provider_type[0].toUpperCase() + p.provider_type.slice(1)
+      return p.license_number?.startsWith('DEMO-') ? designation : `${designation} · ${p.license_number ?? 'No license'}`
+    }
     const pt = patientById.get(id)
     if (pt) return `${pt.affiliation ? pt.affiliation[0].toUpperCase() + pt.affiliation.slice(1) : 'Patient'}${pt.department_id ? ` · ${deptById.get(pt.department_id)?.code}` : ''}`
     return 'Administrator'
@@ -175,7 +178,7 @@ export function Charges() {
               const t = termById.get(c.term_id)
               return (
                 <tr key={c.charge_id} className="hover:bg-raised/40">
-                  <td className="px-5 py-4"><p className="font-mono text-xs font-semibold">{c.charge_code}</p><p className="text-xs text-muted">{c.billing_reference ?? c.reversal_reference ?? fmtDate(c.created_at)}</p></td>
+                  <td className="px-5 py-4"><p className="font-mono text-xs font-semibold">{c.charge_code}</p><p className="text-xs text-muted">{displayChargeReference(c.billing_reference ?? c.reversal_reference) ?? fmtDate(c.created_at)}</p></td>
                   <td className="px-5 py-4"><p className="font-semibold">{name(c.patient_id)}</p><p className="text-xs text-muted">Encounter #{c.record_id}</p></td>
                   <td className="px-5 py-4 text-muted">{t?.semester}, {t?.academic_year}</td>
                   <td className="px-5 py-4"><Status value={c.status} />{c.void_reason && <p className="mt-1 max-w-48 text-xs text-muted">{c.void_reason}</p>}</td>
@@ -196,7 +199,7 @@ export function Charges() {
 
       <Modal open={confirmation !== null} onClose={() => setConfirmation(null)}
         title={confirmation?.operation === 'post' ? 'Post this charge?' : 'Void this charge?'}
-        description="Confirm the simulated tuition action for this sample clinic workflow.">
+        description="Confirm the simulated tuition action.">
         {confirmation?.operation === 'void' && <Field label="Reason"><Input value={reason} onChange={e => setReason(e.target.value)} /></Field>}
         <div className="mt-6 flex justify-end gap-2"><Button variant="ghost" onClick={() => setConfirmation(null)}>Keep charge</Button>
           <Button disabled={confirmation?.operation === 'void' && !reason.trim()} onClick={async () => {

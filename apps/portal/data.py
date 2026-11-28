@@ -24,6 +24,9 @@ from apps.university.models import Department
 from apps.user_settings.models import UserSettings
 
 
+SAMPLE_PROVIDER_PHOTOS = {"MD-1048": "mara-villareal", "RN-2073": "joel-macaraeg"}
+
+
 def rows(query, fields, *, lower=()):
     result = list(query.values(*fields.split()))
     for row in result:
@@ -227,8 +230,16 @@ def portal_data(actor, tables=None):
         result["slot"] = slot_data
     if needs("provider"):
         eligible_ids = set(eligible_providers().values_list("pk", flat=True))
-        read("provider", providers, "provider_id provider_type specialization license_number is_active", lower=("provider_type",))
+        provider_fields = "provider_id provider_type specialization license_number is_active"
+        use_sample_photos = getattr(settings, "TEKNOCARE_MAKE_DEMO", False)
+        if use_sample_photos:
+            provider_fields += " provider__school_id"
+        read("provider", providers, provider_fields, lower=("provider_type",))
         for entry in result["provider"]:
+            if use_sample_photos:
+                photo = SAMPLE_PROVIDER_PHOTOS.get(entry.pop("provider__school_id"))
+                if photo:
+                    entry["booking_photo"] = photo
             entry["eligible"] = entry["provider_id"] in eligible_ids
             if not actor.is_staff and entry["provider_id"] != actor.pk:
                 entry["license_number"] = None

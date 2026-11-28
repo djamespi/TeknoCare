@@ -3,7 +3,7 @@
 {% block title %}Student registration{% endblock %}
 {% block styles %}<link rel="stylesheet" href="{% static 'css/login/login.css' %}">{% endblock %}
 {% block content %}
-  <div class="enrol"><header><h1>Student registration</h1><p class="lead">Use fictional details. The clinic admin sets up personnel accounts.</p></header>
+  <div class="enrol"><header><h1>Student registration</h1><p class="lead">Register to book visits and view your records. The clinic admin sets up personnel accounts.</p></header>
     <form method="post" data-enrol>{% csrf_token %}
       <ol class="stepper" aria-label="Registration progress" hidden></ol>
       {% include 'includes/form_errors.html' %}

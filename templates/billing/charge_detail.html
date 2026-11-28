@@ -19,11 +19,11 @@
         <dt>University ID</dt><dd>{{ charge.record.patient.patient.school_id }}</dd>
         <dt>Encounter</dt><dd>{{ charge.record_id }} · {{ charge.record.get_status_display }}</dd>
         {% if charge.billing_reference %}
-          <dt>{% if simulated_posting %}Simulated posting reference{% else %}Posting reference{% endif %}</dt><dd>{{ charge.billing_reference }}</dd>
+          <dt>{% if simulated_posting %}Simulated posting reference{% else %}Posting reference{% endif %}</dt><dd>{% if simulated_posting %}Recorded in TeknoCare{% else %}{{ charge.billing_reference }}{% endif %}</dd>
           <dt>Posted at</dt><dd>{{ charge.posted_at|date:'Y-m-d H:i' }}</dd>
         {% endif %}
         {% if charge.reversal_reference %}
-          <dt>{% if simulated_posting %}Simulated reversal reference{% else %}Reversal reference{% endif %}</dt><dd>{{ charge.reversal_reference }}</dd>
+          <dt>{% if simulated_posting %}Simulated reversal reference{% else %}Reversal reference{% endif %}</dt><dd>{% if simulated_posting %}Recorded in TeknoCare{% else %}{{ charge.reversal_reference }}{% endif %}</dd>
         {% endif %}
         {% if charge.voided_at %}
           <dt>Voided at</dt><dd>{{ charge.voided_at|date:'Y-m-d H:i' }}</dd>
@@ -40,7 +40,7 @@
     {% if can_post or posting.errors %}
       <section class="form-card" aria-labelledby="post-heading">
         <h2 id="post-heading">Simulate tuition posting</h2>
-        <p>This records a demo acknowledgment in TeknoCare only.</p>
+        <p>This records a simulated tuition acknowledgment in TeknoCare.</p>
         <form method="post">
           {% csrf_token %}
           {% include 'includes/form_fields.html' with form=posting only %}

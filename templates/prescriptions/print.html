@@ -6,7 +6,7 @@
 {% block content %}
   <div class="document-brand"><strong>TeknoCare</strong><span>CIT-University clinic</span></div>
   <h1>Prototype prescription #{{ prescription.pk }}</h1>
-  <p class="notice">TeknoCare school-project copy. For demonstration only. Invalid for dispensing.</p>
+  <p class="notice">TeknoCare prototype copy. Invalid for dispensing.</p>
   {% if prescription.status == 'Canceled' %}
     <p class="notice notice-error"><strong>Canceled prescription</strong> · Historical copy.</p>
   {% else %}<p class="badge">Issued</p>{% endif %}

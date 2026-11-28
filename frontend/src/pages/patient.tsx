@@ -6,10 +6,12 @@ import {
 import physicianImg from '../assets/service-physician.jpg'
 import nurseImg from '../assets/service-nurse.jpg'
 import dentalImg from '../assets/service-dental.jpg'
+import maraImg from '../assets/provider-mara-villareal.jpg'
+import joelImg from '../assets/provider-joel-macaraeg.jpg'
 import { ActionButton, Avatar, Badge, Button, Card, Empty, Field, Input, Modal, PageHeader, Reveal, SectionTitle, Select, Sparkline, Stat, Status, Tabs, Textarea, cx } from '../components/ui'
-import { age, clinicStatus, dayKey, fmtDate, fmtDateTime, fmtDay, fmtTime, peso, relative } from '../data/format'
+import { age, clinicStatus, dayKey, displayChargeReference, fmtDate, fmtDateTime, fmtDay, fmtTime, peso, relative } from '../data/format'
 import { useLookups, useStore } from '../data/store'
-import type { Affiliation, Severity } from '../data/types'
+import type { Affiliation, Provider, Severity } from '../data/types'
 import { useNav } from '../nav'
 
 function usePatientData() {
@@ -48,7 +50,13 @@ function DateBlock({ iso, muted }: { iso: string; muted?: boolean }) {
   )
 }
 
-export const careImage = { physician: physicianImg, nurse: nurseImg, dentist: dentalImg }
+const careImage = { physician: physicianImg, nurse: nurseImg, dentist: dentalImg }
+const bookingPhotos = { 'mara-villareal': maraImg, 'joel-macaraeg': joelImg }
+
+function bookingImage(provider: Provider) {
+  const portrait = provider.booking_photo && bookingPhotos[provider.booking_photo]
+  return portrait || careImage[provider.provider_type as keyof typeof careImage]
+}
 
 function LiveDot({ on = true }: { on?: boolean }) {
   return (
@@ -199,7 +207,7 @@ export function PatientHome() {
           {providers.map((p, i) => (
             <Reveal key={p.provider_id} delay={i * 90}>
               <button onClick={() => go(`book/${p.provider_id}`)} className="group relative block aspect-[4/5] w-full cursor-pointer overflow-hidden rounded-3xl text-left shadow-xl shadow-navy/10 sm:aspect-[4/4.4]">
-                <img src={careImage[p.provider_type as keyof typeof careImage]} alt="" className="absolute inset-0 h-full w-full object-cover transition duration-700 ease-out group-hover:scale-110" />
+                <img src={bookingImage(p)} alt="" className="absolute inset-0 h-full w-full object-cover transition duration-700 ease-out group-hover:scale-110" />
                 <div className="absolute inset-0 bg-gradient-to-t from-navy-950 via-navy-950/40 to-transparent transition duration-500 group-hover:via-navy-950/55" />
                 <div className="absolute inset-x-0 bottom-0 p-6 text-white">
                   <span className="mb-3 inline-grid size-10 place-items-center rounded-xl bg-gold text-navy-950 transition duration-500 group-hover:-translate-y-1">{(() => { const I = careIcon[p.provider_type as keyof typeof careIcon]; return <I className="size-5" /> })()}</span>
@@ -287,7 +295,7 @@ export function BookVisit() {
                   <button key={p.provider_id} onClick={() => { setProvider(p.provider_id); setSlotId(null); setDay(null) }}
                     className={cx('group relative cursor-pointer overflow-hidden rounded-2xl border bg-surface text-left transition duration-300 hover:-translate-y-1 hover:shadow-xl hover:shadow-navy/10', active ? 'border-transparent ring-2 ring-gold shadow-xl shadow-gold/15' : 'border-line')}>
                     <div className="relative aspect-[16/10] overflow-hidden">
-                      <img src={careImage[p.provider_type as keyof typeof careImage]} alt="" className={cx('h-full w-full object-cover transition duration-700 group-hover:scale-110', !active && 'saturate-[0.85]')} />
+                      <img src={bookingImage(p)} alt="" className={cx('h-full w-full object-cover object-[center_20%] transition duration-700 group-hover:scale-110', !active && 'saturate-[0.85]')} />
                       <div className="absolute inset-0 bg-gradient-to-t from-navy-950/70 to-transparent" />
                       <span className={cx('absolute bottom-3 left-3 grid size-9 place-items-center rounded-xl transition', active ? 'bg-gold text-navy-950' : 'bg-white/90 text-navy')}><I className="size-[18px]" /></span>
                       {active && <span className="animate-rise absolute top-3 right-3 grid size-7 place-items-center rounded-full bg-gold text-navy-950 shadow-lg"><Check className="size-4" strokeWidth={3} /></span>}
@@ -609,7 +617,7 @@ export function Billing() {
                   const t = termById.get(c.term_id)
                   return (
                     <tr key={c.charge_id} className="hover:bg-raised/40">
-                      <td className="px-5 py-4"><p className="font-mono text-xs font-semibold">{c.charge_code}</p><p className="text-xs text-muted">{c.billing_reference ?? 'Not yet billed'}</p></td>
+                      <td className="px-5 py-4"><p className="font-mono text-xs font-semibold">{c.charge_code}</p><p className="text-xs text-muted">{displayChargeReference(c.billing_reference) ?? 'Not yet billed'}</p></td>
                       <td className="px-5 py-4"><button onClick={() => r && go(`record/${r.record_id}`)} className="cursor-pointer text-left font-medium hover:text-brand">{r?.chief_complaint}</button><p className="text-xs text-muted">{r && fmtDate(r.visited_at)}</p></td>
                       <td className="px-5 py-4 text-muted">{t?.semester}, {t?.academic_year}</td>
                       <td className="px-5 py-4"><Status value={c.status} />{c.void_reason && <p className="mt-1 text-xs text-muted">{c.void_reason}</p>}</td>

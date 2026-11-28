@@ -6,7 +6,7 @@
 {% block content %}
   <div class="document-brand"><strong>TeknoCare</strong><span>CIT-University clinic</span></div>
   <h1>Visit summary #{{ visit.pk }}</h1>
-  <p class="notice">TeknoCare prototype visit summary for school demonstration.</p>
+  <p class="notice">TeknoCare prototype visit summary.</p>
   <div class="page-actions screen-only">
     {% if printing %}
       <a href="{% url 'patients:visit_summary' visit.pk %}">Back to visit summary</a>

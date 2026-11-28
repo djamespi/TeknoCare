@@ -828,3 +828,15 @@ the same state and preserve the clicked submit button's action value.
 
 Portal dialogs mount outside the animated page content so their blurred
 backdrop covers the full viewport in either theme.
+
+Presentation pages use the clinic footer and standard account copy.
+Billing continues to identify simulated posting and reversal.
+
+The hosted Make dataset includes six additional fictional Filipino patients
+and two providers, with upcoming bookings, appointment history, and open
+availability. Book a visit and the patient dashboard show provider-specific
+portraits for the new clinicians. The `extend_make_appointments` command
+adds this batch once to the dedicated Make database.
+
+The original provider photos now use the same centered portrait style. The
+wide booking cards crop closer to the top to keep faces in view.
